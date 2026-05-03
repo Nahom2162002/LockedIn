@@ -1,17 +1,16 @@
 import Menu from './Menu.tsx';
+import { useState } from 'react';
 
 function Button() {
-    return (
-        <>
-        <button onClick={GoToMenu}>Click here to get started</button>
-        </>
-    )
-}
+    const [showMenu, setShowMenu] = useState(false);
 
-function GoToMenu() {
+    if (showMenu) {
+        return <Menu />;
+    }
+
     return (
         <>
-        <Menu/>
+        <button onClick={() => setShowMenu(true)}>Click here to get started</button>
         </>
     )
 }
