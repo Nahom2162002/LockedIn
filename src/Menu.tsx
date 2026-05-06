@@ -1,11 +1,9 @@
-import Bee from './assets/bee.png';
-
 function Menu() {
     return (
-        <div>
-            <img src={Bee}/>
+        <div className="menuBackground" style={{width: '100vw', height: '100vh'}}>
+
         </div>
-    )
+    );
 }
 
 export default Menu;

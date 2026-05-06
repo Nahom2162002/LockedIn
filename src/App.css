@@ -1,4 +1,19 @@
+html, body, #root {
+  width: 200px;
+  height: 150px;
+  margin: 0;
+  padding: 0;
+}
+
 .matrixBackground {
   background-image: url("assets/matrixcode.gif");
   height: 700px;
+}
+
+.menuBackground {
+  background-image: url("assets/aibackground.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  min-height: 100vh;
 }
