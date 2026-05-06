@@ -1,7 +1,9 @@
+import Bee from './assets/bee.png';
+
 function Menu() {
     return (
         <div>
-            <h1>Hello</h1>
+            <img src={Bee}/>
         </div>
     )
 }
