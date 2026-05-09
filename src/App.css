@@ -48,8 +48,31 @@ html, body, #root {
 }
 
 .sitechoicebackground {
-  background-color: grey;
-  width: 50vw;
-  height: 50vh;
+  background-color: rgb(237, 231, 231);
   transform: translate(-50%, -50%);
+  position: fixed;
+  top: 30%;
+  left: 50%;
+  width: 80%;
+  height: auto;
+  z-index: 999;
+  padding: 20px;
+  overflow: visible;
+}
+
+#websiteinfo {
+  color: black;
+}
+
+.closebutton {
+  position: relative;
+  top: 63%;
+  left: 43%;
+}
+
+#url {
+  position: relative;
+  top: 14%;
+  right: 35%;
+  color: black;
 }
