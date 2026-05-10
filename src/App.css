@@ -51,10 +51,10 @@ html, body, #root {
   background-color: rgb(237, 231, 231);
   transform: translate(-50%, -50%);
   position: fixed;
-  top: 30%;
+  top: 50%;
   left: 50%;
   width: 80%;
-  height: auto;
+  height: 50%;
   z-index: 999;
   padding: 20px;
   overflow: visible;
@@ -62,17 +62,26 @@ html, body, #root {
 
 #websiteinfo {
   color: black;
+  position: fixed;
+  top: -10%;
+  left: 35%;
 }
 
 .closebutton {
-  position: relative;
+  position: fixed;
   top: 63%;
   left: 43%;
 }
 
 #url {
-  position: relative;
-  top: 14%;
-  right: 35%;
+  position: fixed;
+  top: 18%;
+  right: 82%;
   color: black;
+}
+
+#urltext {
+  position: fixed;
+  top: 20%;
+  left: 20%;
 }
