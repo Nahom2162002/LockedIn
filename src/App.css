@@ -99,7 +99,7 @@ html, body, #root {
   color: black;
 }
 
-#timetext {
+#starttime {
   position: fixed;
   top: 60%;
   left: 20%;
@@ -109,5 +109,18 @@ html, body, #root {
   position: fixed;
   top: 58%;
   right: 82%;
+  color: black;
+}
+
+#endtime {
+  position: fixed;
+  top: 60%;
+  left: 42%;
+}
+
+#to {
+  position: fixed;
+  top: 58%;
+  right: 59%;
   color: black;
 }
