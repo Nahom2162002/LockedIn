@@ -6,6 +6,26 @@ function RestrictionInfo({ onClose }: {onClose: () => void}) {
     const [starttime, setStartTime] = useState('');
     const [endtime, setEndTime] = useState('');
 
+    const addWebsite = async () => {
+        try {
+            const response = await fetch('http://localhost:3001/websites', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    url: text,
+                    dateCreated: date,
+                    startTime: starttime,
+                    endTime: endtime 
+                })
+            });
+            const data = await response.json();
+            console.log(data);
+            onClose();
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
     return (
         <div className="sitechoicebackground">
             <h3 id="websiteinfo">Website information</h3>
@@ -17,7 +37,7 @@ function RestrictionInfo({ onClose }: {onClose: () => void}) {
             <p id="time">Time:</p>
             <input id="endtime" type="time" value={endtime} onChange={(e) => setEndTime(e.target.value)}/>
             <p id="to">to</p>
-            <button className="closebutton" onClick={onClose}>Add</button>
+            <button className="addbutton" onClick={addWebsite}>Add</button>
         </div>
     );
 }
