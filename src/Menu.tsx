@@ -1,5 +1,6 @@
 import RestrictionInfo from './RestrictionInfo.tsx';
 import { useState } from 'react';
+import WebsiteList from './WebsiteList.tsx';
 
 function Menu() {
     const [isOpen, setIsOpen] = useState(false);
@@ -12,6 +13,7 @@ function Menu() {
                     <h3>Please add websites you would like to restrict</h3>
                     <button onClick={() => setIsOpen(true)}>+</button>
                     {isOpen && <RestrictionInfo onClose={() => setIsOpen(false)}/>}
+                    <WebsiteList/>
                 </div>
             </div> 
         </div>
