@@ -124,3 +124,9 @@ html, body, #root {
   right: 59%;
   color: black;
 }
+
+#xbutton {
+  position: fixed;
+  top: 2%;
+  right: 1%;
+}
