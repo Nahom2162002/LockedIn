@@ -6,10 +6,13 @@
   "action": {
     "default_popup": "index.html"
   },
-  "permissions": ["tabs"],
+  "permissions": ["tabs", "storage", "webNavigation"],
+  "background": {
+    "service_worker": "background.js"
+  },
   "web_accessible_resources": [
     {
-      "resources": ["index.html", "assets/*"],
+      "resources": ["index.html", "assets/*", "blocked.html", "blocked.js"],
       "matches": ["<all_urls>"]
     }
   ]
