@@ -18,6 +18,7 @@ function WebsiteList() {
             const response = await fetch('http://localhost:3001/websites');
             const data = await response.json();
             setWebsites(data);
+            chrome.storage.local.set({ websites: data });
         };
         fetchWebsites();
     }, []);
@@ -34,8 +35,10 @@ function WebsiteList() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(editForm)
             });
-            const updated = await response.json();
-            setWebsites(websites.map((site) => site._id === id ? updated: site));
+            const updatedSite = await response.json();
+            const updated = websites.map((site) => site._id === id ? updatedSite : site);
+            setWebsites(updated);
+            chrome.storage.local.set({ websites: updated });
             setEditingId(null);
         } catch (err) {
             console.error(err);
@@ -47,7 +50,9 @@ function WebsiteList() {
             await fetch(`http://localhost:3001/websites/${id}`, {
                 method: 'DELETE'
             });
-            setWebsites(websites.filter((site) => site._id !== id));
+            const updated = websites.filter((site) => site._id !== id);
+            setWebsites(updated);
+            chrome.storage.local.set({ websites: updated });
         } catch (err) {
             console.error(err);
         }
