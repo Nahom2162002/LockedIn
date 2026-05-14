@@ -6,5 +6,11 @@
   "action": {
     "default_popup": "index.html"
   },
-  "permissions": ["tabs"]
+  "permissions": ["tabs"],
+  "web_accessible_resources": [
+    {
+      "resources": ["index.html", "assets/*"],
+      "matches": ["<all_urls>"]
+    }
+  ]
 }
