@@ -13,7 +13,9 @@ function Menu() {
                     <h3>Please add websites you would like to restrict</h3>
                     <button onClick={() => setIsOpen(true)}>+</button>
                     {isOpen && <RestrictionInfo onClose={() => setIsOpen(false)}/>}
-                    <WebsiteList/>
+                    <div className="websiteList">
+                        <WebsiteList/>
+                    </div>
                 </div>
             </div> 
         </div>

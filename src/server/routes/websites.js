@@ -48,4 +48,13 @@ router.put('/:id', async (req, res) => {
     }
 });
 
+router.delete('/:id', async (req, res) => {
+    try {
+        await Website.findByIdAndDelete(req.params.id);
+        res.json({ message: 'Website deleted!' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 export default router;

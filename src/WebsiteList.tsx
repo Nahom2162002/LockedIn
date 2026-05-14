@@ -42,10 +42,21 @@ function WebsiteList() {
         }
     };
 
+    const deleteWebsite = async (id: string) => {
+        try {
+            await fetch(`http://localhost:3001/websites/${id}`, {
+                method: 'DELETE'
+            });
+            setWebsites(websites.filter((site) => site._id !== id));
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
     return (
-        <ul>
+        <div className="website-list">
             {websites.map((site) => (
-                <li key={site._id}>
+                <div className="website-card" key={site._id}>
                     {editingId === site._id ? (
                         <>
                           <input value={editForm.url} onChange={(e) => setEditForm({ ...editForm, url: e.target.value })} placeholder="URL"/>
@@ -56,17 +67,20 @@ function WebsiteList() {
                           <button onClick={() => setEditingId(null)}>Cancel</button>
                         </>
                     ) : (
-                      <>
-                        <p>URL: {site.url}</p>
-                        <p>Date: {site.dateCreated}</p>
-                        <p>Start Time: {site.startTime}</p>
-                        <p>End Time: {site.endTime}</p>
-                        <button onClick={() => startEditing(site)}>Edit</button>
-                      </>
+                        <>
+                          <h3 className="card-url">{site.url}</h3>
+                          <div className="card-info">
+                            <p><span>Date:</span> {site.dateCreated}</p>
+                            <p><span>Start:</span> {site.startTime}</p>
+                            <p><span>End:</span> {site.endTime}</p>
+                          </div>
+                          <button className="edit-button" onClick={() => startEditing(site)}>Edit</button>
+                          <button className="delete-button" onClick={() => deleteWebsite(site._id)}>Delete</button>
+                        </>
                     )}
-                </li>
+                </div>
             ))}
-        </ul>
+        </div>
     );
 }
 
