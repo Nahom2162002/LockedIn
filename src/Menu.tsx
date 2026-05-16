@@ -4,6 +4,12 @@ import WebsiteList from './WebsiteList.tsx';
 
 function Menu() {
     const [isOpen, setIsOpen] = useState(false);
+    const [refreshKey, setRefreshKey] = useState(0);
+
+    const handleAdd = () => {
+        setIsOpen(false);
+        setRefreshKey(prev => prev + 1);
+    };
 
     return (
         <div className="menuBackground">
@@ -12,9 +18,9 @@ function Menu() {
                 <div className="websiteChoices">
                     <h3>Please add websites you would like to restrict</h3>
                     <button onClick={() => setIsOpen(true)}>+</button>
-                    {isOpen && <RestrictionInfo onClose={() => setIsOpen(false)}/>}
+                    {isOpen && <RestrictionInfo onClose={handleAdd}/>}
                     <div className="websiteList">
-                        <WebsiteList/>
+                        <WebsiteList key={refreshKey}/>
                     </div>
                 </div>
             </div> 
