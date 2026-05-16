@@ -64,12 +64,12 @@ function WebsiteList() {
                 <div className="website-card" key={site._id}>
                     {editingId === site._id ? (
                         <>
-                          <input value={editForm.url} onChange={(e) => setEditForm({ ...editForm, url: e.target.value })} placeholder="URL"/>
-                          <input type="date" value={editForm.dateCreated} onChange={(e) => setEditForm({ ...editForm, dateCreated: e.target.value })}/>
-                          <input type="time" value={editForm.startTime} onChange={(e) => setEditForm({ ...editForm, startTime: e.target.value })}/>
-                          <input type="time" value={editForm.endTime} onChange={(e) => setEditForm({ ...editForm, endTime: e.target.value })}/>
-                          <button onClick={() => saveEdit(site._id)}>Save</button>
-                          <button onClick={() => setEditingId(null)}>Cancel</button>
+                          <input id="editurl" value={editForm.url} onChange={(e) => setEditForm({ ...editForm, url: e.target.value })} placeholder="URL"/>
+                          <input id="editdate" type="date" value={editForm.dateCreated} onChange={(e) => setEditForm({ ...editForm, dateCreated: e.target.value })}/>
+                          <input id="editstart" type="time" value={editForm.startTime} onChange={(e) => setEditForm({ ...editForm, startTime: e.target.value })}/>
+                          <input id="editend" type="time" value={editForm.endTime} onChange={(e) => setEditForm({ ...editForm, endTime: e.target.value })}/>
+                          <button id="savebutton" onClick={() => saveEdit(site._id)}>Save</button>
+                          <button id="cancelbutton" onClick={() => setEditingId(null)}>Cancel</button>
                         </>
                     ) : (
                         <>

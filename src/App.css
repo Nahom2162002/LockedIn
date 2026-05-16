@@ -158,7 +158,8 @@ html, body, #root {
   flex-direction: column;
   gap: 8px;
   height: 50%;
-  width: 50%;
+  width: 60%;
+  align-self: center;
 }
 
 .card-url {
@@ -215,5 +216,9 @@ html, body, #root {
 }
 
 #plusbutton {
+  background-color: rgb(5, 5, 53);
+}
+
+#editurl, #editdate, #editstart, #editend, #savebutton, #cancelbutton {
   background-color: rgb(5, 5, 53);
 }
