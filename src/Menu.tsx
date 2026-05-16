@@ -17,7 +17,7 @@ function Menu() {
                 <h1 id="hello">Hello</h1>
                 <div className="websiteChoices">
                     <h3>Please add websites you would like to restrict</h3>
-                    <button onClick={() => setIsOpen(true)}>+</button>
+                    <button id="plusbutton" onClick={() => setIsOpen(true)}>+</button>
                     {isOpen && <RestrictionInfo onClose={handleAdd}/>}
                     <div className="websiteList">
                         <WebsiteList key={refreshKey}/>
