@@ -75,7 +75,7 @@ function WebsiteList() {
                         <>
                           <h3 className="card-url">{site.url}</h3>
                           <div className="card-info">
-                            <p><span>Date:</span> {site.dateCreated}</p>
+                            <p><span>Date:</span> {site.dateCreated.split('T')[0]}</p>
                             <p><span>Start:</span> {site.startTime}</p>
                             <p><span>End:</span> {site.endTime}</p>
                           </div>

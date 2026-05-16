@@ -38,7 +38,7 @@ function RestrictionInfo({ onClose }: {onClose: () => void}) {
             <input id="endtime" type="time" value={endtime} onChange={(e) => setEndTime(e.target.value)}/>
             <p id="to">to</p>
             <button className="addbutton" onClick={addWebsite}>Add</button>
-            <button id="xbutton" onClick={onClose}>x</button>
+            <button id="xbutton" onClick={onClose}>X</button>
         </div>
     );
 }
