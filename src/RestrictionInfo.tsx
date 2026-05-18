@@ -7,6 +7,16 @@ function RestrictionInfo({ onClose }: {onClose: () => void}) {
     const [endtime, setEndTime] = useState('');
 
     const addWebsite = async () => {
+        if (!text || !date || !starttime || !endtime) {
+            alert("Please fill in all the fields");
+            return;
+        }
+
+        if (endtime <= starttime) {
+            alert("End time must be after start time");
+            return;
+        }
+
         try {
             const response = await fetch('http://localhost:3001/websites', {
                 method: 'POST',
@@ -27,6 +37,8 @@ function RestrictionInfo({ onClose }: {onClose: () => void}) {
     };
 
     const today = new Date().toISOString().split('T')[0];
+    const now = new Date();
+    const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 
     return (
         <div className="sitechoicebackground">
@@ -35,9 +47,9 @@ function RestrictionInfo({ onClose }: {onClose: () => void}) {
             <input id="urltext" type="text" value={text} onChange={(e) => setText(e.target.value)} placeholder="Enter URL here"/>
             <input id="datetext" type="date" value={date} min={today} onChange={(e) => setDate(e.target.value)}/>
             <p id="date">Date:</p>
-            <input id="starttime" type="time" value={starttime} onChange={(e) => setStartTime(e.target.value)}/>
+            <input id="starttime" type="time" value={starttime} min={date === today ? currentTime: undefined} onChange={(e) => setStartTime(e.target.value)}/>
             <p id="time">Time:</p>
-            <input id="endtime" type="time" value={endtime} onChange={(e) => setEndTime(e.target.value)}/>
+            <input id="endtime" type="time" value={endtime} min={starttime} onChange={(e) => setEndTime(e.target.value)}/>
             <p id="to">to</p>
             <button className="addbutton" onClick={addWebsite}>Add</button>
             <button id="xbutton" onClick={onClose}>X</button>
