@@ -10,7 +10,6 @@ Before using LockedIn, make sure you have the following installed:
 
 - [Node.js](https://nodejs.org/) (v18 or higher)
 - [npm](https://www.npmjs.com/)
-- [MongoDB Atlas](https://www.mongodb.com/atlas) account (free tier works)
 
 ---
 
@@ -19,63 +18,23 @@ Before using LockedIn, make sure you have the following installed:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/lockedin.git
+git clone https://github.com/Nahom2162002/LockedIn.git
 cd lockedin
 ```
 
 ### 2. Install Dependencies
 
-Install dependencies for both the extension and the server:
-
 ```bash
-# Install extension dependencies
-npm install
-
-# Install server dependencies
-cd server
 npm install
 ```
 
-### 3. Set Up MongoDB Atlas
-
-1. Go to [MongoDB Atlas](https://www.mongodb.com/atlas) and create a free account
-2. Create a new cluster
-3. Go to **Database Access** and create a database user with a username and password
-4. Go to **Network Access** and add your IP address (or `0.0.0.0/0` for all IPs)
-5. Go to **Database → Connect → Drivers** and copy your connection string
-
-### 4. Configure Environment Variables
-
-Create a `.env` file in the `server` folder:
-
-```env
-MONGODB_URI=mongodb+srv://username:password@cluster0.xxxxx.mongodb.net/lockedin
-```
-
-Replace `username`, `password`, and the cluster URL with your actual credentials.
-
-### 5. Start the Server
-
-```bash
-cd server
-node server.js
-```
-
-You should see:
-```
-Server running on port 3001
-Connected to MongoDB Atlas
-```
-
-### 6. Build the Extension
-
-In a separate terminal, from the root of the project:
+### 3. Build the Extension
 
 ```bash
 npm run build
 ```
 
-### 7. Load the Extension in Chrome
+### 4. Load the Extension in Chrome
 
 1. Open Chrome and go to `chrome://extensions`
 2. Enable **Developer Mode** in the top right corner
@@ -98,9 +57,9 @@ Click the LockedIn icon in your Chrome toolbar to open the popup.
 2. Click **"Add Website"** to open the website form
 3. Fill in the following fields:
    - **URL** — the full URL of the website you want to block (e.g. `https://www.youtube.com`)
-   - **Date** — the date you want the restriction to apply
+   - **Date** — the date you want the restriction to apply (cannot be before today)
    - **Start Time** — the time the restriction should begin
-   - **End Time** — the time the restriction should end
+   - **End Time** — the time the restriction should end (must be after start time)
 4. Click **"Add"** to save the website to your list
 
 ### Viewing Your Restricted Websites
@@ -142,20 +101,32 @@ Then go to `chrome://extensions` and click the **refresh icon** on the LockedIn 
 
 ---
 
+## Backend
+
+The backend is hosted on Render at:
+```
+https://lockedin-jovk.onrender.com
+```
+
+> **Note:** The backend is hosted on Render's free tier and may take up to 30 seconds to respond on the first request after a period of inactivity. Subsequent requests will be fast.
+
+---
+
 ## Troubleshooting
 
 **Websites aren't being blocked**
-- Make sure the server is running (`node server.js`)
 - Open the extension popup to sync your website list to the extension
 - Go to `chrome://extensions`, find LockedIn, and click **"Service Worker"** to check for errors
 
 **Changes to the website list aren't showing**
-- Make sure the server is running
 - Try refreshing the extension page
 
 **Extension not loading**
 - Make sure you selected the `build` folder and not the root project folder
 - Check that `manifest.json` is present in the `build` folder
+
+**First request is slow**
+- This is expected on Render's free tier — the server spins down after 15 minutes of inactivity and takes up to 30 seconds to wake up on the first request
 
 ---
 
@@ -165,3 +136,4 @@ Then go to `chrome://extensions` and click the **refresh icon** on the LockedIn 
 - **Backend:** Node.js, Express
 - **Database:** MongoDB Atlas, Mongoose
 - **Extension:** Chrome Manifest V3
+- **Hosting:** Render
