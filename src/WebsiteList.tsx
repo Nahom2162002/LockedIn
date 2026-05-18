@@ -29,6 +29,21 @@ function WebsiteList() {
     };
 
     const saveEdit = async (id: string) => {
+        if (!editForm.url || !editForm.dateCreated || !editForm.startTime || !editForm.endTime) {
+            alert('Please fill in all fields');
+            return;
+        }
+
+        if (editForm.endTime <= editForm.startTime) {
+            alert('End time must be after start time');
+            return;
+        }
+
+        if (editForm.startTime < currentTime) {
+            alert('This time has already passed');
+            return;
+        }
+
         try {
             const response = await fetch(`http://localhost:3001/websites/${id}`, {
                 method: 'PUT',
@@ -58,6 +73,10 @@ function WebsiteList() {
         }
     };
 
+    const today = new Date().toISOString().split('T')[0];
+    const now = new Date();
+    const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
     return (
         <div className="website-list">
             {websites.map((site) => (
@@ -65,9 +84,9 @@ function WebsiteList() {
                     {editingId === site._id ? (
                         <>
                           <input id="editurl" value={editForm.url} onChange={(e) => setEditForm({ ...editForm, url: e.target.value })} placeholder="URL"/>
-                          <input id="editdate" type="date" value={editForm.dateCreated} onChange={(e) => setEditForm({ ...editForm, dateCreated: e.target.value })}/>
-                          <input id="editstart" type="time" value={editForm.startTime} onChange={(e) => setEditForm({ ...editForm, startTime: e.target.value })}/>
-                          <input id="editend" type="time" value={editForm.endTime} onChange={(e) => setEditForm({ ...editForm, endTime: e.target.value })}/>
+                          <input id="editdate" type="date" value={editForm.dateCreated.split('T')[0]} min={today} onChange={(e) => setEditForm({ ...editForm, dateCreated: e.target.value })}/>
+                          <input id="editstart" type="time" value={editForm.startTime} min={editForm.dateCreated.split('T')[0] === today ? currentTime: undefined} onChange={(e) => setEditForm({ ...editForm, startTime: e.target.value })}/>
+                          <input id="editend" type="time" value={editForm.endTime} min={editForm.startTime} onChange={(e) => setEditForm({ ...editForm, endTime: e.target.value })}/>
                           <button id="savebutton" onClick={() => saveEdit(site._id)}>Save</button>
                           <button id="cancelbutton" onClick={() => setEditingId(null)}>Cancel</button>
                         </>

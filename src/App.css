@@ -222,3 +222,11 @@ html, body, #root {
 #editurl, #editdate, #editstart, #editend, #savebutton, #cancelbutton {
   background-color: rgb(5, 5, 53);
 }
+
+.error-message {
+  color: red;
+  font-size: 12px;
+  margin: -8px 0 4px 0;
+  text-align: center;
+  width: 100%;
+}

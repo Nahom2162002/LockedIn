@@ -5,15 +5,21 @@ function RestrictionInfo({ onClose }: {onClose: () => void}) {
     const [date, setDate] = useState('');
     const [starttime, setStartTime] = useState('');
     const [endtime, setEndTime] = useState('');
+    const [error, setError] = useState('');
 
     const addWebsite = async () => {
         if (!text || !date || !starttime || !endtime) {
-            alert("Please fill in all the fields");
+            setError('Please fill in all fields');
             return;
         }
 
         if (endtime <= starttime) {
-            alert("End time must be after start time");
+            setError("End time must be after start time");
+            return;
+        }
+
+        if (starttime < currentTime) {
+            setError("This time has already passed");
             return;
         }
 
@@ -51,6 +57,7 @@ function RestrictionInfo({ onClose }: {onClose: () => void}) {
             <p id="time">Time:</p>
             <input id="endtime" type="time" value={endtime} min={starttime} onChange={(e) => setEndTime(e.target.value)}/>
             <p id="to">to</p>
+            {error && <p className="error-message">{error}</p>}
             <button className="addbutton" onClick={addWebsite}>Add</button>
             <button id="xbutton" onClick={onClose}>X</button>
         </div>
