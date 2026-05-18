@@ -1,10 +1,22 @@
 {
   "manifest_version": 3,
-  "name": "React Chrome Extension",
+  "name": "LockedIn",
   "version": "1.0.0",
-  "description": "A simple React app as a Chrome extension",
+  "description": "LockedIn: Your digital detox for increased productivity",
   "action": {
-    "default_popup": "index.html"
+    "default_popup": "index.html",
+    "default_icon": {
+      "16": "lock-16x16.png",
+      "32": "lock-32x32.png",
+      "192": "lock-192x192.png",
+      "512": "lock-512x512.png"
+    }
+  },
+  "icons": {
+    "16": "lock-16x16.png",
+    "32": "lock-32x32.png",
+    "192": "lock-192x192.png",
+    "512": "lock-512x512.png" 
   },
   "permissions": ["tabs", "storage", "webNavigation"],
   "background": {
