@@ -26,12 +26,14 @@ function RestrictionInfo({ onClose }: {onClose: () => void}) {
         }
     };
 
+    const today = new Date().toISOString().split('T')[0];
+
     return (
         <div className="sitechoicebackground">
             <h3 id="websiteinfo">Website information</h3>
             <p id="url">URL:</p>
             <input id="urltext" type="text" value={text} onChange={(e) => setText(e.target.value)} placeholder="Enter URL here"/>
-            <input id="datetext" type="date" value={date} onChange={(e) => setDate(e.target.value)}/>
+            <input id="datetext" type="date" value={date} min={today} onChange={(e) => setDate(e.target.value)}/>
             <p id="date">Date:</p>
             <input id="starttime" type="time" value={starttime} onChange={(e) => setStartTime(e.target.value)}/>
             <p id="time">Time:</p>
