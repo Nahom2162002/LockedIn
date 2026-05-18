@@ -13,13 +13,15 @@ function checkIfUnblocked() {
             return;
         }
 
-        for (const site of websites) {
+        const isStillBlocked = websites.some((site) => {
             const siteDate = site.dateCreated.split('T')[0];
-            if (blockedUrl && blockedUrl.includes(site.url) && 
+            return blockedUrl && blockedUrl.includes(site.url) && 
                 siteDate === currentDate && 
-                currentTime > site.endTime) {
-              window.location.href = blockedUrl;
-            }
+                currentTime <= site.endTime;
+        });
+
+        if (!isStillBlocked && blockedUrl) {
+            window.location.href = blockedUrl;
         }
     });
 }
