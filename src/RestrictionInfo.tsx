@@ -24,7 +24,7 @@ function RestrictionInfo({ onClose }: {onClose: () => void}) {
         }
 
         try {
-            const response = await fetch('http://localhost:3001/websites', {
+            const response = await fetch('https://lockedin-jovk.onrender.com/websites', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

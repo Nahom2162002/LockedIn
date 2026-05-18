@@ -15,7 +15,7 @@ function WebsiteList() {
 
     useEffect(() => {
         const fetchWebsites = async () => {
-            const response = await fetch('http://localhost:3001/websites');
+            const response = await fetch('https://lockedin-jovk.onrender.com/websites');
             const data = await response.json();
             setWebsites(data);
             chrome.storage.local.set({ websites: data });
@@ -45,7 +45,7 @@ function WebsiteList() {
         }
 
         try {
-            const response = await fetch(`http://localhost:3001/websites/${id}`, {
+            const response = await fetch(`https://lockedin-jovk.onrender.com/websites/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(editForm)
@@ -62,7 +62,7 @@ function WebsiteList() {
 
     const deleteWebsite = async (id: string) => {
         try {
-            await fetch(`http://localhost:3001/websites/${id}`, {
+            await fetch(`https://lockedin-jovk.onrender.com/websites/${id}`, {
                 method: 'DELETE'
             });
             const updated = websites.filter((site) => site._id !== id);
