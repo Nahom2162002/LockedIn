@@ -8,9 +8,25 @@ export default defineConfig({
     viteStaticCopy({
       targets: [
         {
-          src: 'public/*',
+          src: 'public/manifest.json',
           dest: '.',
-        }
+        },
+        { 
+          src: 'public/lock-icon.png', 
+          dest: '.' 
+        },
+        { 
+          src: 'public/background.js', 
+          dest: '.' 
+        },
+        { 
+          src: 'public/blocked.html', 
+          dest: '.' 
+        },
+        { 
+          src: 'public/blocked.js', 
+          dest: '.' 
+        },
       ],
     }),
   ],
