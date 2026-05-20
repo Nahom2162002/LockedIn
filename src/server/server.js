@@ -10,7 +10,7 @@ const app = express();
 app.use(express.json());
 
 app.use(cors({
-  origin: 'chrome-extension://bhkgkhhdenaaeoiflaonmmpojndbpkam'
+  origin: '*'
 }));
 
 mongoose.connect(process.env.MONGODB_URI || '', {

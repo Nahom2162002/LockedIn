@@ -20,7 +20,7 @@
     "192": "lock-192x192.png",
     "512": "lock-512x512.png" 
   },
-  "permissions": ["tabs", "storage", "webNavigation"],
+  "permissions": ["storage", "webNavigation"],
   "background": {
     "service_worker": "background.js"
   },
