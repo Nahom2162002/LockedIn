@@ -230,3 +230,15 @@ html, body, #root {
   text-align: center;
   width: 100%;
 }
+
+.login-background {
+  background-image: url("assets/futuristicbackground.jpg");
+}
+
+.forgot-password-background {
+  background-image: url("assets/futuristicbackground.jpg");
+}
+
+.create-account-background {
+  background-image: url("assets/futuristicbackground.jpg");
+}
