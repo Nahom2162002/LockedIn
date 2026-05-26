@@ -18,8 +18,9 @@ function CreateAccount() {
                 body: JSON.stringify({ username, password})
             });
             const data = await response.json();
-            if (data.userId) {
+            if (data.userId && password == confirmpassword) {
                 await chrome.storage.local.set({ userId: data.userId });
+                alert("Account successfully created!");
                 navigate('/login');
             } else {
                 setError(data.error);

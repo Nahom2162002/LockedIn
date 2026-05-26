@@ -231,7 +231,7 @@ html, body, #root {
   width: 100%;
 }
 
-.login, .create {
+.login, .create, .forgot {
   animation: fadeInUp 0.8s ease-out forwards;
   display: flex;
   flex-direction: column;
@@ -263,4 +263,8 @@ html, body, #root {
   border: 1px solid #ccc;
   white-space: nowrap;
   text-align: center;
+}
+
+#verify {
+  color: white;
 }
