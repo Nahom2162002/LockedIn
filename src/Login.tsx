@@ -1,20 +1,45 @@
 import { useState } from 'react';
 import LockIcon from './assets/lockIcon.png';
-//import ForgotPassword from './ForgotPassword.tsx';
-//import CreateAccount from './CreateAccount.tsx';
+import { useNavigate } from 'react-router-dom';
 
 function Login() {
-    const [userName, setUserName] = useState('');
+    const [username, setUserName] = useState('');
     const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+    const navigate = useNavigate();
+
+    const handleLogin = async() => {
+      try {
+        const response = await fetch('https://lockedin-jovk.onrender.com/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+        const data = await response.json();
+        if (data.userId) {
+            chrome.storage.local.set({ userId: data.userId });
+            navigate('/menu');
+        } else {
+            setError(data.error);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    function handleCreate() {
+        navigate('/create');
+    }
 
     return (
         <div className="login-background">
             <div className="login">
                 <img src={LockIcon} id="lock-icon"/>
-                <input id="usernametext" type="text" value={userName} onChange={(e) => setUserName(e.target.value)} placeholder='Username'/>
+                <input id="usernametext" type="text" value={username} onChange={(e) => setUserName(e.target.value)} placeholder='Username'/>
                 <input id="passwordtext" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder='Password'/>
-                <input id="loginbutton" type="button" placeholder='Log in'/>
-                <input id="createaccountbutton" type="button" placeholder='Create Account'/>
+                <a href={chrome.runtime.getURL("index.html#/forgot")} target="_blank" rel="noreferrer">Forgot password</a>
+                <button className="authbutton" onClick={handleLogin}>Log in</button>
+                <button className="authbutton" onClick={handleCreate}>Create Account</button>
             </div>
         </div>
     );

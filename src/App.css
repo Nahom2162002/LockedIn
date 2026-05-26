@@ -10,7 +10,7 @@ html, body, #root {
   height: 700px;
 }
 
-.menuBackground, .login-background {
+.menuBackground, .login-background, .forgot-password-background, .create-account-background {
   background-image: url("assets/futuristicbackground.jpg");
   background-size: cover;
   background-position: center;
@@ -264,28 +264,11 @@ html, body, #root {
   border: 1px solid #ccc;
 }
 
-#loginbutton {
-  width: 90px;
-  height: 10px;
-  padding: 10px;
+.authbutton {
+  width: auto;
+  padding: 10px 20px;
   border-radius: 6px;
   border: 1px solid #ccc;
-}
-
-#createaccountbutton {
-  width: 90px;
-  height: 10px;
-  padding: 10px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-}
-
-.forgot-password-background {
-  background-image: url("assets/futuristicbackground.jpg");
-  animation: fadeInUp 0.8s ease-out forwards;
-}
-
-.create-account-background {
-  background-image: url("assets/futuristicbackground.jpg");
-  animation: fadeInUp 0.8s ease-out forwards;
+  white-space: nowrap;
+  text-align: center;
 }

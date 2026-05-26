@@ -15,7 +15,8 @@ function WebsiteList() {
 
     useEffect(() => {
         const fetchWebsites = async () => {
-            const response = await fetch('https://lockedin-jovk.onrender.com/websites');
+            const { userId } = await chrome.storage.local.get('userId');
+            const response = await fetch(`https://lockedin-jovk.onrender.com/websites?userId=${userId}`);
             const data = await response.json();
             setWebsites(data);
             chrome.storage.local.set({ websites: data });

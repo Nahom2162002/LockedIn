@@ -24,10 +24,12 @@ function RestrictionInfo({ onClose }: {onClose: () => void}) {
         }
 
         try {
+            const { userId } = await chrome.storage.local.get('userId');
             const response = await fetch('https://lockedin-jovk.onrender.com/websites', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
+                    userId,
                     url: text,
                     dateCreated: date,
                     startTime: starttime,

@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import websiteRoutes from './routes/websites.js';
+import authRoutes from './routes/auth.js';
 
 dotenv.config();
 
@@ -20,6 +21,7 @@ mongoose.connect(process.env.MONGODB_URI || '', {
   .then(() => console.log('Connected to MongoDB Atlas'))
   .catch((err) => console.error('Connection error:', err));
 
+app.use('/auth', authRoutes);
 app.use('/websites', websiteRoutes);
 
 app.listen(3001, () => console.log('Server running on port 3001'));

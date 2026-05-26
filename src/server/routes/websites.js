@@ -5,7 +5,7 @@ const router = express.Router();
 
 router.get('/', async (req, res) => {
     try {
-        const websites = await Website.find();
+        const websites = await Website.find({ userId: req.query.userId });
         res.json(websites);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -18,6 +18,7 @@ router.post('/', async (req, res) => {
         const parsedDate = req.body.dateCreated ? new Date(req.body.dateCreated): null;
 
         const website = new Website({
+            userId: req.body.userId,
             url: req.body.url,
             dateCreated: parsedDate,
             startTime: req.body.startTime,
