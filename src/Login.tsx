@@ -39,6 +39,7 @@ function Login() {
                 <input id="passwordtext" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder='Password'/>
                 <a href={chrome.runtime.getURL("index.html#/forgot")} target="_blank" rel="noreferrer">Forgot password</a>
                 <button className="authbutton" onClick={handleLogin}>Log in</button>
+                {error && <p className="error-message">{error}</p>}
                 <button className="authbutton" onClick={handleCreate}>Create Account</button>
             </div>
         </div>
