@@ -40,7 +40,7 @@ function CreateAccount() {
         <div className="create-account-background">
             <div className="create">
                 <img src={LockIcon} id="lock-icon"/>
-                <input id="email" type="text" value={email} onKeyDown={(e) => handleKeyDown(e, handleCreate)} onChange={(e) => setEmail(e.target.value)} placeholder='Email Address'/>
+                <input id="email" type="email" value={email} onKeyDown={(e) => handleKeyDown(e, handleCreate)} onChange={(e) => setEmail(e.target.value)} placeholder='Email Address'/>
                 <input id="usernametext" type="text" value={username} onKeyDown={(e) => handleKeyDown(e, handleCreate)} onChange={(e) => setUserName(e.target.value)} placeholder='Username'/>
                 <input id="passwordtext" type="password" value={password} onKeyDown={(e) => handleKeyDown(e, handleCreate)} onChange={(e) => setPassword(e.target.value)} placeholder='Password'/>
                 <input id="confirmpassword" type="password" value={confirmpassword} onKeyDown={(e) => handleKeyDown(e, handleCreate)} onChange={(e) => setConfirmPassword(e.target.value)} placeholder='Confirm Password'/>
