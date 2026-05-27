@@ -8,7 +8,7 @@ router.post('/register', async (req, res) => {
     try {
         const existingUser = await User.findOne({ username: req.body.username });
         if (existingUser) {
-            return res.status(400).json({ error: 'Username already exits' });
+            return res.status(400).json({ error: 'Account already exits' });
         }
 
         const hashedPassword = await bcrypt.hash(req.body.password, 10);

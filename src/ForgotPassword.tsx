@@ -3,6 +3,12 @@ import LockIcon from './assets/lockIcon.png';
 
 function ForgotPassword() {
     const [email, setEmail] = useState('');
+    /*
+    const handleKeyDown = (e: React.KeyboardEvent, action: () => void) => {
+        if (e.key == 'Enter') {
+            action();
+        }
+    };*/
 
     return (
         <div className="forgot-password-background">

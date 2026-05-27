@@ -27,6 +27,12 @@ function Login() {
       }
     };
 
+    const handleKeyDown = (e: React.KeyboardEvent, action: () => void) => {
+        if (e.key == 'Enter') {
+            action();
+        }
+    };
+
     function handleCreate() {
         navigate('/create');
     }
@@ -35,8 +41,8 @@ function Login() {
         <div className="login-background">
             <div className="login">
                 <img src={LockIcon} id="lock-icon"/>
-                <input id="usernametext" type="text" value={username} onChange={(e) => setUserName(e.target.value)} placeholder='Username'/>
-                <input id="passwordtext" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder='Password'/>
+                <input id="usernametext" type="text" value={username} onKeyDown={(e) => handleKeyDown(e, handleLogin)} onChange={(e) => setUserName(e.target.value)} placeholder='Username'/>
+                <input id="passwordtext" type="password" value={password} onKeyDown={(e) => handleKeyDown(e, handleLogin)} onChange={(e) => setPassword(e.target.value)} placeholder='Password'/>
                 <a href={chrome.runtime.getURL("index.html#/forgot")} target="_blank" rel="noreferrer">Forgot password</a>
                 <button className="authbutton" onClick={handleLogin}>Log in</button>
                 {error && <p className="error-message">{error}</p>}
