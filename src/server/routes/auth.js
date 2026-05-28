@@ -71,7 +71,7 @@ router.post('/forgot-password', async (req, res) => {
 
         const resetUrl = `https://lockedin-jovk.onrender.com/auth/reset-password/${resetToken}`;
 
-        await resend.emails.send({
+        const { data, error } = await resend.emails.send({
             from: 'onboarding@resend.dev',
             to: user.email,
             subject: 'LockedIn Password Reset',
@@ -84,8 +84,15 @@ router.post('/forgot-password', async (req, res) => {
             `
         });
 
-        res.json({ message: 'Password reset email sent!' });
+        if (error) {
+            console.error("Resesnd error:", error);
+            return res.status(500).json({ error: error.message });
+        }
+
+        console.log("Email send successfully:", data);
+        res.json({ message: "Password reset email send!" });
     } catch (err) {
+        console.error("Server error:", err);
         res.status(500).json({ error: err.message });
     }
 });
