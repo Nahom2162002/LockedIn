@@ -5,6 +5,7 @@ function ResetPassword() {
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
     const [confirmpassword, setConfirmPassword] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const token = new URLSearchParams(window.location.search).get('token');
 
@@ -13,6 +14,9 @@ function ResetPassword() {
             setError('Please enter a new password');
             return;
         }
+
+        setLoading(true);
+        setError('');
 
         try {
             const response = await fetch(`https://lockedin-jovk.onrender.com/auth/reset-password/${token}`, {
@@ -38,7 +42,9 @@ function ResetPassword() {
             <input type="password" value={confirmpassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="Confirm new password"/>
             {error && <p className="error-message">{error}</p>}
             {message && <p className="success-message">{message}</p>}
-            <button onClick={handleReset}>Reset Password</button>
+            <button onClick={handleReset} disabled={loading}>
+                {loading ? "Resetting..." : "Reset Password"}
+            </button>
         </div>
     )
 }

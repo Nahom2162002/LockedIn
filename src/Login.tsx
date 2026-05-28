@@ -7,8 +7,11 @@ function Login() {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
 
     const handleLogin = async() => {
+      setLoading(true);
+      setError('');
       try {
         const response = await fetch('https://lockedin-jovk.onrender.com/auth/login', {
             method: 'POST',
@@ -44,7 +47,9 @@ function Login() {
                 <input id="usernametext" type="text" value={username} onKeyDown={(e) => handleKeyDown(e, handleLogin)} onChange={(e) => setUserName(e.target.value)} placeholder='Username'/>
                 <input id="passwordtext" type="password" value={password} onKeyDown={(e) => handleKeyDown(e, handleLogin)} onChange={(e) => setPassword(e.target.value)} placeholder='Password'/>
                 <a href={chrome.runtime.getURL("index.html#/forgot")} target="_blank" rel="noreferrer">Forgot password</a>
-                <button className="authbutton" onClick={handleLogin}>Log in</button>
+                <button className="authbutton" onClick={handleLogin} disabled={loading}>
+                    {loading ? "Logging in..." : "Log in"}
+                </button>
                 {error && <p className="error-message">{error}</p>}
                 <button className="authbutton" onClick={handleCreate}>Create Account</button>
             </div>

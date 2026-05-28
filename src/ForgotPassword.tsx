@@ -5,6 +5,7 @@ function ForgotPassword() {
     const [email, setEmail] = useState('');
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
     
     const handleKeyDown = (e: React.KeyboardEvent, action: () => void) => {
         if (e.key == 'Enter') {
@@ -17,6 +18,9 @@ function ForgotPassword() {
             setError('Please enter your email');
             return;
         }
+
+        setLoading(true);
+        setError('');
 
         try {
             const response = await fetch('https://lockedin-jovk.onrender.com/auth/forgot-password', {
@@ -43,7 +47,9 @@ function ForgotPassword() {
                 <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} onKeyDown={(e) => handleKeyDown(e, handleForgotPassword)} placeholder='Enter your email'/>
                 {error && <p className="error-message">{error}</p>}
                 {message && <p className="success-message">{message}</p>}
-                <button className="authbutton" onClick={handleForgotPassword}>Send Reset Email</button>
+                <button className="authbutton" onClick={handleForgotPassword} disabled={loading}>
+                    {loading ? "Sending..." : "Send Reset Email"}
+                </button>
             </div>
         </div>
     );

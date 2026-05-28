@@ -7,6 +7,7 @@ function Menu() {
     const [isOpen, setIsOpen] = useState(false);
     const [refreshKey, setRefreshKey] = useState(0);
     const navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
 
     const handleAdd = () => {
         setIsOpen(false);
@@ -14,6 +15,7 @@ function Menu() {
     };
 
     const handleLogout = () => {
+        setLoading(true);
         navigate('/login');
     }
 
@@ -29,7 +31,9 @@ function Menu() {
                         <WebsiteList key={refreshKey}/>
                     </div>
                 </div>
-                <button className="authbutton" onClick={handleLogout}>Log out</button>
+                <button className="authbutton" onClick={handleLogout} disabled={loading}>
+                    {loading ? "Logging out..." : "Log out"}
+                </button>
             </div> 
         </div>
     );
