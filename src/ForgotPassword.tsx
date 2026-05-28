@@ -5,12 +5,12 @@ function ForgotPassword() {
     const [email, setEmail] = useState('');
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
-    /*
+    
     const handleKeyDown = (e: React.KeyboardEvent, action: () => void) => {
         if (e.key == 'Enter') {
             action();
         }
-    };*/
+    };
 
     const handleForgotPassword = async () => {
         if (!email) {
@@ -40,7 +40,7 @@ function ForgotPassword() {
             <div className="forgot">
                 <img src={LockIcon} id="lock-icon"/>
                 <h3 id="verify">Please input Email Address for verification email</h3>
-                <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder='Enter your email'/>
+                <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} onKeyDown={(e) => handleKeyDown(e, handleForgotPassword)} placeholder='Enter your email'/>
                 {error && <p className="error-message">{error}</p>}
                 {message && <p className="success-message">{message}</p>}
                 <button className="authbutton" onClick={handleForgotPassword}>Send Reset Email</button>
