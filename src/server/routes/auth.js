@@ -109,8 +109,6 @@ router.get('/reset-password/:token', async (req, res) => {
 
         console.log('User found:', user);
 
-        const previouspassword = await User.findOne({ password: req.body.password });
-
         if (!user) {
             return res.send('<h1>Invalid or expired reset link</h1>');
         }
@@ -246,11 +244,6 @@ router.get('/reset-password/:token', async (req, res) => {
                             error.textContent = 'Passwords do not match';
                             return;
                         }
-                    
-                        if (password == ${previouspassword}) {
-                            error.textContent = 'New password can't be the same as the previous one';
-                            return;
-                        }
 
                         const response = await fetch('https://lockedin-jovk.onrender.com/auth/reset-password/${token}', {
                             method: 'POST',
@@ -285,6 +278,12 @@ router.post('/reset-password/:token', async (req, res) => {
 
         if (!user) {
             return res.status(400).json({ error: 'Invalid or expired reset token' });
+        }
+
+        const isSamePassword = await bcrypt.compare(req.body.password, user.password);
+        
+        if (isSamePassword) {
+            return res.status(400).json({ error: 'New password cannot be the same as the previous one' });
         }
 
         const hashedPassword = await bcrypt.hash(req.body.password, 10);
