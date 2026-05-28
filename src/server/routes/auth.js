@@ -98,174 +98,182 @@ router.post('/forgot-password', async (req, res) => {
 });
 
 router.get('/reset-password/:token', async (req, res) => {
-    const token = req.params.token;
+    try {
+        const token = req.params.token;
+        console.log('Reset token received:', token);
 
-    const user = await User.findOne({
-        resetToken: token,
-        resetTokenExpiry: { $gt: Date.now() }
-    });
+        const user = await User.findOne({
+            resetToken: token,
+            resetTokenExpiry: { $gt: Date.now() }
+        });
 
-    const previouspassword = await User.findOne({ password: req.body.password });
+        console.log('User found:', user);
 
-    if (!user) {
-        return res.send('<h1>Invalid or expired reset link</h1>');
-    }
+        const previouspassword = await User.findOne({ password: req.body.password });
 
-    res.send(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Reset Password - LockedIn</title>
-            <style>
-                @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+        if (!user) {
+            return res.send('<h1>Invalid or expired reset link</h1>');
+        }
 
-                * {
-                    margin: 0;
-                    padding: 0;
-                    box-sizing: border-box;
-                }
+        res.send(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Reset Password - LockedIn</title>
+                <style>
+                    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
 
-                body {
-                    font-family: 'Inter', sans-serif;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    height: 100vh;
-                    background-color: #0d0d0d;
-                    background-image: radial-gradient(circle at 50% 50%, #1a1a2e, #0d0d0d);
-                }
-
-                .container {
-                    background: rgba(255, 255, 255, 0.05);
-                    backdrop-filter: blur(10px);
-                    padding: 40px;
-                    border-radius: 16px;
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-                    display: flex;
-                    flex-direction: column;
-                    gap: 16px;
-                    width: 360px;
-                    box-shadow: 0 0 30px rgba(0, 150, 255, 0.1);
-                }
-
-                h2 {
-                    color: white;
-                    font-size: 24px;
-                    font-weight: 600;
-                    text-align: center;
-                    margin-bottom: 8px;
-                }
-
-                .lock-icon {
-                    font-size: 48px;
-                    text-align: center;
-                }
-
-                input {
-                    padding: 12px 16px;
-                    border-radius: 8px;
-                    border: 1px solid rgba(255, 255, 255, 0.2);
-                    background: rgba(255, 255, 255, 0.07);
-                    color: white;
-                    font-size: 14px;
-                    outline: none;
-                    transition: border 0.3s ease;
-                }
-
-                input::placeholder {
-                    color: rgba(255, 255, 255, 0.4);
-                }
-
-                input:focus {
-                    border: 1px solid rgba(0, 150, 255, 0.6);
-                    box-shadow: 0 0 10px rgba(0, 150, 255, 0.2);
-                }
-
-                button {
-                    padding: 12px;
-                    border-radius: 8px;
-                    border: none;
-                    background: linear-gradient(135deg, #0099ff, #0055ff);
-                    color: white;
-                    cursor: pointer;
-                    font-size: 14px;
-                    font-weight: 600;
-                    transition: opacity 0.3s ease, transform 0.2s ease;
-                    margin-top: 8px;
-                }
-
-                button:hover {
-                    opacity: 0.9;
-                    transform: translateY(-1px);
-                }
-
-                button:active {
-                    transform: translateY(0);
-                }
-
-                #message {
-                    color: #4CAF50;
-                    font-size: 13px;
-                    text-align: center;
-                }
-
-                #error {
-                    color: #ff4d4d;
-                    font-size: 13px;
-                    text-align: center;
-                }
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <div class="lock-icon">🔒</div>
-                <h2>Reset Password</h2>
-                <input type="password" id="password" placeholder="New password"/>
-                <input type="password" id="confirmpassword" placeholder="Confirm new password"/>
-                <p id="error"></p>
-                <p id="message"></p>
-                <button onclick="resetPassword()">Reset Password</button>
-            </div>
-            <script>
-                async function resetPassword() {
-                    const password = document.getElementById('password').value;
-                    const confirmpassword = document.getElementById('confirmpassword').value;
-                    const error = document.getElementById('error');
-                    const message = document.getElementById('message');
-
-                    if (!password || !confirmpassword) {
-                        error.textContent = 'Please fill in all fields';
-                        return;
+                    * {
+                        margin: 0;
+                        padding: 0;
+                        box-sizing: border-box;
                     }
 
-                    if (password !== confirmpassword) {
-                        error.textContent = 'Passwords do not match';
-                        return;
+                    body {
+                        font-family: 'Inter', sans-serif;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        height: 100vh;
+                        background-color: #0d0d0d;
+                        background-image: radial-gradient(circle at 50% 50%, #1a1a2e, #0d0d0d);
                     }
+
+                    .container {
+                        background: rgba(255, 255, 255, 0.05);
+                        backdrop-filter: blur(10px);
+                        padding: 40px;
+                        border-radius: 16px;
+                        border: 1px solid rgba(255, 255, 255, 0.1);
+                        display: flex;
+                        flex-direction: column;
+                        gap: 16px;
+                        width: 360px;
+                        box-shadow: 0 0 30px rgba(0, 150, 255, 0.1);
+                    }
+
+                    h2 {
+                        color: white;
+                        font-size: 24px;
+                        font-weight: 600;
+                        text-align: center;
+                        margin-bottom: 8px;
+                    }
+
+                    .lock-icon {
+                        font-size: 48px;
+                        text-align: center;
+                    }
+
+                    input {
+                        padding: 12px 16px;
+                        border-radius: 8px;
+                        border: 1px solid rgba(255, 255, 255, 0.2);
+                        background: rgba(255, 255, 255, 0.07);
+                        color: white;
+                        font-size: 14px;
+                        outline: none;
+                        transition: border 0.3s ease;
+                    }
+
+                    input::placeholder {
+                        color: rgba(255, 255, 255, 0.4);
+                    }
+
+                    input:focus {
+                        border: 1px solid rgba(0, 150, 255, 0.6);
+                        box-shadow: 0 0 10px rgba(0, 150, 255, 0.2);
+                    }
+
+                    button {
+                        padding: 12px;
+                        border-radius: 8px;
+                        border: none;
+                        background: linear-gradient(135deg, #0099ff, #0055ff);
+                        color: white;
+                        cursor: pointer;
+                        font-size: 14px;
+                        font-weight: 600;
+                        transition: opacity 0.3s ease, transform 0.2s ease;
+                        margin-top: 8px;
+                    }
+
+                    button:hover {
+                        opacity: 0.9;
+                        transform: translateY(-1px);
+                    }
+
+                    button:active {
+                        transform: translateY(0);
+                    }
+
+                    #message {
+                        color: #4CAF50;
+                        font-size: 13px;
+                        text-align: center;
+                    }
+
+                    #error {
+                        color: #ff4d4d;
+                        font-size: 13px;
+                        text-align: center;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="lock-icon">🔒</div>
+                    <h2>Reset Password</h2>
+                    <input type="password" id="password" placeholder="New password"/>
+                    <input type="password" id="confirmpassword" placeholder="Confirm new password"/>
+                    <p id="error"></p>
+                    <p id="message"></p>
+                    <button onclick="resetPassword()">Reset Password</button>
+                </div>
+                <script>
+                    async function resetPassword() {
+                        const password = document.getElementById('password').value;
+                        const confirmpassword = document.getElementById('confirmpassword').value;
+                        const error = document.getElementById('error');
+                        const message = document.getElementById('message');
+
+                        if (!password || !confirmpassword) {
+                            error.textContent = 'Please fill in all fields';
+                            return;
+                        }
+
+                        if (password !== confirmpassword) {
+                            error.textContent = 'Passwords do not match';
+                            return;
+                        }
                     
-                    if (password == ${previouspassword}) {
-                        error.textContent = 'New password can't be the same as the previous one';
-                        return;
-                    }
+                        if (password == ${previouspassword}) {
+                            error.textContent = 'New password can't be the same as the previous one';
+                            return;
+                        }
 
-                    const response = await fetch('/auth/reset-password/${token}', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ password })
-                    });
-                    const data = await response.json();
-                    if (data.message) {
-                        message.textContent = 'Password reset successful! You can now log in.';
-                        error.textContent = '';
-                    } else {
-                        error.textContent = data.error;
-                        message.textContent = '';
+                        const response = await fetch('/auth/reset-password/${token}', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ password })
+                        });
+                        const data = await response.json();
+                        if (data.message) {
+                            message.textContent = 'Password reset successful! You can now log in.';
+                            error.textContent = '';
+                        } else {
+                            error.textContent = data.error;
+                            message.textContent = '';
+                        }
                     }
-                }
-            </script>
-        </body>
-        </html>
-    `);
+                </script>
+            </body>
+            </html>
+        `);
+    } catch (err) {
+        console.error('Reset passsword page error:', err);
+        res.status(500).json({ error: err.message });
+    }
 });
 
 router.post('/reset-password/:token', async (req, res) => {
