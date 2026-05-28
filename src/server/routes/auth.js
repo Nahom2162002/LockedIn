@@ -69,8 +69,8 @@ router.post('/forgot-password', async (req, res) => {
         user.resetTokenExpiry = resetTokenExpiry;
         await user.save();
 
-        const resetUrl = `chrome-extension://bhkgkhhdenaaeoiflaonmmpojndbpkam/index.html#/reset-password?token=${resetToken}`;
-
+        const resetUrl = `https://lockedin-jovk.onrender.com/auth/reset-password/${resetToken}`;
+        
         const { data, error } = await resend.emails.send({
             from: 'onboarding@resend.dev',
             to: user.email,
