@@ -35,7 +35,10 @@ function ForgotPassword() {
                 setError(data.error);
             }
         } catch (err) {
+            setError("Connection failed. Please try again.")
             console.error(err);
+        } finally {
+            setLoading(false);
         }
     };
 

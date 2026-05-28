@@ -44,6 +44,14 @@ router.post('/login', async (req, res) => {
     }
 });
 
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL,
+        pass: process.env.EMAIL_PASSWORD
+    }
+});
+
 router.post('/forgot-password', async (req, res) => {
     try {
         const user = await User.findOne({ email: req.body.email });
@@ -57,14 +65,14 @@ router.post('/forgot-password', async (req, res) => {
         user.resetToken = resetToken;
         user.resetTokenExpiry = resetTokenExpiry;
         await user.save();
-
+        /*
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
                 user: process.env.EMAIL,
                 pass: process.env.EMAIL_PASSWORD
             }
-        });
+        });*/
 
         const resetUrl = `https://lockedin-jovk.onrender.com/auth/reset-password/${resetToken}`;
 
