@@ -105,6 +105,8 @@ router.get('/reset-password/:token', async (req, res) => {
         resetTokenExpiry: { $gt: Date.now() }
     });
 
+    const previouspassword = await User.findOne({ password: req.body.password });
+
     if (!user) {
         return res.send('<h1>Invalid or expired reset link</h1>');
     }
@@ -238,6 +240,11 @@ router.get('/reset-password/:token', async (req, res) => {
 
                     if (password !== confirmpassword) {
                         error.textContent = 'Passwords do not match';
+                        return;
+                    }
+                    
+                    if (password == ${previouspassword}) {
+                        error.textContent = 'New password can't be the same as the previous one';
                         return;
                     }
 
