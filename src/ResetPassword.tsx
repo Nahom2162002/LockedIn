@@ -4,6 +4,7 @@ function ResetPassword() {
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
+    const [confirmpassword, setConfirmPassword] = useState('');
 
     const token = new URLSearchParams(window.location.search).get('token');
 
@@ -34,6 +35,7 @@ function ResetPassword() {
         <div>
             <h2>Reset Password</h2>
             <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Enter new password"/>
+            <input type="password" value={confirmpassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="Confirm new password"/>
             {error && <p className="error-message">{error}</p>}
             {message && <p className="success-message">{message}</p>}
             <button onClick={handleReset}>Reset Password</button>

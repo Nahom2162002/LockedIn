@@ -36,6 +36,10 @@ function CreateAccount() {
         }
     };
 
+    const handleBack = () => {
+        navigate('/login');
+    }
+
     return (
         <div className="create-account-background">
             <div className="create">
@@ -46,6 +50,7 @@ function CreateAccount() {
                 <input id="confirmpassword" type="password" value={confirmpassword} onKeyDown={(e) => handleKeyDown(e, handleCreate)} onChange={(e) => setConfirmPassword(e.target.value)} placeholder='Confirm Password'/>
                 {error && <p className="error-message">{error}</p>}
                 <button className="authbutton" onClick={handleCreate}>Create Account</button>
+                <button className="authbutton" onClick={handleBack}>Back</button>
             </div>
         </div>
     );

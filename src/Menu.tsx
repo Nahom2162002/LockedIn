@@ -1,15 +1,21 @@
 import RestrictionInfo from './RestrictionInfo.tsx';
 import { useState } from 'react';
 import WebsiteList from './WebsiteList.tsx';
+import { useNavigate } from 'react-router-dom';
 
 function Menu() {
     const [isOpen, setIsOpen] = useState(false);
     const [refreshKey, setRefreshKey] = useState(0);
+    const navigate = useNavigate();
 
     const handleAdd = () => {
         setIsOpen(false);
         setRefreshKey(prev => prev + 1);
     };
+
+    const handleLogout = () => {
+        navigate('/login');
+    }
 
     return (
         <div className="menuBackground">
@@ -23,6 +29,7 @@ function Menu() {
                         <WebsiteList key={refreshKey}/>
                     </div>
                 </div>
+                <button className="authbutton" onClick={handleLogout}>Log out</button>
             </div> 
         </div>
     );
