@@ -1,7 +1,7 @@
 import express from 'express';
 import User from '../models/User.js';
 import bcrypt from 'bcrypt';
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 import crypto from 'crypto';
 
 const router = express.Router();
@@ -44,13 +44,16 @@ router.post('/login', async (req, res) => {
     }
 });
 
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+/*
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
         user: process.env.EMAIL,
         pass: process.env.EMAIL_PASSWORD
     }
-});
+});*/
 
 router.post('/forgot-password', async (req, res) => {
     try {
@@ -65,18 +68,10 @@ router.post('/forgot-password', async (req, res) => {
         user.resetToken = resetToken;
         user.resetTokenExpiry = resetTokenExpiry;
         await user.save();
-        /*
-        const transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-                user: process.env.EMAIL,
-                pass: process.env.EMAIL_PASSWORD
-            }
-        });*/
 
         const resetUrl = `https://lockedin-jovk.onrender.com/auth/reset-password/${resetToken}`;
 
-        await transporter.sendMail({
+        await resend.emails.send({
             from: process.env.EMAIL,
             to: user.email,
             subject: 'LockedIn Password Reset',
