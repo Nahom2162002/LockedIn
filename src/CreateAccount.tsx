@@ -9,16 +9,30 @@ function CreateAccount() {
     const [confirmpassword, setConfirmPassword] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
 
     const handleCreate = async () => {
+        if (!email || !username || !password || !confirmpassword) {
+            setError("Please fill in all fields");
+            return;
+        }
+
+        if (password !== confirmpassword) {
+            setError("Passwords do not match");
+            return;
+        }
+
+        setLoading(true);
+        setError('');
+
         try {
             const response = await fetch('https://lockedin-jovk.onrender.com/auth/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password})
+                body: JSON.stringify({ username, email, password})
             });
             const data = await response.json();
-            if (data.userId && password == confirmpassword) {
+            if (data.userId) {
                 await chrome.storage.local.set({ userId: data.userId });
                 alert("Account successfully created!");
                 navigate('/login');
@@ -26,7 +40,10 @@ function CreateAccount() {
                 setError(data.error);
             }
         } catch (err) {
+            setError("Connection failed. Please try again.");
             console.error(err);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -49,7 +66,9 @@ function CreateAccount() {
                 <input id="passwordtext" type="password" value={password} onKeyDown={(e) => handleKeyDown(e, handleCreate)} onChange={(e) => setPassword(e.target.value)} placeholder='Password'/>
                 <input id="confirmpassword" type="password" value={confirmpassword} onKeyDown={(e) => handleKeyDown(e, handleCreate)} onChange={(e) => setConfirmPassword(e.target.value)} placeholder='Confirm Password'/>
                 {error && <p className="error-message">{error}</p>}
-                <button className="authbutton" onClick={handleCreate}>Create Account</button>
+                <button className="authbutton" onClick={handleCreate} disabled={loading}>
+                    {loading ? 'Creating Account...' : 'Create Account'}
+                </button>
                 <button className="authbutton" onClick={handleBack}>Back</button>
             </div>
         </div>
