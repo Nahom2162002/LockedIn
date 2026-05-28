@@ -3,7 +3,6 @@ import Menu from './Menu.tsx';
 import Login from './Login.tsx';
 import CreateAccount from './CreateAccount.tsx';
 import ForgotPassword from './ForgotPassword.tsx';
-import ResetPassword from './ResetPassword.tsx';
 import { HashRouter, Routes, Route } from 'react-router-dom';
 
 function Home() {
@@ -24,7 +23,6 @@ function App() {
         <Route path="/menu" element={<Menu/>}/>
         <Route path="/create" element={<CreateAccount/>}/>
         <Route path="/forgot" element={<ForgotPassword/>}/>
-        <Route path="/reset-password" element={<ResetPassword/>}/>
       </Routes>
     </HashRouter> 
   );
