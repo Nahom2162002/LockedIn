@@ -72,7 +72,7 @@ router.post('/forgot-password', async (req, res) => {
         const resetUrl = `https://lockedin-jovk.onrender.com/auth/reset-password/${resetToken}`;
 
         await resend.emails.send({
-            from: process.env.EMAIL,
+            from: 'onboarding@resend.dev',
             to: user.email,
             subject: 'LockedIn Password Reset',
             html: `
