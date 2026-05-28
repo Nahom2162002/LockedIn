@@ -252,7 +252,7 @@ router.get('/reset-password/:token', async (req, res) => {
                             return;
                         }
 
-                        const response = await fetch('/auth/reset-password/${token}', {
+                        const response = await fetch('https://lockedin-jovk.onrender.com/auth/reset-password/${token}', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ password })
