@@ -290,18 +290,18 @@ router.get('/reset-password/:token', async (req, res) => {
                     document.getElementById('password').addEventListener('input', function() {
                         const password = this.value;
 
-                        const updateReq = (id, met) => {
+                        const updateReq = (id, met, text) => {
                             const el = document.getElementById(id);
-                            el.textContent = (met ? '✓' : 'x') + el.textContent.slice(2);
-                            el.className = met ? 'requirements met' : 'requirement';
+                            el.textContent = (met ? '✓' : 'x') + text;
+                            el.style.color = met ? '#4CAF50' : '#ff4d4d';
                         };
 
-                        updateReq('req-length', password.length >= 8);
-                        updateReq('req-upper', /[A-Z]/.test(password));
-                        updateReq('req-lower', /[a-z]/.test(password));
-                        updateReq('req-number', /[0-9]/.test(password));
-                        updateReq('req-symbol', /[!@#$%^&*()_+\\-=\\[\\]{};\':"\\\\|,.<>\\/?]/.test(password));
-                        updateReq('req-consecutive', !(/(.)\x01{3,}/.test(password))); 
+                        updateReq('req-length', password.length >= 8, 'At least 8 characters');
+                        updateReq('req-upper', /[A-Z]/.test(password), 'At least one uppercase letter');
+                        updateReq('req-lower', /[a-z]/.test(password), 'At least one lowercase letter');
+                        updateReq('req-number', /[0-9]/.test(password), 'At least one number');
+                        updateReq('req-symbol', /[!@#$%^&*()_+\\-=\\[\\]{};\':"\\\\|,.<>\\/?]/.test(password), 'At least one symbol');
+                        updateReq('req-consecutive', !(/(.)\x01{3,}/.test(password)), 'No more than 3 consecutive identical characters'); 
                     });
                 </script>
             </body>
