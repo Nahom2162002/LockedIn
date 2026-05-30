@@ -329,16 +329,21 @@ router.post('/reset-password/:token', async (req, res) => {
             return res.status(400).json({ error: passwordErrors[0] });
         }
 
+        const isSameAsCurrent = await bcrypt.compare(req.body.password, user.password);
+        if (isSameAsCurrent) {
+            return res.status(400).json({ error: 'New password cannot be the same as a previously used password' });
+        }
+
         for (const oldPassword of user.passwordHistory) {
-            const isSamePassword = await bcrypt.compare(req.body.password, user.password);
+            const isSamePassword = await bcrypt.compare(req.body.password, oldPassword);
             if (isSamePassword) {
                 return res.status(400).json({ error: 'New password cannot be the same as the previous one' });
             }
         }
 
         const hashedPassword = await bcrypt.hash(req.body.password, 10);
+        user.passwordHistory = [...user.passwordHistory, user.password];
         user.password = hashedPassword;
-        user.passwordHistory = [...user.passwordHistory, hashedPassword];
         user.resetToken = undefined;
         user.resetTokenExpiry = undefined;
         await user.save();
