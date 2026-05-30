@@ -57,6 +57,15 @@ function CreateAccount() {
         navigate('/login');
     }
 
+    const requirements = [
+        { text: 'At least 8 characters', met: password.length >= 8 },
+        { text: 'At least one uppercase letter', met: /[A-Z]/.test(password) },
+        { text: 'At least one lowercase letter', met: /[a-z]/.test(password) },
+        { text: 'At least one number', met: /[0-9]/.test(password) },
+        { text: 'At least one symbol', met: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password) },
+        { text: 'No more than 3 consecutive identical characters', met: !(/(.)\1{3,}/.test(password)) },
+    ];
+
     return (
         <div className="create-account-background">
             <div className="create">
@@ -64,6 +73,15 @@ function CreateAccount() {
                 <input id="email" type="email" value={email} onKeyDown={(e) => handleKeyDown(e, handleCreate)} onChange={(e) => setEmail(e.target.value)} placeholder='Email Address'/>
                 <input id="usernametext" type="text" value={username} onKeyDown={(e) => handleKeyDown(e, handleCreate)} onChange={(e) => setUserName(e.target.value)} placeholder='Username'/>
                 <input id="passwordtext" type="password" value={password} onKeyDown={(e) => handleKeyDown(e, handleCreate)} onChange={(e) => setPassword(e.target.value)} placeholder='Password'/>
+                {password && (
+                    <div className="password-requirements">
+                        {requirements.map((req, index) => (
+                            <p key={index} style={{ color: req.met ? '#4CAF50' : 'red', fontSize: '12px' }}>
+                                {req.met ? '✓' : 'x'} {req.text}
+                            </p>
+                        ))}
+                    </div>
+                )}
                 <input id="confirmpassword" type="password" value={confirmpassword} onKeyDown={(e) => handleKeyDown(e, handleCreate)} onChange={(e) => setConfirmPassword(e.target.value)} placeholder='Confirm Password'/>
                 {error && <p className="error-message">{error}</p>}
                 <button className="authbutton" onClick={handleCreate} disabled={loading}>

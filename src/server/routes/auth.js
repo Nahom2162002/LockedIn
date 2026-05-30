@@ -3,6 +3,7 @@ import User from '../models/User.js';
 import bcrypt from 'bcrypt';
 import { Resend } from 'resend';
 import crypto from 'crypto';
+import { validatePassword } from '../passwordValidator.js';
 
 const router = express.Router();
 
@@ -13,11 +14,17 @@ router.post('/register', async (req, res) => {
             return res.status(400).json({ error: 'Account already exits' });
         }
 
+        const passwordErrors = validatePassword(req.body.password);
+        if (passwordErrors.length > 0) {
+            return res.status(400).json({ error: passwordErrors[0] });
+        }
+
         const hashedPassword = await bcrypt.hash(req.body.password, 10);
         const user = new User({
             username: req.body.username,
             email: req.body.email,
-            password: hashedPassword 
+            password: hashedPassword,
+            passwordHistory: [hashedPassword]
         });
         await user.save();
         res.json({ message: 'Account created!', userId: user._id });
@@ -216,12 +223,33 @@ router.get('/reset-password/:token', async (req, res) => {
                         font-size: 13px;
                         text-align: center;
                     }
+                    
+                    .requirements {
+                        font-size: 12px;
+                        display: flex;
+                        flex-direction: column;
+                        gap: 4px;
+                    }
+                    .requirement {
+                        color: #ff4d4d;
+                    }
+                    .requirement.met {
+                        color: #4CAF50;
+                    }
                 </style>
             </head>
             <body>
                 <div class="container">
                     <div class="lock-icon">🔒</div>
                     <h2>Reset Password</h2>
+                    <div class="requirements" id="requirements">
+                        <p class="requirement" id="req-length">x At least 8 characters</p>
+                        <p class="requirement" id="req-upper">x At least one uppercase letter</p>
+                        <p class="requirement" id="req-lower">x At least one lowercase letter</p>
+                        <p class="requirement" id="req-number">x At least one number</p>
+                        <p class="requirement" id="req-symbol">x At least one symbol</p>
+                        <p class="requirement" id="req-consecutive">x No more than 3 consecutive identical characters</p>
+                    </div>
                     <input type="password" id="password" placeholder="New password"/>
                     <input type="password" id="confirmpassword" placeholder="Confirm new password"/>
                     <p id="error"></p>
@@ -259,6 +287,22 @@ router.get('/reset-password/:token', async (req, res) => {
                             message.textContent = '';
                         }
                     }
+                    document.getElementById('password').addEventListener('input', function() {
+                        const password = this.value;
+
+                        const updateReq = (id, met) => {
+                            const el = document.getElementById(id);
+                            el.textContent = (met ? '✓' : 'x') + el.textContent.slice(2);
+                            el.className = met ? 'requirements met' : 'requirement';
+                        };
+
+                        updateReq('req-length', password.length >= 8);
+                        updateReq('req-upper', /[A-Z]/.test(password));
+                        updateReq('req-lower', /[a-z]/.test(password));
+                        updateReq('req-number', /[0-9]/.test(password));
+                        updateReq('req-symbol', /[!@#$%^&*()_+\\-=\\[\\]{};\':"\\\\|,.<>\\/?]/.test(password));
+                        updateReq('req-consecutive', !(/(.)\x01{3,}/.test(password))); 
+                    });
                 </script>
             </body>
             </html>
@@ -280,14 +324,21 @@ router.post('/reset-password/:token', async (req, res) => {
             return res.status(400).json({ error: 'Invalid or expired reset token' });
         }
 
-        const isSamePassword = await bcrypt.compare(req.body.password, user.password);
-        
-        if (isSamePassword) {
-            return res.status(400).json({ error: 'New password cannot be the same as the previous one' });
+        const passwordErrors = validatePassword(req.body.password);
+        if (passwordErrors.length > 0) {
+            return res.status(400).json({ error: passwordErrors[0] });
+        }
+
+        for (const oldPassword of user.passwordHistory) {
+            const isSamePassword = await bcrypt.compare(req.body.password, user.password);
+            if (isSamePassword) {
+                return res.status(400).json({ error: 'New password cannot be the same as the previous one' });
+            }
         }
 
         const hashedPassword = await bcrypt.hash(req.body.password, 10);
         user.password = hashedPassword;
+        user.passwordHistory = [...user.passwordHistory, hashedPassword];
         user.resetToken = undefined;
         user.resetTokenExpiry = undefined;
         await user.save();
