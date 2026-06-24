@@ -24,12 +24,33 @@ function RestrictionInfo({ onClose }: {onClose: () => void}) {
         }
 
         try {
+            /*
             const { userId } = await chrome.storage.local.get('userId');
             const response = await fetch('https://lockedin-jovk.onrender.com/websites', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     userId,
+                    url: text,
+                    dateCreated: date,
+                    startTime: starttime,
+                    endTime: endtime 
+                })
+            });*/
+            const { userId } = await chrome.storage.local.get('userId') as { userId?: string };
+
+            if (!userId) {
+                console.error('No userId found');
+                return;
+            }
+            
+            const response = await fetch('https://lockedin-web.vercel.app/api/websites', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'x-user-id': userId
+                },
+                body: JSON.stringify({
                     url: text,
                     dateCreated: date,
                     startTime: starttime,

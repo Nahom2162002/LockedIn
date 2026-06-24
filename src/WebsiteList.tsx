@@ -15,8 +15,18 @@ function WebsiteList() {
 
     useEffect(() => {
         const fetchWebsites = async () => {
-            const { userId } = await chrome.storage.local.get('userId');
-            const response = await fetch(`https://lockedin-jovk.onrender.com/websites?userId=${userId}`);
+            const { userId } = await chrome.storage.local.get('userId') as { userId?: string };
+
+            if (!userId) {
+                console.error('No userId found');
+                return;
+            }
+            //const response = await fetch(`https://lockedin-jovk.onrender.com/websites?userId=${userId}`);
+            const response = await fetch('https://lockedin-web.vercel.app/api/websites', {
+                headers: {
+                    'x-user-id': userId
+                }
+            });
             const data = await response.json();
             setWebsites(data);
             chrome.storage.local.set({ websites: data });
@@ -46,9 +56,25 @@ function WebsiteList() {
         }
 
         try {
+            /*
             const response = await fetch(`https://lockedin-jovk.onrender.com/websites/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(editForm)
+            });*/
+            const { userId } = await chrome.storage.local.get('userId') as { userId?: string };
+
+            if (!userId) {
+                console.error('No userId found');
+                return;
+            }
+
+            const response = await fetch(`https://lockedin-web.vercel.app/api/websites/${id}`, {
+                method: 'PUT',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'x-user-id': userId
+                },
                 body: JSON.stringify(editForm)
             });
             const updatedSite = await response.json();
@@ -63,8 +89,22 @@ function WebsiteList() {
 
     const deleteWebsite = async (id: string) => {
         try {
+            /*
             await fetch(`https://lockedin-jovk.onrender.com/websites/${id}`, {
                 method: 'DELETE'
+            });*/
+            const { userId } = await chrome.storage.local.get('userId') as { userId?: string };
+
+            if (!userId) {
+                console.error('No userId found');
+                return;
+            }
+            
+            await fetch(`https://lockedin-web.vercel.app/api/websites/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'x-user-id': userId
+                }
             });
             const updated = websites.filter((site) => site._id !== id);
             setWebsites(updated);
