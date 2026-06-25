@@ -8,7 +8,9 @@ const userSchema = new Schema({
     passwordHistory: { type: [String], required: true},
     resetToken: { type: String },
     resetTokenExpiry: { type: Date },
-    createdAt: { type: Date, default: Date.now }
+    createdAt: { type: Date, default: Date.now },
+    plan: { type: String, enum: ['free', 'pro'], default: 'free' },
+    stripeCustomerId: { type: String }
 });
 
 export default model('User', userSchema);

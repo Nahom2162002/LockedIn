@@ -20,6 +20,23 @@ function Menu() {
         navigate('/login');
     }
 
+    const handleUpgrade = async () => {
+        const { token } = await chrome.storage.local.get('token');
+        const response = await fetch('https://lockedin-web-six.vercel.app/api/stripe/checkout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'authorization': `Bearer ${token}`
+            }
+        });
+        
+        const data = await response.json();
+
+        if (data.url) {
+            chrome.tabs.create({ url: data.url });
+        }
+    };
+
     return (
         <div className="menuBackground">
             <div>
@@ -34,6 +51,9 @@ function Menu() {
                 </div>
                 <button className="authbutton" onClick={handleLogout} disabled={loading}>
                     {loading ? "Logging out..." : "Log out"}
+                </button>
+                <button className="authbutton" onClick={handleUpgrade}>
+                    Upgrade to Pro
                 </button>
             </div> 
         </div>
