@@ -1,3 +1,16 @@
+import mongoose, { Schema } from 'mongoose';
+
+const websiteSchema = new Schema({
+    userId: { type: String, required: true },
+    url: { type: String },
+    dateCreated: { type: Date, required: false },
+    startTime: { type: String },
+    endTime: { type: String }
+});
+
+export default mongoose.models.Website || mongoose.model('Website', websiteSchema);
+
+/*
 import { Schema, model } from 'mongoose';
 
 const websiteSchema = new Schema({
@@ -10,4 +23,4 @@ const websiteSchema = new Schema({
 
 const Website = model('Website', websiteSchema);
 
-export default Website;
+export default Website;*/
