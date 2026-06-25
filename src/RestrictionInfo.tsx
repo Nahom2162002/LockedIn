@@ -37,9 +37,9 @@ function RestrictionInfo({ onClose }: {onClose: () => void}) {
                     endTime: endtime 
                 })
             });*/
-            const { userId } = await chrome.storage.local.get('userId') as { userId?: string };
+            const { token } = await chrome.storage.local.get('token');
 
-            if (!userId) {
+            if (!token) {
                 console.error('No userId found');
                 return;
             }
@@ -48,7 +48,7 @@ function RestrictionInfo({ onClose }: {onClose: () => void}) {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',
-                    'x-user-id': userId
+                    'authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
                     url: text,
@@ -57,6 +57,13 @@ function RestrictionInfo({ onClose }: {onClose: () => void}) {
                     endTime: endtime 
                 })
             });
+
+            if (response.status === 401) {
+                await chrome.storage.local.remove('token');
+                window.location.href = chrome.runtime.getURL('index.html#/login');
+                return;
+            }
+
             const data = await response.json();
             console.log(data);
             onClose();

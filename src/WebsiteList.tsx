@@ -15,18 +15,25 @@ function WebsiteList() {
 
     useEffect(() => {
         const fetchWebsites = async () => {
-            const { userId } = await chrome.storage.local.get('userId') as { userId?: string };
+            const { token } = await chrome.storage.local.get('token');
 
-            if (!userId) {
+            if (!token) {
                 console.error('No userId found');
                 return;
             }
             //const response = await fetch(`https://lockedin-jovk.onrender.com/websites?userId=${userId}`);
             const response = await fetch('https://lockedin-web.vercel.app/api/websites', {
                 headers: {
-                    'x-user-id': userId
+                    'authorization': `Bearer ${token}`
                 }
             });
+            
+            if (response.status === 401) {
+                await chrome.storage.local.remove('token');
+                window.location.href = chrome.runtime.getURL('index.html#/login');
+                return;
+            }
+
             const data = await response.json();
             setWebsites(data);
             chrome.storage.local.set({ websites: data });
@@ -62,9 +69,9 @@ function WebsiteList() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(editForm)
             });*/
-            const { userId } = await chrome.storage.local.get('userId') as { userId?: string };
+            const { token } = await chrome.storage.local.get('token');
 
-            if (!userId) {
+            if (!token) {
                 console.error('No userId found');
                 return;
             }
@@ -73,10 +80,17 @@ function WebsiteList() {
                 method: 'PUT',
                 headers: { 
                     'Content-Type': 'application/json',
-                    'x-user-id': userId
+                    'authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify(editForm)
             });
+
+            if (response.status === 401) {
+                await chrome.storage.local.remove('token');
+                window.location.href = chrome.runtime.getURL('index.html#/login');
+                return;
+            }
+
             const updatedSite = await response.json();
             const updated = websites.map((site) => site._id === id ? updatedSite : site);
             setWebsites(updated);
@@ -93,9 +107,9 @@ function WebsiteList() {
             await fetch(`https://lockedin-jovk.onrender.com/websites/${id}`, {
                 method: 'DELETE'
             });*/
-            const { userId } = await chrome.storage.local.get('userId') as { userId?: string };
+            const { token } = await chrome.storage.local.get('token');
 
-            if (!userId) {
+            if (!token) {
                 console.error('No userId found');
                 return;
             }
@@ -103,9 +117,10 @@ function WebsiteList() {
             await fetch(`https://lockedin-web.vercel.app/api/websites/${id}`, {
                 method: 'DELETE',
                 headers: {
-                    'x-user-id': userId
+                    'authorization': `Bearer ${token}`
                 }
             });
+
             const updated = websites.filter((site) => site._id !== id);
             setWebsites(updated);
             chrome.storage.local.set({ websites: updated });

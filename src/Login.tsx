@@ -19,8 +19,8 @@ function Login() {
             body: JSON.stringify({ username, password })
         });
         const data = await response.json();
-        if (data.userId) {
-            chrome.storage.local.set({ userId: data.userId });
+        if (data.token) {
+            chrome.storage.local.set({ token: data.token });
             navigate('/menu');
         } else {
             setError(data.error);

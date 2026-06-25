@@ -14,8 +14,9 @@ function Menu() {
         setRefreshKey(prev => prev + 1);
     };
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
         setLoading(true);
+        await chrome.storage.local.remove('token');
         navigate('/login');
     }
 
