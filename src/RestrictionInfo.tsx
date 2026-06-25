@@ -44,7 +44,7 @@ function RestrictionInfo({ onClose }: {onClose: () => void}) {
                 return;
             }
             
-            const response = await fetch('https://lockedin-web-six.vercel.app/', {
+            const response = await fetch('https://lockedin-web-six.vercel.app/api/websites', {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',

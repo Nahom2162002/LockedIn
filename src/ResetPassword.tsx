@@ -19,7 +19,7 @@ function ResetPassword() {
         setError('');
 
         try {
-            const response = await fetch(`https://lockedin-web-six.vercel.app/auth/reset-password/${token}`, {
+            const response = await fetch(`https://lockedin-web-six.vercel.app/api/auth/reset-password/${token}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ password })

@@ -23,7 +23,7 @@ function ForgotPassword() {
         setError('');
 
         try {
-            const response = await fetch('https://lockedin-web-six.vercel.app/', {
+            const response = await fetch('https://lockedin-web-six.vercel.app/api/auth/forgot-password', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email })
