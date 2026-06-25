@@ -22,7 +22,7 @@ function WebsiteList() {
                 return;
             }
             //const response = await fetch(`https://lockedin-jovk.onrender.com/websites?userId=${userId}`);
-            const response = await fetch('https://lockedin-web-six.vercel.app/websites', {
+            const response = await fetch('https://lockedin-web-six.vercel.app/api/websites', {
                 headers: {
                     'authorization': `Bearer ${token}`
                 }
