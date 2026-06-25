@@ -23,7 +23,7 @@ function ForgotPassword() {
         setError('');
 
         try {
-            const response = await fetch('https://lockedin-jovk.onrender.com/auth/forgot-password', {
+            const response = await fetch('https://lockedin-web-six.vercel.app/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email })

@@ -22,7 +22,7 @@ function WebsiteList() {
                 return;
             }
             //const response = await fetch(`https://lockedin-jovk.onrender.com/websites?userId=${userId}`);
-            const response = await fetch('https://lockedin-web.vercel.app/api/websites', {
+            const response = await fetch('https://lockedin-web-six.vercel.app/', {
                 headers: {
                     'authorization': `Bearer ${token}`
                 }
@@ -76,7 +76,7 @@ function WebsiteList() {
                 return;
             }
 
-            const response = await fetch(`https://lockedin-web.vercel.app/api/websites/${id}`, {
+            const response = await fetch(`https://lockedin-web-six.vercel.app/`, {
                 method: 'PUT',
                 headers: { 
                     'Content-Type': 'application/json',
@@ -114,7 +114,7 @@ function WebsiteList() {
                 return;
             }
             
-            await fetch(`https://lockedin-web.vercel.app/api/websites/${id}`, {
+            await fetch(`https://lockedin-web-six.vercel.app/`, {
                 method: 'DELETE',
                 headers: {
                     'authorization': `Bearer ${token}`
