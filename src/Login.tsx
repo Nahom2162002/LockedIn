@@ -21,6 +21,17 @@ function Login() {
         const data = await response.json();
         if (data.token) {
             chrome.storage.local.set({ token: data.token });
+
+            const planRes = await fetch('https://lockedin-web-six.vercel.app/api/user/plan', {
+                headers: { 'authorization': `Bearer ${data.token}` }
+            });
+            const planData = await planRes.json();
+
+            await chrome.storage.local.set({
+                token: data.token,
+                plan: planData.plan 
+            });
+            
             navigate('/menu');
         } else {
             setError(data.error);
