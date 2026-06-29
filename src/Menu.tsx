@@ -33,7 +33,6 @@ function Menu() {
     const [isOpen, setIsOpen] = useState(false);
     const [refreshKey, setRefreshKey] = useState(0);
     const navigate = useNavigate();
-    const [loading, setLoading] = useState(false);
     const [plan, setPlan] = useState<string>('free');
     const [showRecurringForm, setShowRecurringForm] = useState(false);
     const [showRecurringList, setShowRecurringList] = useState(false);
@@ -191,8 +190,8 @@ function Menu() {
                         <WebsiteList key={refreshKey}/>
                     </div>
                 </div>
-                <button className="authbutton" onClick={handleLogout} disabled={loading}>
-                    {loading ? "Logging out..." : "Log out"}
+                <button className="authbutton" onClick={handleLogout}>
+                    Log out
                 </button>
                 {plan === 'free' ? (
                     <button className="authbutton" onClick={handleUpgrade}>
