@@ -41,69 +41,7 @@ function Menu() {
     const [websites, setWebsites] = useState<any[]>([]);
     const [recurringBlocks, setRecurringBlocks] = useState<any[]>([]);
     const [showCategoryBlock, setShowCategoryBlock] = useState(false);
-    /*
-    useEffect(() => {
-        const getplan = async () => {
-            const result = await chrome.storage.local.get('plan');
-            const storedPlan = result.plan as string | undefined;
-            setPlan(storedPlan || 'free');
-        };
-        getplan();
-    }, []);
-
-    useEffect(() => {
-        const syncPlan = async () => {
-            const result = await chrome.storage.local.get(['token', 'plan']);
-            const token = result.token as string | undefined;
-            const cachedPlan = result.plan as string | undefined;
-            setPlan(cachedPlan || 'free');
-
-            const res = await fetch('https://lockedin-web-six.vercel.app/api/user/plan', {
-                headers: { 'authorization': `Bearer ${token}` }
-            });
-            const data = await res.json();
-            if (data.plan !== cachedPlan) {
-                await chrome.storage.local.set({ plan: data.plan });
-                setPlan(data.plan);
-            }
-
-            const stored = await chrome.storage.local.get(['websites', 'recurringBlocks']);
-            setWebsites((stored.websites as any[]) || []);
-            setRecurringBlocks((stored.recurringBlocks as any[]) || []);
-        };
-        syncPlan();
-    }, []);
-
-    useEffect(() => {
-        const syncData = async () => {
-            const result = await chrome.storage.local.get(['token', 'plan']);
-            const token = result.token as string | undefined;
-            const cachedPlan = result.plan as string | undefined;
-            setPlan(cachedPlan || 'free');
-
-            if (!token) return;
-
-            const planRes = await fetch('https://lockedin-web-six.vercel.app/api/user/plan', {
-                headers: { 'authorization': `Bearer ${token}` }
-            });
-            const planData = await planRes.json();
-            if (planData.plan !== cachedPlan) {
-                await chrome.storage.local.set({ plan: planData.plan });
-                setPlan(planData.plan);
-            }
-
-            if (planData.plan === 'pro') {
-                const recurringRes = await fetch('https://lockedin-web-six.vercel.app/api/recurring', {
-                    headers: { 'authorization': `Bearer ${token}` }
-                });
-                const recurringData = await recurringRes.json();
-                if (Array.isArray(recurringData)) {
-                    await chrome.storage.local.set({ recurringBlocks: recurringData });
-                }
-            }
-        };
-        syncData();
-    }, []);*/
+    const [strictMode, setStrictMode] = useState(false);
 
     useEffect(() => {
         const syncAll = async () => {
@@ -145,6 +83,13 @@ function Menu() {
                 await chrome.storage.local.set({ websites: websitesData });
                 setWebsites(websitesData);
             }
+
+            const settingsRes = await fetch('https://lockedin-web-six.vercel.app/api/user/settings', {
+                headers: { 'authorization': `Bearer ${token}` }
+            });
+            const settingsData = await settingsRes.json();
+            setStrictMode(settingsData.strictMode ?? false);
+            await chrome.storage.local.set({ strictMode: settingsData.strictMode ?? false });
         };
         syncAll();
     }, []);
@@ -224,6 +169,24 @@ function Menu() {
         });
     };
 
+    const handleToggleStrictMode = async () => {
+        const result = await chrome.storage.local.get('token');
+        const token = result.token as string;
+        const newValue = !strictMode;
+
+        await fetch('https://lockedin-web-six.vercel.app/api/user/settings', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ strictMode: newValue })
+        });
+
+        setStrictMode(newValue);
+        await chrome.storage.local.set({ strictMode: newValue });
+    };
+
     return (
         <div className="menuBackground">
             <div>
@@ -264,6 +227,25 @@ function Menu() {
                         <button className="authbutton" onClick={() => setShowCategoryBlock(true)}>
                             Block Category 
                         </button>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 0'}}>
+                            <p style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: 12, margin: 0 }}>
+                                🚨 Strict Mode 
+                            </p>
+                            <button onClick={handleToggleStrictMode}
+                                    style={{
+                                        padding: '4px 12px',
+                                        borderRadius: 20,
+                                        border: 'none',
+                                        background: strictMode ? '#ff4d4d' : 'rgba(255, 255, 255, 0.1)',
+                                        color: 'white',
+                                        fontSize: 11,
+                                        cursor: 'pointer',
+                                        fontWeight: 600
+                                    }}
+                            >
+                                {strictMode ? 'ON' : 'OFF'}
+                            </button>
+                        </div>
 
                         {showRecurringForm && (
                             <RecurringForm onClose={() => setShowRecurringForm(false)} />
@@ -277,7 +259,7 @@ function Menu() {
                     </>
                 )}
                 {showLogoutConfirm && (
-                    <ConfirmPhrase action="log out and disable blocking" onConfirm={async () => {
+                    <ConfirmPhrase action="log out and disable blocking" strictMode={strictMode} onConfirm={async () => {
                         setShowLogoutConfirm(false);
                         await performLogout();
                     }}

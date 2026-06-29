@@ -1,16 +1,20 @@
 import { useState } from 'react';
 
-const PHRASE = 'I WANT TO FOCUS';
+const NORMAL_PHRASE = 'I WANT TO BREAK MY FOCUS';
+const STRICT_PHRASE = 'I ACKNOWLEDGE THAT I AM ABOUT TO BREAK MY FOCUS AND ACCEPT THE CONSEQUENCES';
 
 interface ConfirmPhraseProps {
     onConfirm: () => void;
     onCancel: () => void;
     action: string;
+    strictMode?: boolean;
 }
 
-function ConfirmPhrase({ onConfirm, onCancel, action }: ConfirmPhraseProps) {
+function ConfirmPhrase({ onConfirm, onCancel, action, strictMode = false }: ConfirmPhraseProps) {
     const [input, setInput] = useState('');
     const [error, setError] = useState('');
+
+    const PHRASE = strictMode ? STRICT_PHRASE : NORMAL_PHRASE;
 
     const handleConfirm = () => {
         if (input !== PHRASE) {
@@ -42,9 +46,9 @@ function ConfirmPhrase({ onConfirm, onCancel, action }: ConfirmPhraseProps) {
                 flexDirection: 'column',
                 gap: 12
             }}>
-                <p style={{ fontSize: 24, textAlign: 'center', margin: 0 }}>🔒</p>
+                <p style={{ fontSize: 24, textAlign: 'center', margin: 0 }}>{strictMode ? '🚨' : '🔒'}</p>
                 <h3 style={{ color: 'white', textAlign: 'center', margin: 0, fontSize: 16 }}>
-                    Are you sure?
+                    {strictMode ? 'Strict Mode Active' : 'Are you sure?'}
                 </h3>
                 <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 12, textAlign: 'center', margin: 0 }}>
                     You're trying to {action} during an active block.
@@ -74,7 +78,7 @@ function ConfirmPhrase({ onConfirm, onCancel, action }: ConfirmPhraseProps) {
                 }}
                 autoFocus 
                 />
-                {error && <p style={{ color: '#ff4d4d', fontSize: 12, margin: 0, textAlign: 'center' }}>{error}</p>}
+                {error && <p style={{ color: '#ff4d4d', fontSize: 11, margin: 0, textAlign: 'center' }}>{error}</p>}
                 <button onClick={handleConfirm} style={{
                     padding: '10px',
                     borderRadius: 8,

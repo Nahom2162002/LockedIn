@@ -39,13 +39,16 @@ function WebsiteList() {
     const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
     const [showConfirm, setShowConfirm] = useState(false);
     const [recurringBlocks, setRecurringBlocks] = useState<any[]>([]);
+    const [strictMode, setStrictMode] = useState(false);
+    const [isStrictMode, setIsStrictMode] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
-            const result = await chrome.storage.local.get(['token', 'recurringBlocks']);
+            const result = await chrome.storage.local.get(['token', 'recurringBlocks', 'strictMode']);
             const token = result.token as string;
             const cached = (result.recurringBlocks as any[]) || [];
             setRecurringBlocks(cached);
+            setStrictMode((result.strictMode as boolean) ?? false);
 
             if (!token) return;
 
@@ -98,6 +101,13 @@ function WebsiteList() {
         setEditingId(site._id);
         setEditForm({ url: site.url, dateCreated: site.dateCreated, startTime: site.startTime, endTime: site.endTime });
     };
+
+    const getEffectiveStrictMode = (site: any, globalStrictMode: boolean) => {
+        if (site.strictMode !== null && site.strictMode !== undefined) {
+            return site.strictMode;
+        }
+        return globalStrictMode;
+    }
 
     const saveEdit = async (id: string) => {
         if (!editForm.url || !editForm.dateCreated || !editForm.startTime || !editForm.endTime) {
@@ -155,8 +165,11 @@ function WebsiteList() {
     };
 
     const handleDeleteClick = (id: string) => {
-        const result = isActivelyBlocking(websites, recurringBlocks);
-        if (result) {
+        const blocking = isActivelyBlocking(websites, recurringBlocks);
+        if (blocking) {
+            const site = websites.find(s => s._id === id);
+            const effective = site ? getEffectiveStrictMode(site, strictMode) : strictMode;
+            setIsStrictMode(effective);
             setPendingDeleteId(id);
             setShowConfirm(true);
         } else {
@@ -216,7 +229,7 @@ function WebsiteList() {
                 </div>
             ))}
             {showConfirm && (
-                <ConfirmPhrase action="delete this block" onConfirm={() => {
+                <ConfirmPhrase action="delete this block" strictMode={isStrictMode} onConfirm={() => {
                     if (pendingDeleteId) deleteWebsite(pendingDeleteId);
                     setShowConfirm(false);
                     setPendingDeleteId(null);

@@ -32,6 +32,7 @@ function RecurringForm({ onClose }: { onClose: () => void }) {
     const [selectedDays, setSelectedDays] = useState<number[]>([]);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [strictModeOverride, setStrictModeOverride] = useState<boolean | null>(null);
 
     const toggleDay = (day: number) => {
         setSelectedDays(prev =>
@@ -64,7 +65,7 @@ function RecurringForm({ onClose }: { onClose: () => void }) {
                     'Content-Type': 'application/json',
                     'authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ url, startTime, endTime, days: selectedDays })
+                body: JSON.stringify({ url, startTime, endTime, days: selectedDays, strictMode: strictModeOverride })
             });
 
             if (response.status === 401) {
@@ -164,6 +165,51 @@ function RecurringForm({ onClose }: { onClose: () => void }) {
             />
 
             {error && <p className="error-message">{error}</p>}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '8px 0' }}>
+                <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 12, margin: 0 }}>Strict mode:</p>
+                <button
+                    onClick={() => setStrictModeOverride(null)}
+                    style={{
+                        padding: '3px 8px',
+                        borderRadius: 20,
+                        border: '1px solid rgba(255,255,255,0.2)',
+                        background: strictModeOverride === null ? '#0099ff' : 'rgba(255,255,255,0.05)',
+                        color: 'white',
+                        fontSize: 10,
+                        cursor: 'pointer'
+                    }}
+                >
+                    Default
+                </button>
+                <button
+                    onClick={() => setStrictModeOverride(true)}
+                    style={{
+                        padding: '3px 8px',
+                        borderRadius: 20,
+                        border: '1px solid rgba(255,255,255,0.2)',
+                        background: strictModeOverride === true ? '#ff4d4d' : 'rgba(255,255,255,0.05)',
+                        color: 'white',
+                        fontSize: 10,
+                        cursor: 'pointer'
+                    }}
+                >
+                    On
+                </button>
+                <button
+                    onClick={() => setStrictModeOverride(false)}
+                    style={{
+                        padding: '3px 8px',
+                        borderRadius: 20,
+                        border: '1px solid rgba(255,255,255,0.2)',
+                        background: strictModeOverride === false ? '#4CAF50' : 'rgba(255,255,255,0.05)',
+                        color: 'white',
+                        fontSize: 10,
+                        cursor: 'pointer'
+                    }}
+                >
+                    Off
+                </button>
+            </div>
             <button className="addbutton" onClick={handleAdd} disabled={loading}>
                 {loading ? 'Adding...' : 'Add'}
             </button>
