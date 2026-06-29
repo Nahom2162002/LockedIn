@@ -4,6 +4,30 @@ import WebsiteList from './WebsiteList.tsx';
 import { useNavigate } from 'react-router-dom';
 import RecurringForm from './RecurringForm.tsx';
 import RecurringList from './RecurringList.tsx';
+import ConfirmPhrase from './ConfirmPhrase.tsx';
+
+const isActivelyBlocking = (websites: any[], recurringBlocks: any[]) => {
+    const now = new Date();
+    const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    const currentDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    const currentDay = now.getDay();
+
+    const oneTimeActive = websites.some(site => {
+        const siteDate = site.dateCreated.split('T')[0];
+        return siteDate === currentDate &&
+            currentTime >= site.startTime &&
+            currentTime <= site.endTime;
+    });
+
+    if (oneTimeActive) return true;
+
+    return recurringBlocks.some(block =>
+        block.active &&
+        block.days.includes(currentDay) &&
+        currentTime >= block.startTime &&
+        currentTime <= block.endTime 
+    );
+};
 
 function Menu() {
     const [isOpen, setIsOpen] = useState(false);
@@ -13,6 +37,9 @@ function Menu() {
     const [plan, setPlan] = useState<string>('free');
     const [showRecurringForm, setShowRecurringForm] = useState(false);
     const [showRecurringList, setShowRecurringList] = useState(false);
+    const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+    const [websites, setWebsites] = useState<any[]>([]);
+    const [recurringBlocks, setRecurringBlocks] = useState<any[]>([]);
 
     useEffect(() => {
         const getplan = async () => {
@@ -38,6 +65,10 @@ function Menu() {
                 await chrome.storage.local.set({ plan: data.plan });
                 setPlan(data.plan);
             }
+
+            const stored = await chrome.storage.local.get(['websites', 'recurringBlocks']);
+            setWebsites((stored.websites as any[]) || []);
+            setRecurringBlocks((stored.recurringBlocks as any[]) || []);
         };
         syncPlan();
     }, []);
@@ -79,10 +110,19 @@ function Menu() {
     };
 
     const handleLogout = async () => {
-        setLoading(true);
+        const blocking = isActivelyBlocking(websites, recurringBlocks);
+        if (blocking) {
+            setShowLogoutConfirm(true);
+        } else {
+            await performLogout();
+        }
+    };
+
+    const performLogout = async () => {
         await chrome.storage.local.remove('token');
+        await chrome.storage.local.remove('plan');
         navigate('/login');
-    }
+    };
 
     const handleUpgrade = async () => {
         const { token } = await chrome.storage.local.get('token');
@@ -184,6 +224,14 @@ function Menu() {
                             <RecurringList />
                         )}
                     </>
+                )}
+                {showLogoutConfirm && (
+                    <ConfirmPhrase action="log out and disable blocking" onConfirm={async () => {
+                        setShowLogoutConfirm(false);
+                        await performLogout();
+                    }}
+                    onCancel={() => setShowLogoutConfirm(false)}
+                    />
                 )}
             </div> 
         </div>

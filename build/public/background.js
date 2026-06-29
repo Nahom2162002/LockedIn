@@ -1,11 +1,16 @@
+const recentlyBlocked = new Map();
+
 chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
     if (details.frameId !== 0) {
         return;
     } 
 
-    if (details.url.includes('blocked.html')) {
+    if (details.url.includes('blocked.html') || details.url.startsWith('chrome-extension://')) {
         return;
     }
+
+    const lastBlocked = recentlyBlocked.get(details.tabId);
+    if (lastBlocked && Date.now() - lastBlocked < 2000) return;
 
     const result = await chrome.storage.local.get(['websites', 'recurringBlocks', 'token']);
     const websites = result.websites || [];
@@ -36,6 +41,7 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
             }).catch(err => console.error('Failed to record block event:', err));
           }
 
+          recentlyBlocked.set(details.tabId, Date.now());
           chrome.tabs.update(details.tabId, { url: chrome.runtime.getURL(`blocked.html?url=${encodeURIComponent(details.url)}`) });
           return;
         }

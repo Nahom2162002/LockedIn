@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import ConfirmPhrase from './ConfirmPhrase.tsx';
 
 interface Website {
     _id: string;
@@ -8,10 +9,62 @@ interface Website {
     endTime: string;
 }
 
+const isActivelyBlocking = (websites: any[], recurringBlocks: any[]) => {
+    const now = new Date();
+    const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    const currentDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    const currentDay = now.getDay();
+
+    const oneTimeActive = websites.some(site => {
+        const siteDate = site.dateCreated.split('T')[0];
+        return siteDate === currentDate &&
+            currentTime >= site.startTime &&
+            currentTime <= site.endTime;
+    });
+
+    if (oneTimeActive) return true;
+
+    return recurringBlocks.some(block =>
+        block.active &&
+        block.days.includes(currentDay) &&
+        currentTime >= block.startTime &&
+        currentTime <= block.endTime 
+    );
+};
+
 function WebsiteList() {
     const [websites, setWebsites] = useState<Website[]>([]);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [editForm, setEditForm] = useState<Omit<Website, '_id'>>({ url: '', dateCreated: '', startTime: '', endTime: ''});
+    const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+    const [showConfirm, setShowConfirm] = useState(false);
+    const [recurringBlocks, setRecurringBlocks] = useState<any[]>([]);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const result = await chrome.storage.local.get(['token', 'recurringBlocks']);
+            const token = result.token as string;
+            const cached = (result.recurringBlocks as any[]) || [];
+            setRecurringBlocks(cached);
+
+            if (!token) return;
+
+            const response = await fetch('https://lockedin-web-six.vercel.app/api/websites', {
+                headers: { 'authorization': `Bearer ${token}`}
+            });
+
+            if (response.status === 401) {
+                await chrome.storage.local.remove('token');
+                window.location.href = chrome.runtime.getURL('index.html#/login');
+                return;
+            }
+
+            const data = await response.json();
+            setWebsites(data);
+            chrome.storage.local.set({ websites: data });
+        };
+        fetchData();
+    }, []);
 
     useEffect(() => {
         const fetchWebsites = async () => {
@@ -101,18 +154,20 @@ function WebsiteList() {
         }
     };
 
+    const handleDeleteClick = (id: string) => {
+        const result = isActivelyBlocking(websites, recurringBlocks);
+        if (result) {
+            setPendingDeleteId(id);
+            setShowConfirm(true);
+        } else {
+            deleteWebsite(id);
+        }
+    };
+
     const deleteWebsite = async (id: string) => {
         try {
-            /*
-            await fetch(`https://lockedin-jovk.onrender.com/websites/${id}`, {
-                method: 'DELETE'
-            });*/
-            const { token } = await chrome.storage.local.get('token');
-
-            if (!token) {
-                console.error('No userId found');
-                return;
-            }
+            const result = await chrome.storage.local.get('token');
+            const token = result.token as string;
             
             await fetch(`https://lockedin-web-six.vercel.app/api/websites/${id}`, {
                 method: 'DELETE',
@@ -155,11 +210,23 @@ function WebsiteList() {
                             <p><span>End:</span> {site.endTime}</p>
                           </div>
                           <button className="edit-button" onClick={() => startEditing(site)}>Edit</button>
-                          <button className="delete-button" onClick={() => deleteWebsite(site._id)}>Delete</button>
+                          <button className="delete-button" onClick={() => handleDeleteClick(site._id)}>Delete</button>
                         </>
                     )}
                 </div>
             ))}
+            {showConfirm && (
+                <ConfirmPhrase action="delete this block" onConfirm={() => {
+                    if (pendingDeleteId) deleteWebsite(pendingDeleteId);
+                    setShowConfirm(false);
+                    setPendingDeleteId(null);
+                }}
+                onCancel={() => {
+                    setShowConfirm(false);
+                    setPendingDeleteId(null);
+                }}
+                />
+            )}
         </div>
     );
 }
