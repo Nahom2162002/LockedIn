@@ -7,6 +7,7 @@ interface Website {
     dateCreated: string;
     startTime: string;
     endTime: string;
+    strictMode: boolean | null;
 }
 
 const isActivelyBlocking = (websites: any[], recurringBlocks: any[]) => {
@@ -35,7 +36,7 @@ const isActivelyBlocking = (websites: any[], recurringBlocks: any[]) => {
 function WebsiteList() {
     const [websites, setWebsites] = useState<Website[]>([]);
     const [editingId, setEditingId] = useState<string | null>(null);
-    const [editForm, setEditForm] = useState<Omit<Website, '_id'>>({ url: '', dateCreated: '', startTime: '', endTime: ''});
+    const [editForm, setEditForm] = useState<Omit<Website, '_id'>>({ url: '', dateCreated: '', startTime: '', endTime: '', strictMode: null});
     const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
     const [showConfirm, setShowConfirm] = useState(false);
     const [recurringBlocks, setRecurringBlocks] = useState<any[]>([]);
@@ -99,7 +100,7 @@ function WebsiteList() {
 
     const startEditing = (site: Website) => {
         setEditingId(site._id);
-        setEditForm({ url: site.url, dateCreated: site.dateCreated, startTime: site.startTime, endTime: site.endTime });
+        setEditForm({ url: site.url, dateCreated: site.dateCreated, startTime: site.startTime, endTime: site.endTime, strictMode: site.strictMode });
     };
 
     const getEffectiveStrictMode = (site: any, globalStrictMode: boolean) => {
@@ -168,8 +169,10 @@ function WebsiteList() {
         const blocking = isActivelyBlocking(websites, recurringBlocks);
         if (blocking) {
             const site = websites.find(s => s._id === id);
-            console.log('site strictMode:');
+            console.log('site strictMode:', site?.strictMode);
+            console.log('global strictMode:', strictMode);
             const effective = site ? getEffectiveStrictMode(site, strictMode) : strictMode;
+            console.log('effective strictMode:', effective);
             setIsStrictMode(effective);
             setPendingDeleteId(id);
             setShowConfirm(true);
