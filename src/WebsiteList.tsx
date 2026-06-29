@@ -215,6 +215,51 @@ function WebsiteList() {
                           <input id="editdate" type="date" value={editForm.dateCreated.split('T')[0]} min={today} onChange={(e) => setEditForm({ ...editForm, dateCreated: e.target.value })}/>
                           <input id="editstart" type="time" value={editForm.startTime} min={editForm.dateCreated.split('T')[0] === today ? currentTime: undefined} onChange={(e) => setEditForm({ ...editForm, startTime: e.target.value })}/>
                           <input id="editend" type="time" value={editForm.endTime} min={editForm.startTime} onChange={(e) => setEditForm({ ...editForm, endTime: e.target.value })}/>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, margin: '4px 0' }}>
+                            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 11, margin: 0 }}>Strict:</p>
+                            <button
+                                onClick={() => setEditForm({ ...editForm, strictMode: null })}
+                                style={{
+                                    padding: '2px 7px',
+                                    borderRadius: 20,
+                                    border: '1px solid rgba(255,255,255,0.2)',
+                                    background: editForm.strictMode === null ? '#0099ff' : 'rgba(255,255,255,0.05)',
+                                    color: 'white',
+                                    fontSize: 10,
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                Default
+                            </button>
+                            <button
+                                onClick={() => setEditForm({ ...editForm, strictMode: true })}
+                                style={{
+                                    padding: '2px 7px',
+                                    borderRadius: 20,
+                                    border: '1px solid rgba(255,255,255,0.2)',
+                                    background: editForm.strictMode === true ? '#ff4d4d' : 'rgba(255,255,255,0.05)',
+                                    color: 'white',
+                                    fontSize: 10,
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                On
+                            </button>
+                            <button
+                                onClick={() => setEditForm({ ...editForm, strictMode: false })}
+                                style={{
+                                    padding: '2px 7px',
+                                    borderRadius: 20,
+                                    border: '1px solid rgba(255,255,255,0.2)',
+                                    background: editForm.strictMode === false ? '#4CAF50' : 'rgba(255,255,255,0.05)',
+                                    color: 'white',
+                                    fontSize: 10,
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                Off
+                            </button>
+                          </div>
                           <button id="savebutton" onClick={() => saveEdit(site._id)}>Save</button>
                           <button id="cancelbutton" onClick={() => setEditingId(null)}>Cancel</button>
                         </>
