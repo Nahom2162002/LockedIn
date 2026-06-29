@@ -2,6 +2,8 @@ import RestrictionInfo from './RestrictionInfo.tsx';
 import { useEffect, useState } from 'react';
 import WebsiteList from './WebsiteList.tsx';
 import { useNavigate } from 'react-router-dom';
+import RecurringForm from './RecurringForm.tsx';
+import RecurringList from './RecurringList.tsx';
 
 function Menu() {
     const [isOpen, setIsOpen] = useState(false);
@@ -9,6 +11,8 @@ function Menu() {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [plan, setPlan] = useState<string>('free');
+    const [showRecurringForm, setShowRecurringForm] = useState(false);
+    const [showRecurringList, setShowRecurringList] = useState(false);
 
     useEffect(() => {
         const getplan = async () => {
@@ -36,6 +40,37 @@ function Menu() {
             }
         };
         syncPlan();
+    }, []);
+
+    useEffect(() => {
+        const syncData = async () => {
+            const result = await chrome.storage.local.get(['token', 'plan']);
+            const token = result.token as string | undefined;
+            const cachedPlan = result.plan as string | undefined;
+            setPlan(cachedPlan || 'free');
+
+            if (!token) return;
+
+            const planRes = await fetch('https://lockedin-web-six.vercel.app/api/user/plan', {
+                headers: { 'authorization': `Bearer ${token}` }
+            });
+            const planData = await planRes.json();
+            if (planData.plan !== cachedPlan) {
+                await chrome.storage.local.set({ plan: planData.plan });
+                setPlan(planData.plan);
+            }
+
+            if (planData.plan === 'pro') {
+                const recurringRes = await fetch('https://lockedin-web-six.vercel.app/api/recurring', {
+                    headers: { 'authorization': `Bearer ${token}` }
+                });
+                const recurringData = await recurringRes.json();
+                if (Array.isArray(recurringData)) {
+                    await chrome.storage.local.set({ recurringBlocks: recurringData });
+                }
+            }
+        };
+        syncData();
     }, []);
 
     const handleAdd = () => {
@@ -135,6 +170,19 @@ function Menu() {
                         <button className="authbutton" onClick={handleManageSubscription}>
                             Manage Subscription 
                         </button>
+                        <button className="authbutton" onClick={() => setShowRecurringForm(true)}>
+                            + Recurring Block 
+                        </button>
+                        <button className="authbutton" onClick={() => setShowRecurringList(!showRecurringList)}>
+                            View Recurring Blocks 
+                        </button>
+
+                        {showRecurringForm && (
+                            <RecurringForm onClose={() => setShowRecurringForm(false)} />
+                        )}
+                        {showRecurringList && (
+                            <RecurringList />
+                        )}
                     </>
                 )}
             </div> 

@@ -7,8 +7,9 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
         return;
     }
 
-    const result = await chrome.storage.local.get('websites');
+    const result = await chrome.storage.local.get(['websites', 'token']);
     const websites = result.websites;
+    const token = result.token;
 
     if (!websites || websites.length === 0) {
         return;
@@ -25,6 +26,18 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
             siteDate === currentDate &&
             currentTime >= site.startTime &&
             currentTime <= site.endTime) {
+          
+          if (token) {
+            fetch('https://lockedin-web-six.vercel.app/api/user/block-event', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ url: site.url })
+            }).catch(err => console.error('Failed to record block event:', err));
+          }
+
           chrome.tabs.update(details.tabId, { url: chrome.runtime.getURL(`blocked.html?url=${encodeURIComponent(details.url)}`) });
           break;
         }
