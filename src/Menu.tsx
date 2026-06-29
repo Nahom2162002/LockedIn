@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import RecurringForm from './RecurringForm.tsx';
 import RecurringList from './RecurringList.tsx';
 import ConfirmPhrase from './ConfirmPhrase.tsx';
+import CategoryBlock from './CategoryBlock.tsx';
 
 const isActivelyBlocking = (websites: any[], recurringBlocks: any[]) => {
     const now = new Date();
@@ -39,6 +40,7 @@ function Menu() {
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
     const [websites, setWebsites] = useState<any[]>([]);
     const [recurringBlocks, setRecurringBlocks] = useState<any[]>([]);
+    const [showCategoryBlock, setShowCategoryBlock] = useState(false);
     /*
     useEffect(() => {
         const getplan = async () => {
@@ -259,12 +261,18 @@ function Menu() {
                         <button className="authbutton" onClick={() => setShowRecurringList(!showRecurringList)}>
                             View Recurring Blocks 
                         </button>
+                        <button className="authbutton" onClick={() => setShowCategoryBlock(true)}>
+                            Block Category 
+                        </button>
 
                         {showRecurringForm && (
                             <RecurringForm onClose={() => setShowRecurringForm(false)} />
                         )}
                         {showRecurringList && (
                             <RecurringList />
+                        )}
+                        {showCategoryBlock && (
+                            <CategoryBlock onClose={() => setShowCategoryBlock(false)} />
                         )}
                     </>
                 )}
