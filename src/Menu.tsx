@@ -39,7 +39,7 @@ function Menu() {
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
     const [websites, setWebsites] = useState<any[]>([]);
     const [recurringBlocks, setRecurringBlocks] = useState<any[]>([]);
-
+    /*
     useEffect(() => {
         const getplan = async () => {
             const result = await chrome.storage.local.get('plan');
@@ -101,6 +101,50 @@ function Menu() {
             }
         };
         syncData();
+    }, []);*/
+
+    useEffect(() => {
+        const syncAll = async () => {
+            const result = await chrome.storage.local.get(['token', 'plan', 'websites', 'recurringBlocks']);
+            const token = result.token as string | undefined;
+            const cachedPlan = result.plan as string | undefined;
+
+            setPlan(cachedPlan || 'free');
+            setWebsites((result.websites as any[]) || []);
+            setRecurringBlocks((result.recurringBlocks as any[]) || []);
+
+            if (!token) return;
+
+            const planRes = await fetch('https://lockedin-web-six.vercel.app/api/user/plan', {
+                headers: { 'authorization': `Bearer ${token}`}
+            });
+            const planData = await planRes.json();
+            if (planData.plan !== cachedPlan) {
+                await chrome.storage.local.set({ plan: planData.plan });
+                setPlan(planData.plan);
+            }
+
+            if (planData.plan === 'pro') {
+                const recurringRes = await fetch('https://lockedin-web-six.vercel.app/api/recurring', {
+                    headers: { 'authorization': `Bearer ${token}`}
+                });
+                const recurringData = await recurringRes.json();
+                if (Array.isArray(recurringData)) {
+                    await chrome.storage.local.set({ recurringBlocks: recurringData });
+                    setRecurringBlocks(recurringData);
+                }
+            }
+
+            const websitesRes = await fetch('https://lockedin-web-six.vercel.app/api/websites', {
+                headers: { 'authorization': `Bearer ${token}` }
+            });
+            const websitesData = await websitesRes.json();
+            if (Array.isArray(websitesData)) {
+                await chrome.storage.local.set({ websites: websitesData });
+                setWebsites(websitesData);
+            }
+        };
+        syncAll();
     }, []);
 
     const handleAdd = () => {
