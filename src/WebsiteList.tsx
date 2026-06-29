@@ -168,6 +168,7 @@ function WebsiteList() {
         const blocking = isActivelyBlocking(websites, recurringBlocks);
         if (blocking) {
             const site = websites.find(s => s._id === id);
+            console.log('site strictMode:');
             const effective = site ? getEffectiveStrictMode(site, strictMode) : strictMode;
             setIsStrictMode(effective);
             setPendingDeleteId(id);

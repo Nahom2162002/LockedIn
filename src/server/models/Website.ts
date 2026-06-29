@@ -5,7 +5,8 @@ const websiteSchema = new Schema({
     url: { type: String },
     dateCreated: { type: Date, required: false },
     startTime: { type: String },
-    endTime: { type: String }
+    endTime: { type: String },
+    strictMode: { type: Boolean, default: null }
 });
 
 export default mongoose.models.Website || mongoose.model('Website', websiteSchema);
