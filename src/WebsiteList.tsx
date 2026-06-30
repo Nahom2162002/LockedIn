@@ -98,6 +98,20 @@ function WebsiteList() {
         fetchWebsites();
     }, []);
 
+    useEffect(() => {
+        const handleStorageChange = (changes: { [key: string]: chrome.storage.StorageChange }) => {
+            if (changes.websites?.newValue) {
+                setWebsites(changes.websites.newValue as Website[]);
+            }
+            if (changes.recurringBlocks?.newValue) {
+                setRecurringBlocks(changes.recurringBlocks.newValue as any[]);
+            }
+        };
+
+        chrome.storage.onChanged.addListener(handleStorageChange);
+        return () => chrome.storage.onChanged.removeListener(handleStorageChange);
+    }, []);
+
     const startEditing = (site: Website) => {
         setEditingId(site._id);
         setEditForm({ url: site.url, dateCreated: site.dateCreated, startTime: site.startTime, endTime: site.endTime, strictMode: site.strictMode });

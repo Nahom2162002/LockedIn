@@ -42,16 +42,19 @@ function Menu() {
     const [recurringBlocks, setRecurringBlocks] = useState<any[]>([]);
     const [showCategoryBlock, setShowCategoryBlock] = useState(false);
     const [strictMode, setStrictMode] = useState(false);
+    const [lastSynced, setLastSynced] = useState<string | null>(null);
 
     useEffect(() => {
         const syncAll = async () => {
             const result = await chrome.storage.local.get(['token', 'plan', 'websites', 'recurringBlocks']);
             const token = result.token as string | undefined;
             const cachedPlan = result.plan as string | undefined;
+            const lastSyncedResult = await chrome.storage.local.get('lastSynced');
 
             setPlan(cachedPlan || 'free');
             setWebsites((result.websites as any[]) || []);
             setRecurringBlocks((result.recurringBlocks as any[]) || []);
+            setLastSynced(lastSyncedResult.lastSynced as string || null);
 
             if (!token) return;
 
@@ -90,6 +93,9 @@ function Menu() {
             const settingsData = await settingsRes.json();
             setStrictMode(settingsData.strictMode ?? false);
             await chrome.storage.local.set({ strictMode: settingsData.strictMode ?? false });
+
+            await chrome.storage.local.set({ lastSynced: new Date().toISOString() });
+            setLastSynced(new Date().toISOString());
         };
         syncAll();
     }, []);
@@ -187,6 +193,49 @@ function Menu() {
         await chrome.storage.local.set({ strictMode: newValue });
     };
 
+    const formatLastSynced = (iso: string | null) => {
+        if (!iso) return 'Never';
+        const date = new Date(iso);
+        const now = new Date();
+        const diff = Math.floor((now.getTime() - date.getTime()) / 1000);
+        if (diff < 60) return 'Just now';
+        if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+        return `${Math.floor(diff / 3600)}h ago`;
+    };
+
+    const handleManualSync = async () => {
+        const result = await chrome.storage.local.get('token');
+        const token = result.token as string;
+        if (!token) return;
+
+        try {
+            const websitesRes = await fetch('https://lockedin-web-six.vercel.app/api/websites', {
+                headers: { 'authorization': `Bearer ${token}` }
+            });
+            const websites = await websitesRes.json();
+            if (Array.isArray(websites)) {
+                await chrome.storage.local.set({ websites });
+            }
+
+            if (plan === 'pro') {
+                const recurringRes = await fetch('https://lockedin-web-six.vercel.app/api/recurring', {
+                    headers: { 'authorization': `Bearer ${token}` }
+                });
+                const recurring = await recurringRes.json();
+                if (Array.isArray(recurring)) {
+                    await chrome.storage.local.set({ recurringBlocks: recurring });
+                    setRecurringBlocks(recurring);
+                }
+            }
+
+            const now = new Date().toISOString();
+            await chrome.storage.local.set({ lastSynced: now });
+            setLastSynced(now);
+        } catch (err) {
+            console.error('Manual sync failed:', err);
+        }
+    };
+
     return (
         <div className="menuBackground">
             <div>
@@ -256,6 +305,32 @@ function Menu() {
                         {showCategoryBlock && (
                             <CategoryBlock onClose={() => setShowCategoryBlock(false)} />
                         )}
+                        <p style={{
+                            color: 'rgba(255, 255, 255, 0.3)',
+                            fontSize: 10,
+                            textAlign: 'center',
+                            margin: '8px 0 0 0'
+                        }}>
+                            Last synced: {formatLastSynced(lastSynced)}
+                        </p>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, margin: '8px 0 0 0' }}>
+                            <p style={{ color: 'rgba(255, 255, 255, 0.3)', fontSize: 10, margin: 0 }}>
+                                Last synced: {formatLastSynced(lastSynced)}
+                            </p>
+                            <button onClick={handleManualSync} 
+                                    style={{
+                                        padding: '2px 8px',
+                                        borderRadius: 20,
+                                        border: '1px solid rgba(255, 255, 255, 0.15)',
+                                        background: 'transparent',
+                                        color: 'rgba(255, 255, 255, 0.4)',
+                                        fontSize: 10,
+                                        cursor: 'pointer'
+                                    }}
+                            >
+                                Sync now
+                            </button>
+                        </div>
                     </>
                 )}
                 {showLogoutConfirm && (
