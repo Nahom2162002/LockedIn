@@ -1,5 +1,54 @@
 const recentlyBlocked = new Map();
 
+chrome.runtime.onInstalled.addListener(() => {
+    chrome.alarms.create('syncData', { periodInMinutes: 5 });
+});
+
+chrome.runtime.onStartup.addListener(() => {
+    chrome.alarms.create('syncData', { periodInMinutes: 5 });
+});
+
+chrome.alarms.onAlarm.addListener(async (alarm) => {
+    if (alarm.name !== 'syncData') return;
+
+    const result = await chrome.storage.local.get(['token', 'plan']);
+    const token = result.token || '';
+    const plan = result.plan || '';
+
+    if (!token) return;
+
+    try {
+        const websitesRes = await fetch('https://lockedin-web-six.vercel.app/api/websites', {
+            headers: { 'authorization': `Bearer ${token}` }
+        });
+        if (websitesRes.ok) {
+            const websites = await websitesRes.json();
+            if (Array.isArray(websites)) {
+                await chrome.storage.local.set({
+                    websites,
+                    lastSynced: new Date().toISOString()
+                });
+            }
+        }
+
+        if (plan === 'pro') {
+            const recurringRes = await fetch('https://lockedin-web-six.vercel.app/api/recurring', {
+                headers: { 'authorization': `Bearer ${token}` }
+            });
+            if (recurringRes.ok) {
+                const recurringBlocks = await recurringRes.json();
+                if (Array.isArray(recurringBlocks)) {
+                    await chrome.storage.local.set({ recurringBlocks });
+                }
+            }
+        }
+
+        console.log('Background sycn completed:', new Date().toISOString());
+    } catch (err) {
+        console.error('Background sync failed:', err);
+    }
+});
+
 chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
     if (details.frameId !== 0) {
         return;

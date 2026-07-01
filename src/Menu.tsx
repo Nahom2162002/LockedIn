@@ -1,5 +1,5 @@
 import RestrictionInfo from './RestrictionInfo.tsx';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import WebsiteList from './WebsiteList.tsx';
 import { useNavigate } from 'react-router-dom';
 import RecurringForm from './RecurringForm.tsx';
@@ -43,6 +43,9 @@ function Menu() {
     const [showCategoryBlock, setShowCategoryBlock] = useState(false);
     const [strictMode, setStrictMode] = useState(false);
     const [lastSynced, setLastSynced] = useState<string | null>(null);
+    const [showProfileMenu, setShowProfileMenu] = useState(false);
+    const [username, setUserName] = useState('');
+    const profileRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         const syncAll = async () => {
@@ -65,6 +68,15 @@ function Menu() {
             if (planData.plan !== cachedPlan) {
                 await chrome.storage.local.set({ plan: planData.plan });
                 setPlan(planData.plan);
+            }
+
+            const userRes = await fetch('https://lockedin-web-six.vercel.app/api/user/me', {
+                headers: { 'authorization': `Bearer ${token}` }
+            });
+            const userData = await userRes.json();
+            if (userData.username) {
+                setUserName(userData.username);
+                await chrome.storage.local.set({ username: userData.username });
             }
 
             if (planData.plan === 'pro') {
@@ -98,6 +110,16 @@ function Menu() {
             setLastSynced(new Date().toISOString());
         };
         syncAll();
+    }, []);
+
+    useEffect(() => {
+        const handleClickOutside = (e: MouseEvent) => {
+            if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
+                setShowProfileMenu(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
     const handleAdd = () => {
@@ -212,9 +234,10 @@ function Menu() {
             const websitesRes = await fetch('https://lockedin-web-six.vercel.app/api/websites', {
                 headers: { 'authorization': `Bearer ${token}` }
             });
-            const websites = await websitesRes.json();
-            if (Array.isArray(websites)) {
-                await chrome.storage.local.set({ websites });
+            const websitesData = await websitesRes.json();
+            if (Array.isArray(websitesData)) {
+                await chrome.storage.local.set({ websites: websitesData });
+                setWebsites(websitesData);
             }
 
             if (plan === 'pro') {
@@ -236,6 +259,10 @@ function Menu() {
         }
     };
 
+    const getInitials = (name: string) => {
+        return name ? name.slice(0, 2).toUpperCase() : '?';
+    }
+    /*
     return (
         <div className="menuBackground">
             <div>
@@ -343,7 +370,222 @@ function Menu() {
                 )}
             </div> 
         </div>
+    );*/
+
+    return (
+        <div className="menuBackground">
+            <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '12px 16px',
+                borderBottom: '1px solid rgba(255,255,255,0.08)'
+            }}>
+                <h1 style={{ color: 'white', fontSize: 18, fontWeight: 700, margin: 0 }}>
+                    🔒 LockedIn
+                </h1>
+
+                <div ref={profileRef} style={{ position: 'relative' }}>
+                    <button
+                        onClick={() => setShowProfileMenu(prev => !prev)}
+                        style={{
+                            width: 36,
+                            height: 36,
+                            borderRadius: '50%',
+                            background: plan === 'pro'
+                                ? 'linear-gradient(135deg, #0099ff, #0055ff)'
+                                : 'rgba(255,255,255,0.15)',
+                            border: plan === 'pro' ? '2px solid #0099ff' : '2px solid rgba(255,255,255,0.2)',
+                            color: 'white',
+                            fontSize: 13,
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                        }}
+                    >
+                        {getInitials(username)}
+                    </button>
+
+                    {showProfileMenu && (
+                        <div style={{
+                            position: 'absolute',
+                            top: 44,
+                            right: 0,
+                            background: '#1a1a2e',
+                            border: '1px solid rgba(255,255,255,0.1)',
+                            borderRadius: 12,
+                            padding: '8px 0',
+                            minWidth: 200,
+                            zIndex: 100,
+                            boxShadow: '0 8px 32px rgba(0,0,0,0.4)'
+                        }}>
+                            
+                            <div style={{
+                                padding: '10px 16px 12px',
+                                borderBottom: '1px solid rgba(255,255,255,0.08)'
+                            }}>
+                                <p style={{ color: 'white', fontWeight: 600, fontSize: 14, margin: '0 0 2px 0' }}>
+                                    {username}
+                                </p>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                    <span style={{
+                                        padding: '2px 8px',
+                                        borderRadius: 20,
+                                        fontSize: 10,
+                                        fontWeight: 700,
+                                        background: plan === 'pro'
+                                            ? 'linear-gradient(135deg, #0099ff, #0055ff)'
+                                            : 'rgba(255,255,255,0.1)',
+                                        color: 'white'
+                                    }}>
+                                        {plan === 'pro' ? '⭐ PRO' : 'FREE'}
+                                    </span>
+                                </div>
+                            </div>
+
+                            {plan === 'free' && (
+                                <button
+                                    onClick={() => { handleUpgrade(); setShowProfileMenu(false); }}
+                                    style={menuItemStyle}
+                                >
+                                    ⭐ Upgrade to Pro
+                                </button>
+                            )}
+
+                            {plan === 'pro' && (
+                                <>
+                                    <button onClick={() => { handleDashboard(); setShowProfileMenu(false); }} style={menuItemStyle}>
+                                        📊 Stats Dashboard
+                                    </button>
+                                    <button onClick={() => { handleManageSubscription(); setShowProfileMenu(false); }} style={menuItemStyle}>
+                                        💳 Manage Subscription
+                                    </button>
+                                    <button onClick={() => { setShowRecurringForm(true); setShowProfileMenu(false); }} style={menuItemStyle}>
+                                        🔁 Add Recurring Block
+                                    </button>
+                                    <button onClick={() => { setShowRecurringList(!showRecurringList); setShowProfileMenu(false); }} style={menuItemStyle}>
+                                        📋 View Recurring Blocks
+                                    </button>
+                                    <button onClick={() => { setShowCategoryBlock(true); setShowProfileMenu(false); }} style={menuItemStyle}>
+                                        🗂 Block Category
+                                    </button>
+
+                                    <div style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between',
+                                        padding: '10px 16px',
+                                        cursor: 'pointer'
+                                    }}
+                                        onClick={handleToggleStrictMode}
+                                    >
+                                        <span style={{ color: 'rgba(255,255,255,0.8)', fontSize: 13 }}>
+                                            🚨 Strict Mode
+                                        </span>
+                                        <span style={{
+                                            padding: '2px 8px',
+                                            borderRadius: 20,
+                                            fontSize: 10,
+                                            fontWeight: 700,
+                                            background: strictMode ? '#ff4d4d' : 'rgba(255,255,255,0.1)',
+                                            color: 'white'
+                                        }}>
+                                            {strictMode ? 'ON' : 'OFF'}
+                                        </span>
+                                    </div>
+
+                                    <div style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between',
+                                        padding: '10px 16px',
+                                        borderTop: '1px solid rgba(255,255,255,0.08)'
+                                    }}>
+                                        <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11 }}>
+                                            🔄 {formatLastSynced(lastSynced)}
+                                        </span>
+                                        <button
+                                            onClick={handleManualSync}
+                                            style={{
+                                                padding: '2px 8px',
+                                                borderRadius: 20,
+                                                border: '1px solid rgba(255,255,255,0.15)',
+                                                background: 'transparent',
+                                                color: 'rgba(255,255,255,0.4)',
+                                                fontSize: 10,
+                                                cursor: 'pointer'
+                                            }}
+                                        >
+                                            Sync now
+                                        </button>
+                                    </div>
+                                </>
+                            )}
+
+                            <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', marginTop: 4 }}>
+                                <button
+                                    onClick={() => { handleLogout(); setShowProfileMenu(false); }}
+                                    style={{ ...menuItemStyle, color: '#ff4d4d' }}
+                                >
+                                    🚪 Log out
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            <div style={{ padding: '12px 16px' }}>
+                <div className="websiteChoices">
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        marginBottom: 8
+                    }}>
+                        <h3 style={{ color: 'white', fontSize: 13, margin: 0 }}>
+                            Blocked Sites
+                        </h3>
+                        <button id="plusbutton" onClick={() => setIsOpen(true)}>+</button>
+                    </div>
+                    {isOpen && <RestrictionInfo onClose={handleAdd} />}
+                    <div className="websiteList">
+                        <WebsiteList key={refreshKey} />
+                    </div>
+                </div>
+            </div>
+
+            {showRecurringForm && <RecurringForm onClose={() => setShowRecurringForm(false)} />}
+            {showRecurringList && <RecurringList />}
+            {showCategoryBlock && <CategoryBlock onClose={() => setShowCategoryBlock(false)} />}
+            {showLogoutConfirm && (
+                <ConfirmPhrase
+                    action="log out and disable blocking"
+                    strictMode={strictMode}
+                    onConfirm={async () => {
+                        setShowLogoutConfirm(false);
+                        await performLogout();
+                    }}
+                    onCancel={() => setShowLogoutConfirm(false)}
+                />
+            )}
+        </div>
     );
 }
+
+const menuItemStyle: React.CSSProperties = {
+    display: 'block',
+    width: '100%',
+    padding: '10px 16px',
+    background: 'transparent',
+    border: 'none',
+    color: 'rgba(255, 255, 255, 0.8)',
+    fontSize: 13,
+    textAlign: 'left',
+    cursor: 'pointer',
+    transition: 'background 0.15s'
+};
 
 export default Menu;
