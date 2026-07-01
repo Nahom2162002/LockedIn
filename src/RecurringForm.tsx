@@ -92,6 +92,153 @@ function RecurringForm({ onClose }: { onClose: () => void }) {
 
     return (
         <div className="sitechoicebackground">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, width: '100%' }}>
+                <h3 style={{ color: 'white', textAlign: 'center', margin: 0, fontSize: 16 }}>
+                    Recurring Block
+                </h3>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                    <label style={{ color: 'rgba(255,255,255,0.6)', fontSize: 12 }}>URL</label>
+                    <input
+                        id="urltext"
+                        type="text"
+                        value={url}
+                        onChange={e => setUrl(e.target.value)}
+                        placeholder="e.g. youtube.com"
+                    />
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    <label style={{ color: 'rgba(255,255,255,0.6)', fontSize: 12 }}>Days</label>
+                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                        {PRESETS.map(preset => (
+                            <button
+                                key={preset.label}
+                                onClick={() => applyPreset(preset.days)}
+                                style={{
+                                    padding: '4px 10px',
+                                    borderRadius: 20,
+                                    border: '1px solid rgba(255,255,255,0.2)',
+                                    background: JSON.stringify(selectedDays.sort()) === JSON.stringify([...preset.days].sort())
+                                        ? '#0099ff'
+                                        : 'rgba(255,255,255,0.05)',
+                                    color: 'white',
+                                    fontSize: 11,
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                {preset.label}
+                            </button>
+                        ))}
+                    </div>
+                    <div style={{ display: 'flex', gap: 6 }}>
+                        {DAYS.map(day => (
+                            <button
+                                key={day.value}
+                                onClick={() => toggleDay(day.value)}
+                                style={{
+                                    width: 32,
+                                    height: 32,
+                                    borderRadius: '50%',
+                                    border: '1px solid rgba(255,255,255,0.2)',
+                                    background: selectedDays.includes(day.value)
+                                        ? '#0099ff'
+                                        : 'rgba(255,255,255,0.05)',
+                                    color: 'white',
+                                    fontSize: 11,
+                                    cursor: 'pointer',
+                                    fontWeight: selectedDays.includes(day.value) ? 700 : 400
+                                }}
+                            >
+                                {day.label}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                    <label style={{ color: 'rgba(255,255,255,0.6)', fontSize: 12 }}>Time</label>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <input
+                            id="starttime"
+                            type="time"
+                            value={startTime}
+                            onChange={e => setStartTime(e.target.value)}
+                            style={{ flex: 1 }}
+                        />
+                        <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: 12 }}>to</span>
+                        <input
+                            id="endtime"
+                            type="time"
+                            value={endTime}
+                            onChange={e => setEndTime(e.target.value)}
+                            style={{ flex: 1 }}
+                        />
+                    </div>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                    <label style={{ color: 'rgba(255,255,255,0.6)', fontSize: 12 }}>Strict Mode</label>
+                    <div style={{ display: 'flex', gap: 6 }}>
+                        <button
+                            onClick={() => setStrictModeOverride(null)}
+                            style={{
+                                padding: '4px 12px',
+                                borderRadius: 20,
+                                border: '1px solid rgba(255,255,255,0.2)',
+                                background: strictModeOverride === null ? '#0099ff' : 'rgba(255,255,255,0.05)',
+                                color: 'white',
+                                fontSize: 11,
+                                cursor: 'pointer'
+                            }}
+                        >
+                            Default
+                        </button>
+                        <button
+                            onClick={() => setStrictModeOverride(true)}
+                            style={{
+                                padding: '4px 12px',
+                                borderRadius: 20,
+                                border: '1px solid rgba(255,255,255,0.2)',
+                                background: strictModeOverride === true ? '#ff4d4d' : 'rgba(255,255,255,0.05)',
+                                color: 'white',
+                                fontSize: 11,
+                                cursor: 'pointer'
+                            }}
+                        >
+                            On
+                        </button>
+                        <button
+                            onClick={() => setStrictModeOverride(false)}
+                            style={{
+                                padding: '4px 12px',
+                                borderRadius: 20,
+                                border: '1px solid rgba(255,255,255,0.2)',
+                                background: strictModeOverride === false ? '#4CAF50' : 'rgba(255,255,255,0.05)',
+                                color: 'white',
+                                fontSize: 11,
+                                cursor: 'pointer'
+                            }}
+                        >
+                            Off
+                        </button>
+                    </div>
+                </div>
+
+                {error && <p className="error-message" style={{ margin: 0 }}>{error}</p>}
+
+                <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
+                    <button className="addbutton" onClick={handleAdd} disabled={loading} style={{ flex: 1 }}>
+                        {loading ? 'Adding...' : 'Add'}
+                    </button>
+                    <button id="xbutton" onClick={onClose}>X</button>
+                </div>
+            </div>
+        </div>
+    );
+    /*
+    return (
+        <div className="sitechoicebackground">
             <h3 id="websiteinfo">Recurring Block</h3>
 
             <p id="url">URL:</p>
@@ -215,7 +362,7 @@ function RecurringForm({ onClose }: { onClose: () => void }) {
             </button>
             <button id="xbutton" onClick={onClose}>X</button>
         </div>
-    );
+    );*/
 }
 
 export default RecurringForm;
