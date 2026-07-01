@@ -57,7 +57,7 @@ html, body, #root {
   height: 50%;
   z-index: 999;
   padding: 20px;
-  overflow: visible;
+  overflow-y: auto;
 }
 
 #websiteinfo {
