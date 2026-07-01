@@ -102,7 +102,7 @@ function RecurringForm({ onClose }: { onClose: () => void }) {
                 placeholder="e.g. youtube.com"
             />
 
-            <div style={{ display: 'flex', gap: 6, margin: '8px 0' }}>
+            <div style={{ display: 'flex', gap: 6, position: 'fixed', top: '30%', left: '20%' }}>
                 {PRESETS.map(preset => (
                     <button 
                         key={preset.label}
@@ -124,14 +124,14 @@ function RecurringForm({ onClose }: { onClose: () => void }) {
                 ))}
             </div>
 
-            <div style={{ display: 'flex', gap: 6, margin: '8px 0' }}>
+            <div style={{ display: 'flex', gap: 6, position: 'fixed', top: '42%', left: '20%' }}>
                 {DAYS.map(day => (
                     <button 
                         key={day.value}
                         onClick={() => toggleDay(day.value)}
                         style={{
-                            width: 32,
-                            height: 32,
+                            width: 30,
+                            height: 30,
                             borderRadius: '50%',
                             border: '1px solid rgba(255, 255, 255, 0.2)',
                             background: selectedDays.includes(day.value)

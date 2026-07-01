@@ -85,22 +85,24 @@ function RecurringList() {
     return (
         <div className="website-list">
             {blocks.map(block => (
-                <div className="website-card" key={block._id} style={{ opacity: block.active ? 1 : 0.5 }}>
-                    <h3 className="card-url">{block.url}</h3>
-                    <div className="card-info">
-                        <p>
+                <div className="website-card" key={block._id} style={{ opacity: block.active ? 1 : 0.5, height: 'auto', padding: '6px 8px' }}>
+                    <h3 className="card-url" style={{ fontSize: 12 }}>{block.url}</h3>
+                    <div className="card-info" style={{ fontSize: 11, gap: 2 }}>
+                        <p style={{ margin: 0 }}>
                             <span>Days: </span>
                             {block.days.sort().map(d => DAY_LABELS[d]).join(', ')}
+                            {'  '}<span>Time: </span>{block.startTime} - {block.endTime}
                         </p>
-                        <p><span>Time: </span>{block.startTime} - {block.endTime}</p>
-                        <p><span>Status: </span>{block.active ? 'Active' : 'Paused'}</p>
+                        <p style={{ margin: 0 }}><span>Status: </span>{block.active ? 'Active' : 'Paused'}</p>
                     </div>
-                    <button className="edit-button" onClick={() => toggleActive(block._id, block.active)}>
-                        {block.active ? 'Pause' : 'Resume'}
-                    </button>
-                    <button className="delete-button" onClick={() => deleteBlock(block._id)}>
-                        Delete 
-                    </button>
+                    <div style={{ display: 'flex', gap: 6, justifyContent: 'center' }}>
+                        <button className="edit-button" style={{ padding: '4px 10px', fontSize: 11 }} onClick={() => toggleActive(block._id, block.active)}>
+                            {block.active ? 'Pause' : 'Resume'}
+                        </button>
+                        <button className="delete-button" style={{ padding: '4px 10px', fontSize: 11 }} onClick={() => deleteBlock(block._id)}>
+                            Delete 
+                        </button>
+                    </div>
                 </div>    
             ))}
         </div>
