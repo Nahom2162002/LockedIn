@@ -91,8 +91,8 @@ function RecurringForm({ onClose }: { onClose: () => void }) {
     };
 
     return (
-        <div className="sitechoicebackground">
-            <h3 id="websiteinfo">Recurring Block</h3>
+        <div className="sitechoicebackground" style={{ position: 'fixed', width: '30%'}}>
+            <h3 id="websiteinfo" style={{ position: 'fixed', top: '1%' }}>Recurring Block</h3>
             <p id="url">URL:</p>
             <input 
                 id="urltext"
@@ -147,7 +147,7 @@ function RecurringForm({ onClose }: { onClose: () => void }) {
                     </button>
                 ))}
             </div>
-
+            
             <p id="time">Time:</p>
             <input 
                 id="starttime"
@@ -155,13 +155,14 @@ function RecurringForm({ onClose }: { onClose: () => void }) {
                 value={startTime}
                 onChange={e => setStartTime(e.target.value)}
             />
-            <p id="to">to</p>
+            <p id="to" style={{ position: 'fixed', left: '45.5%', top: '59%' }}>to</p>
             <input 
                 id="endtime"
                 type="time"
                 value={endTime}
                 onChange={e => setEndTime(e.target.value)}
-            />
+                style={{ position: 'fixed', left: '51%' }}
+            /> 
 
             {error && <p className="error-message">{error}</p>}
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, position: 'fixed', top: '72%', left: '20%' }}>

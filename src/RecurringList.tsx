@@ -85,14 +85,14 @@ function RecurringList() {
     return (
         <div className="website-list">
             {blocks.map(block => (
-                <div className="website-card" key={block._id} style={{ opacity: block.active ? 1 : 0.5, height: 'auto', padding: '6px 8px' }}>
+                <div className="website-card" key={block._id} style={{ opacity: block.active ? 1 : 0.5, height: 'auto', padding: '8px 4px', width: '30%' }}>
                     <h3 className="card-url" style={{ fontSize: 12 }}>{block.url}</h3>
                     <div className="card-info" style={{ fontSize: 11, gap: 2 }}>
                         <p style={{ margin: 0 }}>
                             <span>Days: </span>
                             {block.days.sort().map(d => DAY_LABELS[d]).join(', ')}
-                            {'  '}<span>Time: </span>{block.startTime} - {block.endTime}
                         </p>
+                        <p style={{ margin: 0 }}><span>Time: </span>{block.startTime} - {block.endTime}</p>
                         <p style={{ margin: 0 }}><span>Status: </span>{block.active ? 'Active' : 'Paused'}</p>
                     </div>
                     <div style={{ display: 'flex', gap: 6, justifyContent: 'center' }}>
