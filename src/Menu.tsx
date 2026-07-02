@@ -62,7 +62,7 @@ function Menu() {
             if (!token) return;
 
             const planRes = await fetch('https://lockedin-web-six.vercel.app/api/user/plan', {
-                headers: { 'authorization': `Bearer ${token}`}
+                headers: { 'authorization': `Bearer ${token}` }
             });
             const planData = await planRes.json();
             if (planData.plan !== cachedPlan) {
@@ -262,115 +262,6 @@ function Menu() {
     const getInitials = (name: string) => {
         return name ? name.slice(0, 2).toUpperCase() : '?';
     }
-    /*
-    return (
-        <div className="menuBackground">
-            <div>
-                <h1 id="hello">Hello</h1>
-                <div className="websiteChoices">
-                    <h3>Please add websites you would like to restrict</h3>
-                    <button id="plusbutton" onClick={() => setIsOpen(true)}>+</button>
-                    {isOpen && <RestrictionInfo onClose={handleAdd}/>}
-                    <div className="websiteList">
-                        <WebsiteList key={refreshKey}/>
-                    </div>
-                </div>
-                <button className="authbutton" onClick={handleLogout}>
-                    Log out
-                </button>
-                {plan === 'free' ? (
-                    <button className="authbutton" onClick={handleUpgrade}>
-                        Upgrade to Pro
-                    </button>
-                ) : (
-                    <p style={{ color: '#4CAF50', textAlign: 'center' }}>Pro Plan Active</p>
-                )}
-
-                {plan === 'pro' && (
-                    <>
-                        <button className="authbutton" onClick={handleDashboard}>
-                            View Stats Dashboard
-                        </button>
-                        <button className="authbutton" onClick={handleManageSubscription}>
-                            Manage Subscription 
-                        </button>
-                        <button className="authbutton" onClick={() => setShowRecurringForm(true)}>
-                            + Recurring Block 
-                        </button>
-                        <button className="authbutton" onClick={() => setShowRecurringList(!showRecurringList)}>
-                            View Recurring Blocks 
-                        </button>
-                        <button className="authbutton" onClick={() => setShowCategoryBlock(true)}>
-                            Block Category 
-                        </button>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 0'}}>
-                            <p style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: 12, margin: 0 }}>
-                                🚨 Strict Mode 
-                            </p>
-                            <button onClick={handleToggleStrictMode}
-                                    style={{
-                                        padding: '4px 12px',
-                                        borderRadius: 20,
-                                        border: 'none',
-                                        background: strictMode ? '#ff4d4d' : 'rgba(255, 255, 255, 0.1)',
-                                        color: 'white',
-                                        fontSize: 11,
-                                        cursor: 'pointer',
-                                        fontWeight: 600
-                                    }}
-                            >
-                                {strictMode ? 'ON' : 'OFF'}
-                            </button>
-                        </div>
-
-                        {showRecurringForm && (
-                            <RecurringForm onClose={() => setShowRecurringForm(false)} />
-                        )}
-                        {showRecurringList && (
-                            <RecurringList />
-                        )}
-                        {showCategoryBlock && (
-                            <CategoryBlock onClose={() => setShowCategoryBlock(false)} />
-                        )}
-                        <p style={{
-                            color: 'rgba(255, 255, 255, 0.3)',
-                            fontSize: 10,
-                            textAlign: 'center',
-                            margin: '8px 0 0 0'
-                        }}>
-                            Last synced: {formatLastSynced(lastSynced)}
-                        </p>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, margin: '8px 0 0 0' }}>
-                            <p style={{ color: 'rgba(255, 255, 255, 0.3)', fontSize: 10, margin: 0 }}>
-                                Last synced: {formatLastSynced(lastSynced)}
-                            </p>
-                            <button onClick={handleManualSync} 
-                                    style={{
-                                        padding: '2px 8px',
-                                        borderRadius: 20,
-                                        border: '1px solid rgba(255, 255, 255, 0.15)',
-                                        background: 'transparent',
-                                        color: 'rgba(255, 255, 255, 0.4)',
-                                        fontSize: 10,
-                                        cursor: 'pointer'
-                                    }}
-                            >
-                                Sync now
-                            </button>
-                        </div>
-                    </>
-                )}
-                {showLogoutConfirm && (
-                    <ConfirmPhrase action="log out and disable blocking" strictMode={strictMode} onConfirm={async () => {
-                        setShowLogoutConfirm(false);
-                        await performLogout();
-                    }}
-                    onCancel={() => setShowLogoutConfirm(false)}
-                    />
-                )}
-            </div> 
-        </div>
-    );*/
 
     return (
         <div className="menuBackground">

@@ -42,16 +42,30 @@ function WebsiteList() {
     const [recurringBlocks, setRecurringBlocks] = useState<any[]>([]);
     const [strictMode, setStrictMode] = useState(false);
     const [isStrictMode, setIsStrictMode] = useState(false);
+    const [plan, setPlan] = useState<string>('free');
 
     useEffect(() => {
         const fetchData = async () => {
-            const result = await chrome.storage.local.get(['token', 'recurringBlocks', 'strictMode']);
+            const result = await chrome.storage.local.get(['token', 'recurringBlocks', 'strictMode', 'plan']);
             const token = result.token as string;
             const cached = (result.recurringBlocks as any[]) || [];
+            const cachedPlan = result.plan as string | undefined;
+
             setRecurringBlocks(cached);
             setStrictMode((result.strictMode as boolean) ?? false);
+            setPlan(cachedPlan || 'free');
 
             if (!token) return;
+
+            const planRes = await fetch('https://lockedin-web-six.vercel.app/api/user/plan', {
+                headers: { 'authorization': `Bearer ${token}` }
+            });
+            const planData = await planRes.json();
+
+            if (planData.plan !== cachedPlan) {
+                await chrome.storage.local.set({ plan: planData.plan });
+                setPlan(planData.plan);
+            }
 
             const response = await fetch('https://lockedin-web-six.vercel.app/api/websites', {
                 headers: { 'authorization': `Bearer ${token}`}
@@ -78,7 +92,7 @@ function WebsiteList() {
                 console.error('No userId found');
                 return;
             }
-            //const response = await fetch(`https://lockedin-jovk.onrender.com/websites?userId=${userId}`);
+
             const response = await fetch('https://lockedin-web-six.vercel.app/api/websites', {
                 headers: {
                     'authorization': `Bearer ${token}`
@@ -112,17 +126,17 @@ function WebsiteList() {
         return () => chrome.storage.onChanged.removeListener(handleStorageChange);
     }, []);
 
-    const startEditing = (site: Website) => {
-        setEditingId(site._id);
-        setEditForm({ url: site.url, dateCreated: site.dateCreated, startTime: site.startTime, endTime: site.endTime, strictMode: site.strictMode });
-    };
-
     const getEffectiveStrictMode = (site: any, globalStrictMode: boolean) => {
         if (site.strictMode !== null && site.strictMode !== undefined) {
             return site.strictMode;
         }
         return globalStrictMode;
     }
+
+    const startEditing = (site: Website) => {
+        setEditingId(site._id);
+        setEditForm({ url: site.url, dateCreated: site.dateCreated, startTime: site.startTime, endTime: site.endTime, strictMode: site.strictMode });
+    };
 
     const saveEdit = async (id: string) => {
         if (!editForm.url || !editForm.dateCreated || !editForm.startTime || !editForm.endTime) {
@@ -141,12 +155,6 @@ function WebsiteList() {
         }
 
         try {
-            /*
-            const response = await fetch(`https://lockedin-jovk.onrender.com/websites/${id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(editForm)
-            });*/
             const { token } = await chrome.storage.local.get('token');
 
             if (!token) {
@@ -230,6 +238,8 @@ function WebsiteList() {
                           <input id="editstart" type="time" value={editForm.startTime} min={editForm.dateCreated.split('T')[0] === today ? currentTime: undefined} onChange={(e) => setEditForm({ ...editForm, startTime: e.target.value })}/>
                           <input id="editend" type="time" value={editForm.endTime} min={editForm.startTime} onChange={(e) => setEditForm({ ...editForm, endTime: e.target.value })}/>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 6, margin: '4px 0' }}>
+                            {plan === 'pro' && (
+                            <>
                             <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 11, margin: 0 }}>Strict:</p>
                             <button
                                 onClick={() => setEditForm({ ...editForm, strictMode: null })}
@@ -273,6 +283,8 @@ function WebsiteList() {
                             >
                                 Off
                             </button>
+                            </>
+                            )}
                           </div>
                           <button id="savebutton" onClick={() => saveEdit(site._id)}>Save</button>
                           <button id="cancelbutton" onClick={() => setEditingId(null)}>Cancel</button>
