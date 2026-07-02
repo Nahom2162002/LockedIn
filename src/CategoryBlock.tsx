@@ -162,8 +162,10 @@ function CategoryBlock({ onClose }: { onClose: () => void}) {
                 </button>
             </div>
             {scheduleType === 'one-time' && (
-                <input id="datetext" type="date" value={date} min={today} onChange={e => setDate(e.target.value)}
-                />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4, margin: '8px 0' }}>
+                    <label style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: 12 }}>Date</label>
+                    <input id="datetext" type="date" value={date} min={today} onChange={e => setDate(e.target.value)}/>
+                </div>
             )}
             {scheduleType === 'recurring' && (
                 <>
@@ -209,10 +211,16 @@ function CategoryBlock({ onClose }: { onClose: () => void}) {
                 </>
             )}
 
-            <p id="time">Time:</p>
-            <input id="starttime" type="time" value={startTime} onChange={e => setStartTime(e.target.value)}/>
-            <p id="to">to</p>
-            <input id="endtime" type="time" value={endTime} onChange={e => setEndTime(e.target.value)}/>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, margin: '8px 0' }}>
+                <label style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: 12 }}>Time</label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <p id="time">Time:</p>
+                    <input id="starttime" type="time" value={startTime} onChange={e => setStartTime(e.target.value)}/>
+                    <span style={{ color: 'rgba(255, 255, 255, 0.5)', fontSize: 12 }}>to</span>
+                    <input id="endtime" type="time" value={endTime} onChange={e => setEndTime(e.target.value)}/>
+                </div>
+            </div>  
+            
             {error && <p className="error-message">{error}</p>}
             {success && <p style={{ color: '#4CAF50', fontSize: 12, textAlign: 'center' }}>{success}</p>}
 

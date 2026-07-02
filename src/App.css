@@ -1,8 +1,11 @@
 html, body, #root {
-  width: 200px;
-  height: 150px;
+  width: 300px;
+  min-height: 500px;
+  max-height: 600px;
   margin: 0;
   padding: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .matrixBackground {
@@ -15,9 +18,8 @@ html, body, #root {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  min-height: 100vh;
-  width: 100vw;
-  height: 100vh;
+  width: 380px;
+  min-height: 500px;
 }
 
 @keyframes fadeInUp {
@@ -38,13 +40,9 @@ html, body, #root {
 
 .websiteChoices {
   animation: fadeInUp 0.8s ease-out forwards;
-  /*background-color: rgb(5, 5, 53);*/
-  position: relative;
-  top: 50%;
-  left: 25%;
-  transform: translate(-50%, -50%);
-  width: 50vw;
-  height: 50vh;
+  width: 100%;
+  padding: 0 8px;
+  box-sizing: border-box;
 }
 
 .sitechoicebackground {
@@ -69,11 +67,20 @@ html, body, #root {
   font-weight: bold;
 }
 
-.addbutton {
-  position: fixed;
-  top: 87%;
-  left: 43%;
-  background-color: rgb(5, 5, 53);
+.addbutton, #addbutton {
+  background: linear-gradient(135deg, #0099ff, #0055ff);
+  color: white;
+  border: none;
+  padding: 8px 24px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.addbutton:hover {
+  opacity: 0.9;
 }
 
 #url {
