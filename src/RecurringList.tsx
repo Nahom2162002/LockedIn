@@ -310,7 +310,9 @@ function RecurringList() {
                                 <div className="card-info" style={{ fontSize: 11, gap: 2 }}>
                                     <p style={{ margin: 0 }}>
                                         <span>Days: </span>{block.days.sort().map(d => DAY_LABELS[d]).join(', ')}
-                                        {'  '}<span>Time: </span>{block.startTime}–{block.endTime}
+                                    </p> 
+                                    <p style={{ margin: 0 }}>
+                                        <span>Time: </span>{block.startTime}–{block.endTime}
                                     </p>
                                     <p style={{ margin: 0 }}>
                                         <span>Status: </span>{block.active ? 'Active' : 'Paused'}
