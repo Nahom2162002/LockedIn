@@ -63,8 +63,17 @@ function RestrictionInfo({ onClose }: {onClose: () => void}) {
             }
 
             const data = await response.json();
-            console.log(data);
-            onClose();
+
+            if (response.status === 403 && data.limitReached) {
+                setError('You\'ve reached the 3 site limit. Upgrade to Pro for unlimited blocking.');
+                return;
+            }
+
+            if (data.error) {
+                setError(data.error);
+            } else {
+                onClose();
+            }
         } catch (err) {
             console.error(err);
         }

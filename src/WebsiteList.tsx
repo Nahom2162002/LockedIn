@@ -189,12 +189,9 @@ function WebsiteList() {
 
     const handleDeleteClick = (id: string) => {
         const blocking = isActivelyBlocking(websites, recurringBlocks);
-        if (blocking) {
+        if (blocking && plan === 'pro') {
             const site = websites.find(s => s._id === id);
-            console.log('site strictMode:', site?.strictMode);
-            console.log('global strictMode:', strictMode);
             const effective = site ? getEffectiveStrictMode(site, strictMode) : strictMode;
-            console.log('effective strictMode:', effective);
             setIsStrictMode(effective);
             setPendingDeleteId(id);
             setShowConfirm(true);

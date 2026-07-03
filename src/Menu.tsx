@@ -6,6 +6,7 @@ import RecurringForm from './RecurringForm.tsx';
 import RecurringList from './RecurringList.tsx';
 import ConfirmPhrase from './ConfirmPhrase.tsx';
 import CategoryBlock from './CategoryBlock.tsx';
+import UpgradePage from './UpgradePage.tsx';
 
 const isActivelyBlocking = (websites: any[], recurringBlocks: any[]) => {
     const now = new Date();
@@ -46,6 +47,7 @@ function Menu() {
     const [showProfileMenu, setShowProfileMenu] = useState(false);
     const [username, setUserName] = useState('');
     const profileRef = useRef<HTMLDivElement>(null);
+    const [showUpgradePage, setShowUpgradePage] = useState(false);
 
     useEffect(() => {
         const syncAll = async () => {
@@ -337,12 +339,23 @@ function Menu() {
                             </div>
 
                             {plan === 'free' && (
+                                <>
                                 <button
-                                    onClick={() => { handleUpgrade(); setShowProfileMenu(false); }}
+                                    onClick={() => setShowUpgradePage(true)/*{ handleUpgrade(); setShowProfileMenu(false); }*/}
                                     style={menuItemStyle}
                                 >
                                     ⭐ Upgrade to Pro
                                 </button>
+                                <p style={{
+                                    color: websites.length >= 3 ? '#ff4d4d' : 'rgba(255, 255, 255, 0.4)',
+                                    fontSize: 11,
+                                    textAlign: 'center',
+                                    margin: '4px 0'
+                                }}>
+                                    {websites.length}/3 sites used 
+                                    {websites.length >= 3 && ' - Upgrade to Pro for unlimited'}
+                                </p>
+                                </>
                             )}
 
                             {plan === 'pro' && (
@@ -439,7 +452,14 @@ function Menu() {
                         <h3 style={{ color: 'white', fontSize: 13, margin: 0 }}>
                             Blocked Sites
                         </h3>
-                        <button id="plusbutton" onClick={() => setIsOpen(true)}>+</button>
+                        <button id="plusbutton" onClick={() => {
+                            if (plan === 'free' && websites.length >= 3) {
+                                setIsOpen(false);
+                                setShowUpgradePage(true);
+                            } else {
+                                setIsOpen(true);
+                            }
+                        }}>+</button>
                     </div>
                     {isOpen && <RestrictionInfo onClose={handleAdd} />}
                     <div className="websiteList">
@@ -460,6 +480,15 @@ function Menu() {
                         await performLogout();
                     }}
                     onCancel={() => setShowLogoutConfirm(false)}
+                />
+            )}
+            {showUpgradePage && (
+                <UpgradePage 
+                    onUpgrade={() => {
+                        setShowUpgradePage(false);
+                        handleUpgrade();
+                    }}
+                    onClose={() => setShowUpgradePage(false)}
                 />
             )}
         </div>
