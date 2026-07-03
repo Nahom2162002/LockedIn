@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import ConfirmPhrase from './ConfirmPhrase.tsx';
 
 interface RecurringBlock {
@@ -46,7 +46,6 @@ function RecurringList() {
     const [blocks, setBlocks] = useState<RecurringBlock[]>([]);
     const [showConfirm, setShowConfirm] = useState(false);
     const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
-    const [strictMode, setStrictMode] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [editForm, setEditForm] = useState<Omit<RecurringBlock, '_id'>>({
         url: '',
@@ -56,12 +55,15 @@ function RecurringList() {
         active: true,
         strictMode: null 
     });
+    const strictModeRef = useRef(false);
+
 
     useEffect(() => {
         const fetchBlocks = async () => {
             const result = await chrome.storage.local.get(['token', 'strictMode']);
             const token = result.token as string;
-            setStrictMode((result.strictMode as boolean) ?? false);
+            const sm = (result.strictMode as boolean) ?? false;
+            strictModeRef.current = sm;
 
             const response = await fetch('https://lockedin-web-six.vercel.app/api/recurring', {
                 headers: { 'authorization': `Bearer ${token}` }
@@ -82,8 +84,11 @@ function RecurringList() {
         fetchBlocks();
     }, []);
 
-    const requiredConfirmIfBlocking = (action: () => void) => {
+    const requiredConfirmIfBlocking = async (action: () => void) => {
         if (isActivelyBlocking(blocks)) {
+            const result = await chrome.storage.local.get('strictMode');
+            const sm = (result.strictMode as boolean) ?? false;
+            strictModeRef.current = sm;
             setPendingAction(() => action);
             setShowConfirm(true);
         } else {
@@ -329,14 +334,14 @@ function RecurringList() {
                                     <button
                                         className="edit-button"
                                         style={{ padding: '4px 10px', fontSize: 11 }}
-                                        onClick={() => requiredConfirmIfBlocking(() => toggleActive(block._id, block.active))}
+                                        onClick={async () => await requiredConfirmIfBlocking(() => toggleActive(block._id, block.active))}
                                     >
                                         {block.active ? 'Pause' : 'Resume'}
                                     </button>
                                     <button
                                         className="delete-button"
                                         style={{ padding: '4px 10px', fontSize: 11 }}
-                                        onClick={() => requiredConfirmIfBlocking(() => deleteBlock(block._id))}
+                                        onClick={async () => await requiredConfirmIfBlocking(() => deleteBlock(block._id))}
                                     >
                                         Delete
                                     </button>
@@ -350,7 +355,7 @@ function RecurringList() {
             {showConfirm && (
                 <ConfirmPhrase
                     action="modify a recurring block"
-                    strictMode={strictMode}
+                    strictMode={strictModeRef.current}
                     onConfirm={() => {
                         if (pendingAction) pendingAction();
                         setShowConfirm(false);

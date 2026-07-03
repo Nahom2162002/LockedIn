@@ -112,8 +112,6 @@ function CategoryBlock({ onClose }: { onClose: () => void}) {
 
     return (
         <div className="sitechoicebackground">
-            <h3 id="websiteinfo">Block a Category</h3>
-
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, margin: '8px 0' }}>
                 {Object.entries(CATEGORIES).map(([key, cat]) => (
                     <button key={key} onClick={() => setSelectedCategory(key)} style={{ padding: '6px 10px', borderRadius: 20, border: '1px solid rgba(255, 255, 255, 0.2)', 
@@ -163,7 +161,7 @@ function CategoryBlock({ onClose }: { onClose: () => void}) {
             </div>
             {scheduleType === 'one-time' && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 4, margin: '8px 0' }}>
-                    <label style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: 12 }}>Date</label>
+                    <p id="time" style={{ position: 'fixed', top: '39%' }}>Date:</p>
                     <input id="datetext" type="date" value={date} min={today} onChange={e => setDate(e.target.value)}/>
                 </div>
             )}
@@ -212,12 +210,11 @@ function CategoryBlock({ onClose }: { onClose: () => void}) {
             )}
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4, margin: '8px 0' }}>
-                <label style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: 12 }}>Time</label>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <p id="time">Time:</p>
+                    <p id="time" style={{ position: 'fixed', top: '59.5%'}}>Time:</p>
                     <input id="starttime" type="time" value={startTime} onChange={e => setStartTime(e.target.value)}/>
-                    <span style={{ color: 'rgba(255, 255, 255, 0.5)', fontSize: 12 }}>to</span>
-                    <input id="endtime" type="time" value={endTime} onChange={e => setEndTime(e.target.value)}/>
+                    <p id="time" style={{ position: 'fixed', left: '30%', top: '59%' }}>to</p>
+                    <input id="endtime" type="time" style={{ position: 'fixed', left: '33%' }} value={endTime} onChange={e => setEndTime(e.target.value)}/>
                 </div>
             </div>  
             

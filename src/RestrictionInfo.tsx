@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 function RestrictionInfo({ onClose }: {onClose: () => void}) {
     const [text, setText] = useState('');
@@ -7,6 +7,15 @@ function RestrictionInfo({ onClose }: {onClose: () => void}) {
     const [endtime, setEndTime] = useState('');
     const [error, setError] = useState('');
     const [strictModeOverride, setStrictModeOverride] = useState<boolean | null>(null);
+    const [plan, setPlan] = useState<string>('free');
+
+    useEffect(() => {
+        const getplan = async () => {
+            const result = await chrome.storage.local.get('plan');
+            setPlan((result.plan as string) || 'free');
+        };
+        getplan();
+    }, []);
 
     const addWebsite = async () => {
         if (!text || !date || !starttime || !endtime) {
@@ -25,19 +34,6 @@ function RestrictionInfo({ onClose }: {onClose: () => void}) {
         }
 
         try {
-            /*
-            const { userId } = await chrome.storage.local.get('userId');
-            const response = await fetch('https://lockedin-jovk.onrender.com/websites', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    userId,
-                    url: text,
-                    dateCreated: date,
-                    startTime: starttime,
-                    endTime: endtime 
-                })
-            });*/
             const { token } = await chrome.storage.local.get('token');
 
             if (!token) {
@@ -90,48 +86,50 @@ function RestrictionInfo({ onClose }: {onClose: () => void}) {
             <input id="endtime" type="time" value={endtime} min={starttime} onChange={(e) => setEndTime(e.target.value)}/>
             <p id="to">to</p>
             {error && <p className="error-message">{error}</p>}
-            <div style={{ position: 'fixed', alignItems: 'center', gap: 6, top: '72%', left: '20%', display: 'flex' }}>
-                <p style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: 12, margin: 0 }}>Strict mode:</p>
-                <button onClick={() => setStrictModeOverride(null)}
-                        style={{
-                            padding: '3px 8px',
-                            borderRadius: 20,
-                            border: '1px solid rgba(255, 255, 255, 0.2)',
-                            background: strictModeOverride === null ? '#0099ff' : 'rgba(255, 255, 255, 0.05)',
-                            color: 'white',
-                            fontSize: 10,
-                            cursor: 'pointer'
-                        }}
-                >
-                    Default 
-                </button>
-                <button onClick={() => setStrictModeOverride(true)}
-                        style={{
-                            padding: '3px 8px',
-                            borderRadius: 20,
-                            border: '1px solid rgba(255, 255, 255, 0.2)',
-                            background: strictModeOverride === true ? '#ff4d4d' : 'rgba(255, 255, 255, 0.05)',
-                            color: 'white',
-                            fontSize: 10,
-                            cursor: 'pointer'
-                        }}
-                >
-                    On
-                </button>
-                <button onClick={() => setStrictModeOverride(false)}
-                        style={{
-                            padding: '3px 8px',
-                            borderRadius: 20,
-                            border: '1px solid rgba(255, 255, 255, 0.2)',
-                            background: strictModeOverride === false ? '#4CAF50' : 'rgba(255, 255, 255, 0.05)',
-                            color: 'white',
-                            fontSize: 10,
-                            cursor: 'pointer'
-                        }}
-                >
-                    Off 
-                </button>
-            </div>
+            {plan === 'pro' && (
+                <div style={{ position: 'fixed', alignItems: 'center', gap: 6, top: '72%', left: '20%', display: 'flex' }}>
+                    <p style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: 12, margin: 0 }}>Strict mode:</p>
+                    <button onClick={() => setStrictModeOverride(null)}
+                            style={{
+                                padding: '3px 8px',
+                                borderRadius: 20,
+                                border: '1px solid rgba(255, 255, 255, 0.2)',
+                                background: strictModeOverride === null ? '#0099ff' : 'rgba(255, 255, 255, 0.05)',
+                                color: 'white',
+                                fontSize: 10,
+                                cursor: 'pointer'
+                            }}
+                    >
+                        Default 
+                    </button>
+                    <button onClick={() => setStrictModeOverride(true)}
+                            style={{
+                                padding: '3px 8px',
+                                borderRadius: 20,
+                                border: '1px solid rgba(255, 255, 255, 0.2)',
+                                background: strictModeOverride === true ? '#ff4d4d' : 'rgba(255, 255, 255, 0.05)',
+                                color: 'white',
+                                fontSize: 10,
+                                cursor: 'pointer'
+                            }}
+                    >
+                        On
+                    </button>
+                    <button onClick={() => setStrictModeOverride(false)}
+                            style={{
+                                padding: '3px 8px',
+                                borderRadius: 20,
+                                border: '1px solid rgba(255, 255, 255, 0.2)',
+                                background: strictModeOverride === false ? '#4CAF50' : 'rgba(255, 255, 255, 0.05)',
+                                color: 'white',
+                                fontSize: 10,
+                                cursor: 'pointer'
+                            }}
+                    >
+                        Off 
+                    </button>
+                </div>
+            )}
             <button className="addbutton" onClick={addWebsite}>Add</button>
             <button id="xbutton" onClick={onClose}>X</button>
         </div>
