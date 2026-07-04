@@ -2,14 +2,57 @@ const recentlyBlocked = new Map();
 
 chrome.runtime.onInstalled.addListener(() => {
     chrome.alarms.create('syncData', { periodInMinutes: 5 });
+    chrome.alarms.create('cleanupExpired', { periodInMinutes: 1 });
 });
 
 chrome.runtime.onStartup.addListener(() => {
     chrome.alarms.create('syncData', { periodInMinutes: 5 });
+    chrome.alarms.create('cleanupExpired', { periodInMinutes: 1 });
 });
 
 chrome.alarms.onAlarm.addListener(async (alarm) => {
     if (alarm.name !== 'syncData') return;
+
+    if (alarm.name === 'cleanupExpired') {
+        const result = await chrome.storage.local.get(['websites', 'token']);
+        const websites = result.websites || [];
+        const token = result.token;
+
+        if (!token || websites.length === 0) return;
+
+        const now = new Date();
+        const currentDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+        const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+        const expired = websites.filter(site => {
+            const siteDate = site.dateCreated.split('T')[0];
+            return siteDate < currentDate || 
+                (siteDate === currentDate && site.endTime < currentTime);
+        });
+
+        if (expired.length === 0) return;
+
+        for (const site of expired) {
+            try {
+                await fetch(`https://lockedin-web-six.vercel.app/api/websites/${site._id}`, {
+                    method: 'DELETE',
+                    headers: { 'authorization': `Bearer ${token}` }
+                });
+            } catch (err) {
+                console.error('Failed to delete expired site:', err);
+            }
+        }
+
+        const remaining = websites.filter(site => {
+            const siteDate = site.dateCreated.split('T')[0];
+            return !(siteDate < currentDate || 
+                (siteDate === currentDate && site.endTime < currentTime)
+            );
+        });
+
+        await chrome.storage.local.set({ websites: remaining });
+        console.log(`Cleaned up ${expired.length} expired blocks`);
+    }
 
     const result = await chrome.storage.local.get(['token', 'plan']);
     const token = result.token || '';

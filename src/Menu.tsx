@@ -149,6 +149,23 @@ function Menu() {
         return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
     }, []);
 
+    useEffect(() => {
+        const handleStorageChange = (changes: { [key: string]: chrome.storage.StorageChange }) => {
+            if (changes.websites?.newValue) {
+                setWebsites(changes.websites.newValue as any[]);
+            }
+            if (changes.recurringBlocks?.newValue) {
+                setRecurringBlocks(changes.recurringBlocks.newValue as any[]);
+            }
+            if (changes.plan?.newValue) {
+                setPlan(changes.plan.newValue as string);
+            }
+        };
+
+        chrome.storage.onChanged.addListener(handleStorageChange);
+        return () => chrome.storage.onChanged.removeListener(handleStorageChange);
+    }, []);
+
     const handleLogout = async () => {
         const blocking = isActivelyBlocking(websites, recurringBlocks);
         if (blocking) {
@@ -386,12 +403,6 @@ function Menu() {
                                     <button onClick={() => { handleManageSubscription(); setShowProfileMenu(false); }} style={menuItemStyle}>
                                         💳 Manage Subscription
                                     </button>
-                                    <button onClick={() => { setShowRecurringForm(true); setShowProfileMenu(false); }} style={menuItemStyle}>
-                                        🔁 Add Recurring Block
-                                    </button>
-                                    <button onClick={() => { setShowRecurringList(!showRecurringList); setShowProfileMenu(false); }} style={menuItemStyle}>
-                                        📋 View Recurring Blocks
-                                    </button>
                                     <button onClick={() => { setShowCategoryBlock(true); setShowProfileMenu(false); }} style={menuItemStyle}>
                                         🗂 Block Category
                                     </button>
@@ -475,9 +486,9 @@ function Menu() {
                             background: 'rgba(255, 255, 255, 0.05)',
                             border: '1px solid rgba(255, 255, 255, 0.08)',
                             marginBottom: isOpen ? 8 : 0
-                    }}>
+                        }}>
                         <span style={{ color: 'white', fontSize: 13, fontWeight: 600 }}>
-                            Blocked Sites ({websites.length}{plan === 'free' ? '/3' : ''})
+                            🔒 Blocked Sites ({websites.length}{plan === 'free' ? '/3' : ''})
                         </span>
                         <span style={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: 12 }}>
                             {isOpen ? '▲' : '▼'}
@@ -541,7 +552,7 @@ function Menu() {
                             }}
                         >
                             <span style={{ color: 'white', fontSize: 13, fontWeight: 600 }}>
-                                🔁 Recurring Blocks
+                                🔁 Recurring Blocks ({recurringBlocks.length})
                             </span>
                             <span style={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: 12 }}>
                                 {showRecurringList ? '▲' : '▼'}
@@ -574,7 +585,6 @@ function Menu() {
             </div>
 
             {showRecurringForm && <RecurringForm onClose={() => setShowRecurringForm(false)} />}
-            {showRecurringList && <RecurringList />}
             {showCategoryBlock && <CategoryBlock onClose={() => setShowCategoryBlock(false)} />}
             {showLogoutConfirm && (
                 <ConfirmPhrase

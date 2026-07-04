@@ -84,16 +84,16 @@ function RestrictionInfo({ onClose }: {onClose: () => void}) {
     const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 
     return (
-        <div className="sitechoicebackground">
-            <h3 id="websiteinfo">Website information</h3>
+        <div className="sitechoicebackground" style={{width: '350px'}}>
+            <h3 id="websiteinfo" style={{position: 'fixed', top: '0.5%'}}>Website information</h3>
             <p id="url">URL:</p>
             <input id="urltext" type="text" value={text} onChange={(e) => setText(e.target.value)} placeholder="Enter URL here"/>
             <input id="datetext" type="date" value={date} min={today} onChange={(e) => setDate(e.target.value)}/>
             <p id="date">Date:</p>
             <input id="starttime" type="time" value={starttime} min={date === today ? currentTime: undefined} onChange={(e) => setStartTime(e.target.value)}/>
-            <p id="time">Time:</p>
-            <input id="endtime" type="time" value={endtime} min={starttime} onChange={(e) => setEndTime(e.target.value)}/>
-            <p id="to">to</p>
+            <p id="time" style={{position: 'fixed', top: '59%'}}>Time:</p>
+            <input id="endtime" style={{position: 'fixed', left: '53%'}} type="time" value={endtime} min={starttime} onChange={(e) => setEndTime(e.target.value)}/>
+            <p id="to" style={{position: 'fixed', top: '59%', right: '50%'}}>to</p>
             {error && <p className="error-message">{error}</p>}
             {plan === 'pro' && (
                 <div style={{ position: 'fixed', alignItems: 'center', gap: 6, top: '72%', left: '20%', display: 'flex' }}>

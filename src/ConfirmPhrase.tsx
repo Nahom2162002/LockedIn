@@ -67,7 +67,15 @@ function ConfirmPhrase({ onConfirm, onCancel, action, strictMode = false }: Conf
                 <input type="text" value={input} onChange={e => {
                     setInput(e.target.value);
                     setError('');
-                }} placeholder="Type the phrase above" style={{
+                }} 
+                onPaste={e => {
+                    e.preventDefault();
+                    setError('Pasting is not allowed. Type the phrase manually.');
+                }}
+                onCopy={e => e.preventDefault()}
+                onCut={e => e.preventDefault()}
+                placeholder="Type the phrase above" 
+                style={{
                     padding: '10px 12px',
                     borderRadius: 8,
                     border: '1px solid rgba(255,255,255,0.2)',

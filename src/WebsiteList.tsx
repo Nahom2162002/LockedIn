@@ -39,7 +39,6 @@ function WebsiteList() {
     const [editForm, setEditForm] = useState<Omit<Website, '_id'>>({ url: '', dateCreated: '', startTime: '', endTime: '', strictMode: null});
     const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
     const [showConfirm, setShowConfirm] = useState(false);
-    const [recurringBlocks, setRecurringBlocks] = useState<any[]>([]);
     const [strictMode, setStrictMode] = useState(false);
     const [isStrictMode, setIsStrictMode] = useState(false);
     const [plan, setPlan] = useState<string>('free');
@@ -47,12 +46,10 @@ function WebsiteList() {
 
     useEffect(() => {
         const fetchData = async () => {
-            const result = await chrome.storage.local.get(['token', 'recurringBlocks', 'strictMode', 'plan']);
+            const result = await chrome.storage.local.get(['token', 'strictMode', 'plan']);
             const token = result.token as string;
-            const cached = (result.recurringBlocks as any[]) || [];
             const cachedPlan = result.plan as string | undefined;
 
-            setRecurringBlocks(cached);
             setStrictMode((result.strictMode as boolean) ?? false);
             setPlan(cachedPlan || 'free');
 
@@ -118,14 +115,59 @@ function WebsiteList() {
             if (changes.websites?.newValue) {
                 setWebsites(changes.websites.newValue as Website[]);
             }
-            if (changes.recurringBlocks?.newValue) {
-                setRecurringBlocks(changes.recurringBlocks.newValue as any[]);
+            if (changes.strictMode?.newValue !== undefined) {
+                setStrictMode(changes.strictMode.newValue as boolean);
             }
         };
 
         chrome.storage.onChanged.addListener(handleStorageChange);
         return () => chrome.storage.onChanged.removeListener(handleStorageChange);
     }, []);
+
+    useEffect(() => {
+        const checkExpired = async () => {
+            const now = new Date();
+            const currentDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+            const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+            const expired = websites.filter(site => {
+                const siteDate = site.dateCreated.split('T')[0];
+                return siteDate < currentDate ||
+                    (siteDate === currentDate && site.endTime < currentTime);
+            });
+
+            if (expired.length === 0) return;
+
+            const result = await chrome.storage.local.get('token');
+            const token = result.token as string;
+
+            for (const site of expired) {
+                try {
+                    await fetch(`https://lockedin-web-six.vercel.app/api/websites/${site._id}`, {
+                        method: 'DELETE',
+                        headers: { 'authorization': `Bearer ${token}` }
+                    });
+                } catch (err) {
+                    console.error('Failed to delete expired site:', err);
+                }
+            }
+
+            const remaining = websites.filter(site => {
+                const siteDate = site.dateCreated.split('T')[0];
+                return !(siteDate < currentDate || 
+                    (siteDate === currentDate && site.endTime < currentTime)
+                );
+            });
+
+            setWebsites(remaining);
+            await chrome.storage.local.set({ websites: remaining });
+        };
+
+        checkExpired();
+
+        const interval = setInterval(checkExpired, 30000);
+        return () => clearInterval(interval);
+    }, [websites]);
 
     const getEffectiveStrictMode = (site: any, globalStrictMode: boolean) => {
         if (site.strictMode !== null && site.strictMode !== undefined) {
@@ -136,7 +178,7 @@ function WebsiteList() {
 
     const startEditing = (site: Website) => {
         setEditingId(site._id);
-        setEditForm({ url: site.url, dateCreated: site.dateCreated, startTime: site.startTime, endTime: site.endTime, strictMode: site.strictMode });
+        setEditForm({ url: site.url, dateCreated: site.dateCreated ? site.dateCreated.split('T')[0] : '', startTime: site.startTime, endTime: site.endTime, strictMode: site.strictMode });
     };
 
     const saveEdit = async (id: string) => {
@@ -188,17 +230,22 @@ function WebsiteList() {
         }
     };
 
-    const handleDeleteClick = (id: string) => {
-        const blocking = isActivelyBlocking(websites, recurringBlocks);
-        if (blocking && plan === 'pro') {
-            const site = websites.find(s => s._id === id);
-            const effective = site ? getEffectiveStrictMode(site, strictMode) : strictMode;
-            setIsStrictMode(effective);
-            setPendingDeleteId(id);
-            setShowConfirm(true);
-        } else {
-            deleteWebsite(id);
+    const handleDeleteClick = async (id: string) => {
+        if (plan === 'pro') {
+            const result = await chrome.storage.local.get(['websites', 'recurringBlocks']);
+            const freshWebsites = (result.websites as any[]) || [];
+            const blocking = isActivelyBlocking(freshWebsites, (result.recurringBlocks as any[]) || []);
+
+            if (blocking) {
+                const site = websites.find(s => s._id === id);
+                const effective = site ? getEffectiveStrictMode(site, strictMode) : strictMode;
+                setIsStrictMode(effective);
+                setPendingDeleteId(id);
+                setShowConfirm(true);
+                return;
+            }
         }
+        deleteWebsite(id);
     };
 
     const deleteWebsite = async (id: string) => {
@@ -256,7 +303,7 @@ function WebsiteList() {
                             {editingId === site._id ? (
                                 <>
                                     <input id="editurl" value={editForm.url} onChange={(e) => setEditForm({ ...editForm, url: e.target.value })} placeholder="URL" style={{ width: '100%', marginTop: 8, boxSizing: 'border-box' as const }} />
-                                    <input id="editdate" type="date" value={editForm.dateCreated.split('T'[0])} min={today} onChange={(e) => setEditForm({ ...editForm, dateCreated: e.target.value })} style={{ width: '100%', marginTop: 6, boxSizing: 'border-box' as const }} />
+                                    <input id="editdate" type="date" value={editForm.dateCreated ? editForm.dateCreated.split('T')[0] : ''} min={today} onChange={(e) => setEditForm({ ...editForm, dateCreated: e.target.value })} style={{ width: '100%', marginTop: 6, boxSizing: 'border-box' as const }} />
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6 }}>
                                         <input id="editstart" type="time" value={editForm.startTime} onChange={(e) => setEditForm({ ...editForm, startTime: e.target.value })} style={{ flex: 1 }} />
                                         <span style={{ color: 'rgba(255, 255, 255, 0.5)', fontSize: 11 }}>to</span>
@@ -268,7 +315,7 @@ function WebsiteList() {
                                             {[
                                                 { label: 'Default', value: null, color: '#0099ff' },
                                                 { label: 'On', value: true, color: '#ff4d4d' },
-                                                { label: 'Off', value: false, color: '4CAF50' }
+                                                { label: 'Off', value: false, color: '#4CAF50' }
                                             ].map(opt => (
                                                 <button key={opt.label} onClick={() => setEditForm({ ...editForm, strictMode: opt.value })}
                                                     style={{
