@@ -43,6 +43,7 @@ function WebsiteList() {
     const [strictMode, setStrictMode] = useState(false);
     const [isStrictMode, setIsStrictMode] = useState(false);
     const [plan, setPlan] = useState<string>('free');
+    const [expandedId, setExpandedId] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -227,76 +228,83 @@ function WebsiteList() {
     return (
         <div className="website-list">
             {websites.map((site) => (
-                <div className="website-card" key={site._id}>
-                    {editingId === site._id ? (
-                        <>
-                          <input id="editurl" value={editForm.url} onChange={(e) => setEditForm({ ...editForm, url: e.target.value })} placeholder="URL"/>
-                          <input id="editdate" type="date" value={editForm.dateCreated.split('T')[0]} min={today} onChange={(e) => setEditForm({ ...editForm, dateCreated: e.target.value })}/>
-                          <input id="editstart" type="time" value={editForm.startTime} min={editForm.dateCreated.split('T')[0] === today ? currentTime: undefined} onChange={(e) => setEditForm({ ...editForm, startTime: e.target.value })}/>
-                          <input id="editend" type="time" value={editForm.endTime} min={editForm.startTime} onChange={(e) => setEditForm({ ...editForm, endTime: e.target.value })}/>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, margin: '4px 0' }}>
-                            {plan === 'pro' && (
-                            <>
-                            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 11, margin: 0 }}>Strict:</p>
-                            <button
-                                onClick={() => setEditForm({ ...editForm, strictMode: null })}
-                                style={{
-                                    padding: '2px 7px',
-                                    borderRadius: 20,
-                                    border: '1px solid rgba(255,255,255,0.2)',
-                                    background: editForm.strictMode === null ? '#0099ff' : 'rgba(255,255,255,0.05)',
-                                    color: 'white',
-                                    fontSize: 10,
-                                    cursor: 'pointer'
-                                }}
-                            >
-                                Default
-                            </button>
-                            <button
-                                onClick={() => setEditForm({ ...editForm, strictMode: true })}
-                                style={{
-                                    padding: '2px 7px',
-                                    borderRadius: 20,
-                                    border: '1px solid rgba(255,255,255,0.2)',
-                                    background: editForm.strictMode === true ? '#ff4d4d' : 'rgba(255,255,255,0.05)',
-                                    color: 'white',
-                                    fontSize: 10,
-                                    cursor: 'pointer'
-                                }}
-                            >
-                                On
-                            </button>
-                            <button
-                                onClick={() => setEditForm({ ...editForm, strictMode: false })}
-                                style={{
-                                    padding: '2px 7px',
-                                    borderRadius: 20,
-                                    border: '1px solid rgba(255,255,255,0.2)',
-                                    background: editForm.strictMode === false ? '#4CAF50' : 'rgba(255,255,255,0.05)',
-                                    color: 'white',
-                                    fontSize: 10,
-                                    cursor: 'pointer'
-                                }}
-                            >
-                                Off
-                            </button>
-                            </>
+                <div key={site._id} style={{
+                    background: 'rgba(255, 255, 255, 0.04)',
+                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                    borderRadius: 8,
+                    marginBottom: 6,
+                    overflow: 'hidden' 
+                }}>
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '8px 10px',
+                        cursor: 'pointer'
+                    }} onClick={() => setExpandedId(expandedId === site._id ? null : site._id)}
+                    >
+                        <span style={{ color: 'white', fontSize: 12, fontWeight: 600 }}>
+                            {site.url.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0]}
+                        </span>
+                        <span style={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: 11 }}>
+                            {expandedId === site._id ? '▲' : '▼'}
+                        </span>
+                    </div>
+
+                    {expandedId === site._id && (
+                        <div style={{ padding: '0 10px 10px', borderTop: '1px solid rgba(255, 255, 255, 0.06)' }}>
+                            {editingId === site._id ? (
+                                <>
+                                    <input id="editurl" value={editForm.url} onChange={(e) => setEditForm({ ...editForm, url: e.target.value })} placeholder="URL" style={{ width: '100%', marginTop: 8, boxSizing: 'border-box' as const }} />
+                                    <input id="editdate" type="date" value={editForm.dateCreated.split('T'[0])} min={today} onChange={(e) => setEditForm({ ...editForm, dateCreated: e.target.value })} style={{ width: '100%', marginTop: 6, boxSizing: 'border-box' as const }} />
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6 }}>
+                                        <input id="editstart" type="time" value={editForm.startTime} onChange={(e) => setEditForm({ ...editForm, startTime: e.target.value })} style={{ flex: 1 }} />
+                                        <span style={{ color: 'rgba(255, 255, 255, 0.5)', fontSize: 11 }}>to</span>
+                                        <input id="editend" type="time" value={editForm.endTime} onChange={(e) => setEditForm({ ...editForm, endTime: e.target.value })} style={{ flex: 1 }} />
+                                    </div>
+                                    {plan === 'pro' && (
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6 }}>
+                                            <span style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: 11 }}>Strict:</span>
+                                            {[
+                                                { label: 'Default', value: null, color: '#0099ff' },
+                                                { label: 'On', value: true, color: '#ff4d4d' },
+                                                { label: 'Off', value: false, color: '4CAF50' }
+                                            ].map(opt => (
+                                                <button key={opt.label} onClick={() => setEditForm({ ...editForm, strictMode: opt.value })}
+                                                    style={{
+                                                        padding: '2px 7px', borderRadius: 20,
+                                                        border: '1px solid rgba(255, 255, 255, 0.2)',
+                                                        background: editForm.strictMode === opt.value ? opt.color : 'rgba(255, 255, 255, 0.05)',
+                                                        color: 'white', fontSize: 10, cursor: 'pointer'
+                                                    }}
+                                                >{opt.label}</button>
+                                            ))}
+                                        </div>
+                                    )}
+                                    <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
+                                        <button className="edit-button" style={{ flex: 1, fontSize: 11 }} onClick={() => saveEdit(site._id)}>Save</button>
+                                        <button className="delete-button" style={{ flex: 1, fontSize: 11 }} onClick={() => setEditingId(null)}>Cancel</button>
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 3 }}>
+                                        <p style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: 11, margin: 0 }}>
+                                            <span style={{ color: 'white', fontWeight: 600 }}>Date: </span>
+                                            {site.dateCreated.split('T')[0]}
+                                        </p>
+                                        <p style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: 11, margin: 0 }}>
+                                            <span style={{ color: 'white', fontWeight: 600 }}>Time: </span>
+                                            {site.startTime} - {site.endTime}
+                                        </p>
+                                    </div>
+                                    <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
+                                        <button className="edit-button" style={{ flex: 1, fontSize: 11 }} onClick={() => startEditing(site)}>Edit</button>
+                                        <button className="delete-button" style={{ flex: 1, fontSize: 11 }} onClick={() => handleDeleteClick(site._id)}>Delete</button>
+                                    </div>
+                                </>
                             )}
-                          </div>
-                          <button id="savebutton" onClick={() => saveEdit(site._id)}>Save</button>
-                          <button id="cancelbutton" onClick={() => setEditingId(null)}>Cancel</button>
-                        </>
-                    ) : (
-                        <>
-                          <h3 className="card-url">{site.url}</h3>
-                          <div className="card-info">
-                            <p><span>Date:</span> {site.dateCreated.split('T')[0]}</p>
-                            <p><span>Start:</span> {site.startTime}</p>
-                            <p><span>End:</span> {site.endTime}</p>
-                          </div>
-                          <button className="edit-button" onClick={() => startEditing(site)}>Edit</button>
-                          <button className="delete-button" onClick={() => handleDeleteClick(site._id)}>Delete</button>
-                        </>
+                        </div>
                     )}
                 </div>
             ))}

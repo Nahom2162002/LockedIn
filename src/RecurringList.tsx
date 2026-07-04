@@ -56,7 +56,7 @@ function RecurringList() {
         strictMode: null 
     });
     const strictModeRef = useRef(false);
-
+    const [expandedId, setExpandedId] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchBlocks = async () => {
@@ -195,158 +195,173 @@ function RecurringList() {
         <>
             <div className="website-list">
                 {blocks.map(block => (
-                    <div className="website-card" key={block._id} style={{ opacity: block.active ? 1 : 0.5, height: 'auto', padding: '6px 8px' }}>
-                        {editingId === block._id ? (
-                            <>
-                                <input
-                                    style={{ background: 'rgb(5,5,53)', color: 'white', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 4, padding: '4px 8px', fontSize: 12, width: '100%' }}
-                                    value={editForm.url}
-                                    onChange={e => setEditForm({ ...editForm, url: e.target.value })}
-                                    placeholder="URL"
-                                />
+                    <div key={block._id} style={{
+                        background: 'rgba(255,255,255,0.04)',
+                        border: '1px solid rgba(255,255,255,0.08)',
+                        borderRadius: 8,
+                        marginBottom: 6,
+                        overflow: 'hidden',
+                        opacity: block.active ? 1 : 0.5
+                    }}>
+        
+                        <div
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                padding: '8px 10px',
+                                cursor: 'pointer'
+                            }}
+                            onClick={() => setExpandedId(expandedId === block._id ? null : block._id)}
+                        >
+                            <span style={{ color: 'white', fontSize: 12, fontWeight: 600 }}>
+                                {block.url.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0]}
+                            </span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                <span style={{
+                                    fontSize: 10,
+                                    color: block.active ? '#4CAF50' : 'rgba(255,255,255,0.4)'
+                                }}>
+                                    {block.active ? '🟢' : '⏸'}
+                                </span>
+                                <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11 }}>
+                                    {expandedId === block._id ? '▲' : '▼'}
+                                </span>
+                            </div>
+                        </div>
 
-                                <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-                                    {PRESETS.map(preset => (
-                                        <button
-                                            key={preset.label}
-                                            onClick={() => setEditForm({ ...editForm, days: preset.days })}
-                                            style={{
-                                                padding: '3px 8px',
-                                                borderRadius: 20,
-                                                border: '1px solid rgba(255,255,255,0.2)',
-                                                background: JSON.stringify(editForm.days.slice().sort()) === JSON.stringify([...preset.days].sort())
-                                                    ? '#0099ff'
-                                                    : 'rgba(255,255,255,0.05)',
-                                                color: 'white',
-                                                fontSize: 10,
-                                                cursor: 'pointer'
-                                            }}
-                                        >
-                                            {preset.label}
-                                        </button>
-                                    ))}
-                                </div>
+                        {expandedId === block._id && (
+                            <div style={{ padding: '0 10px 10px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                                {editingId === block._id ? (
+                                    <>
+                                        <input
+                                            value={editForm.url}
+                                            onChange={e => setEditForm({ ...editForm, url: e.target.value })}
+                                            placeholder="URL"
+                                            style={{ width: '100%', marginTop: 8, boxSizing: 'border-box' as const, background: 'rgb(5,5,53)', color: 'white', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 4, padding: '4px 8px', fontSize: 12 }}
+                                        />
 
-                                <div style={{ display: 'flex', gap: 4 }}>
-                                    {DAYS.map(day => (
-                                        <button
-                                            key={day.value}
-                                            onClick={() => toggleEditDay(day.value)}
-                                            style={{
-                                                width: 26,
-                                                height: 26,
-                                                borderRadius: '50%',
-                                                border: '1px solid rgba(255,255,255,0.2)',
-                                                background: editForm.days.includes(day.value)
-                                                    ? '#0099ff'
-                                                    : 'rgba(255,255,255,0.05)',
-                                                color: 'white',
-                                                fontSize: 10,
-                                                cursor: 'pointer',
-                                                fontWeight: editForm.days.includes(day.value) ? 700 : 400
-                                            }}
-                                        >
-                                            {day.label}
-                                        </button>
-                                    ))}
-                                </div>
+                                        <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginTop: 6 }}>
+                                            {PRESETS.map(preset => (
+                                                <button
+                                                    key={preset.label}
+                                                    onClick={() => setEditForm({ ...editForm, days: preset.days })}
+                                                    style={{
+                                                        padding: '3px 8px', borderRadius: 20,
+                                                        border: '1px solid rgba(255,255,255,0.2)',
+                                                        background: JSON.stringify(editForm.days.slice().sort()) === JSON.stringify([...preset.days].sort())
+                                                            ? '#0099ff' : 'rgba(255,255,255,0.05)',
+                                                        color: 'white', fontSize: 10, cursor: 'pointer'
+                                                    }}
+                                                >
+                                                    {preset.label}
+                                                </button>
+                                            ))}
+                                        </div>
 
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                    <input
-                                        type="time"
-                                        value={editForm.startTime}
-                                        onChange={e => setEditForm({ ...editForm, startTime: e.target.value })}
-                                        style={{ background: 'rgb(5,5,53)', color: 'white', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 4, padding: '4px', fontSize: 11, flex: 1 }}
-                                    />
-                                    <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11 }}>to</span>
-                                    <input
-                                        type="time"
-                                        value={editForm.endTime}
-                                        onChange={e => setEditForm({ ...editForm, endTime: e.target.value })}
-                                        style={{ background: 'rgb(5,5,53)', color: 'white', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 4, padding: '4px', fontSize: 11, flex: 1 }}
-                                    />
-                                </div>
+                                        <div style={{ display: 'flex', gap: 4, marginTop: 6 }}>
+                                            {DAYS.map(day => (
+                                                <button
+                                                    key={day.value}
+                                                    onClick={() => toggleEditDay(day.value)}
+                                                    style={{
+                                                        width: 26, height: 26, borderRadius: '50%',
+                                                        border: '1px solid rgba(255,255,255,0.2)',
+                                                        background: editForm.days.includes(day.value) ? '#0099ff' : 'rgba(255,255,255,0.05)',
+                                                        color: 'white', fontSize: 10, cursor: 'pointer',
+                                                        fontWeight: editForm.days.includes(day.value) ? 700 : 400
+                                                    }}
+                                                >
+                                                    {day.label}
+                                                </button>
+                                            ))}
+                                        </div>
 
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                    <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: 11 }}>Strict:</span>
-                                    {[
-                                        { label: 'Default', value: null, color: '#0099ff' },
-                                        { label: 'On', value: true, color: '#ff4d4d' },
-                                        { label: 'Off', value: false, color: '#4CAF50' }
-                                    ].map(opt => (
-                                        <button
-                                            key={opt.label}
-                                            onClick={() => setEditForm({ ...editForm, strictMode: opt.value })}
-                                            style={{
-                                                padding: '2px 7px',
-                                                borderRadius: 20,
-                                                border: '1px solid rgba(255,255,255,0.2)',
-                                                background: editForm.strictMode === opt.value ? opt.color : 'rgba(255,255,255,0.05)',
-                                                color: 'white',
-                                                fontSize: 10,
-                                                cursor: 'pointer'
-                                            }}
-                                        >
-                                            {opt.label}
-                                        </button>
-                                    ))}
-                                </div>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6 }}>
+                                            <input
+                                                type="time"
+                                                value={editForm.startTime}
+                                                onChange={e => setEditForm({ ...editForm, startTime: e.target.value })}
+                                                style={{ flex: 1, background: 'rgb(5,5,53)', color: 'white', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 4, padding: '4px', fontSize: 11 }}
+                                            />
+                                            <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11 }}>to</span>
+                                            <input
+                                                type="time"
+                                                value={editForm.endTime}
+                                                onChange={e => setEditForm({ ...editForm, endTime: e.target.value })}
+                                                style={{ flex: 1, background: 'rgb(5,5,53)', color: 'white', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 4, padding: '4px', fontSize: 11 }}
+                                            />
+                                        </div>
 
-                                <div style={{ display: 'flex', gap: 6, justifyContent: 'center' }}>
-                                    <button
-                                        className="edit-button"
-                                        style={{ padding: '4px 10px', fontSize: 11 }}
-                                        onClick={() => saveEdit(block._id)}
-                                    >
-                                        Save
-                                    </button>
-                                    <button
-                                        className="delete-button"
-                                        style={{ padding: '4px 10px', fontSize: 11 }}
-                                        onClick={() => setEditingId(null)}
-                                    >
-                                        Cancel
-                                    </button>
-                                </div>
-                            </>
-                        ) : (
-                            <>
-                                <h3 className="card-url" style={{ fontSize: 12 }}>{block.url}</h3>
-                                <div className="card-info" style={{ fontSize: 11, gap: 2 }}>
-                                    <p style={{ margin: 0 }}>
-                                        <span>Days: </span>{block.days.sort().map(d => DAY_LABELS[d]).join(', ')}
-                                    </p> 
-                                    <p style={{ margin: 0 }}>
-                                        <span>Time: </span>{block.startTime}–{block.endTime}
-                                    </p>
-                                    <p style={{ margin: 0 }}>
-                                        <span>Status: </span>{block.active ? 'Active' : 'Paused'}
-                                    </p>
-                                </div>
-                                <div style={{ display: 'flex', gap: 6, justifyContent: 'center' }}>
-                                    <button
-                                        className="edit-button"
-                                        style={{ padding: '4px 10px', fontSize: 11 }}
-                                        onClick={() => startEditing(block)}
-                                    >
-                                        Edit
-                                    </button>
-                                    <button
-                                        className="edit-button"
-                                        style={{ padding: '4px 10px', fontSize: 11 }}
-                                        onClick={async () => await requiredConfirmIfBlocking(() => toggleActive(block._id, block.active))}
-                                    >
-                                        {block.active ? 'Pause' : 'Resume'}
-                                    </button>
-                                    <button
-                                        className="delete-button"
-                                        style={{ padding: '4px 10px', fontSize: 11 }}
-                                        onClick={async () => await requiredConfirmIfBlocking(() => deleteBlock(block._id))}
-                                    >
-                                        Delete
-                                    </button>
-                                </div>
-                            </>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6 }}>
+                                            <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: 11 }}>Strict:</span>
+                                            {[
+                                                { label: 'Default', value: null, color: '#0099ff' },
+                                                { label: 'On', value: true, color: '#ff4d4d' },
+                                                { label: 'Off', value: false, color: '#4CAF50' }
+                                            ].map(opt => (
+                                                <button
+                                                    key={opt.label}
+                                                    onClick={() => setEditForm({ ...editForm, strictMode: opt.value })}
+                                                    style={{
+                                                        padding: '2px 7px', borderRadius: 20,
+                                                        border: '1px solid rgba(255,255,255,0.2)',
+                                                        background: editForm.strictMode === opt.value ? opt.color : 'rgba(255,255,255,0.05)',
+                                                        color: 'white', fontSize: 10, cursor: 'pointer'
+                                                    }}
+                                                >
+                                                    {opt.label}
+                                                </button>
+                                            ))}
+                                        </div>
+
+                                        <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
+                                            <button className="edit-button" style={{ flex: 1, fontSize: 11 }} onClick={() => saveEdit(block._id)}>Save</button>
+                                            <button className="delete-button" style={{ flex: 1, fontSize: 11 }} onClick={() => setEditingId(null)}>Cancel</button>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <>
+                                        <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 3 }}>
+                                            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 11, margin: 0 }}>
+                                                <span style={{ color: 'white', fontWeight: 600 }}>Days: </span>
+                                                {block.days.sort().map(d => DAY_LABELS[d]).join(', ')}
+                                            </p>
+                                            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 11, margin: 0 }}>
+                                                <span style={{ color: 'white', fontWeight: 600 }}>Time: </span>
+                                                {block.startTime} – {block.endTime}
+                                            </p>
+                                            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 11, margin: 0 }}>
+                                                <span style={{ color: 'white', fontWeight: 600 }}>Status: </span>
+                                                {block.active ? '🟢 Active' : '⏸ Paused'}
+                                            </p>
+                                        </div>
+                                        <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
+                                            <button
+                                                className="edit-button"
+                                                style={{ flex: 1, fontSize: 11 }}
+                                                onClick={() => startEditing(block)}
+                                            >
+                                                Edit
+                                            </button>
+                                            <button
+                                                className="edit-button"
+                                                style={{ flex: 1, fontSize: 11 }}
+                                                onClick={async () => await requiredConfirmIfBlocking(() => toggleActive(block._id, block.active))}
+                                            >
+                                                {block.active ? 'Pause' : 'Resume'}
+                                            </button>
+                                            <button
+                                                className="delete-button"
+                                                style={{ flex: 1, fontSize: 11 }}
+                                                onClick={async () => await requiredConfirmIfBlocking(() => deleteBlock(block._id))}
+                                            >
+                                                Delete
+                                            </button>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
                         )}
                     </div>
                 ))}

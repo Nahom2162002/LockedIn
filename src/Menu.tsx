@@ -48,6 +48,8 @@ function Menu() {
     const [username, setUserName] = useState('');
     const profileRef = useRef<HTMLDivElement>(null);
     const [showUpgradePage, setShowUpgradePage] = useState(false);
+    const [recurringKey, setRecurringKey] = useState(0);
+    const [showAddSite, setShowAddSite] = useState(false);
 
     useEffect(() => {
         const syncAll = async () => {
@@ -124,10 +126,28 @@ function Menu() {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    const handleAdd = () => {
-        setIsOpen(false);
-        setRefreshKey(prev => prev + 1);
-    };
+    useEffect(() => {
+        const handleVisibilityChange = async () => {
+            if (document.visibilityState === 'visible') {
+                const result = await chrome.storage.local.get('token');
+                const token = result.token as string | undefined;
+                if (!token) return;
+
+                const planRes = await fetch('https://lockedin-web-six.vercel.app/api/user/plan', {
+                    headers: { 'authorization': `Bearer ${token}` }
+                });
+                const planData = await planRes.json();
+                const cached = await chrome.storage.local.get('plan');
+                if (planData.plan !== cached.plan) {
+                    await chrome.storage.local.set({ plan: planData.plan });
+                    setPlan(planData.plan);
+                }
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+    }, []);
 
     const handleLogout = async () => {
         const blocking = isActivelyBlocking(websites, recurringBlocks);
@@ -442,30 +462,115 @@ function Menu() {
             </div>
 
             <div style={{ padding: '12px 16px' }}>
-                <div className="websiteChoices">
-                    <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        marginBottom: 8
+                <div style={{ marginBottom: 12 }}>
+                    <div 
+                        onClick={() => setIsOpen(prev => !prev)}
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            cursor: 'pointer',
+                            padding: '8px 12px',
+                            borderRadius: 8,
+                            background: 'rgba(255, 255, 255, 0.05)',
+                            border: '1px solid rgba(255, 255, 255, 0.08)',
+                            marginBottom: isOpen ? 8 : 0
                     }}>
-                        <h3 style={{ color: 'white', fontSize: 13, margin: 0 }}>
-                            Blocked Sites
-                        </h3>
-                        <button id="plusbutton" onClick={() => {
-                            if (plan === 'free' && websites.length >= 3) {
-                                setIsOpen(false);
-                                setShowUpgradePage(true);
-                            } else {
-                                setIsOpen(true);
-                            }
-                        }}>+</button>
-                    </div>
-                    {isOpen && <RestrictionInfo onClose={handleAdd} />}
-                    <div className="websiteList">
-                        <WebsiteList key={refreshKey} />
-                    </div>
+                        <span style={{ color: 'white', fontSize: 13, fontWeight: 600 }}>
+                            Blocked Sites ({websites.length}{plan === 'free' ? '/3' : ''})
+                        </span>
+                        <span style={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: 12 }}>
+                            {isOpen ? '▲' : '▼'}
+                        </span>
+                    </div> 
+                    
+                    {isOpen && (
+                        <div>
+                            <WebsiteList key={refreshKey} />
+                            <button 
+                                onClick={() => {
+                                    if (plan === 'free' && websites.length >= 3) {
+                                        setShowUpgradePage(true);
+                                    } else {
+                                        setShowAddSite(true);
+                                    }
+                                }}
+                                style={{
+                                    width: '100%',
+                                    marginTop: 8,
+                                    padding: '7px',
+                                    borderRadius: 8,
+                                    border: '1px dashed rgba(255, 255, 255, 0.2)',
+                                    background: 'transparent',
+                                    color: 'rgba(255, 255, 255, 0.5)',
+                                    fontSize: 12,
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                + Add site
+                            </button>
+                            {plan === 'free' && (
+                                <p style={{
+                                    color: websites.length >= 3 ? '#ff4d4d' : 'rgba(255, 255, 255, 0.4)',
+                                    fontSize: 10,
+                                    textAlign: 'center',
+                                    margin: '4px 0 0 0'
+                                }}>
+                                    {websites.length}/3 sites used 
+                                    {websites.length >= 3 && ' - Upgrade to Pro for unlimited'}
+                                </p>
+                            )}
+                        </div>
+                    )}
                 </div>
+
+                {plan === 'pro' && (
+                    <div style={{ marginBottom: 12 }}>
+                        <div 
+                            onClick={() => setShowRecurringList(prev => !prev)}
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                cursor: 'pointer',
+                                padding: '8px 12px',
+                                borderRadius: 8,
+                                background: 'rgba(255, 255, 255, 0.05)',
+                                border: '1px solid rgba(255, 255, 255, 0.08)',
+                                marginBottom: showRecurringList ? 8 : 0
+                            }}
+                        >
+                            <span style={{ color: 'white', fontSize: 13, fontWeight: 600 }}>
+                                🔁 Recurring Blocks
+                            </span>
+                            <span style={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: 12 }}>
+                                {showRecurringList ? '▲' : '▼'}
+                            </span>
+                        </div>
+
+                        {showRecurringList && (
+                            <div>
+                                <RecurringList key={recurringKey} />
+                                <button 
+                                    onClick={() => setShowRecurringForm(true)}
+                                    style={{
+                                        width: '100%',
+                                        marginTop: 8,
+                                        padding: '7px',
+                                        borderRadius: 8,
+                                        border: '1px dashed rgba(255, 255, 255, 0.2)',
+                                        background: 'transparent',
+                                        color: 'rgba(255, 255, 255, 0.5)',
+                                        fontSize: 12,
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    + Add recurring block 
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                )}
             </div>
 
             {showRecurringForm && <RecurringForm onClose={() => setShowRecurringForm(false)} />}
@@ -491,6 +596,8 @@ function Menu() {
                     onClose={() => setShowUpgradePage(false)}
                 />
             )}
+            {showAddSite && <RestrictionInfo onClose={() => { setShowAddSite(false); setRefreshKey(prev => prev + 1); }} />}
+            {showRecurringForm && <RecurringForm onClose={() => { setShowRecurringForm(false); setRecurringKey(prev => prev + 1); }} />}
         </div>
     );
 }
