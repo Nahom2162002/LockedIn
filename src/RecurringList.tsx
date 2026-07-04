@@ -183,14 +183,6 @@ function RecurringList() {
         }
     };
 
-    if (blocks.length === 0) {
-        return (
-            <div style={{ textAlign: 'center', padding: '20px', color: 'rgba(255, 255, 255, 0.4)' }}>
-                <p>No recurring blocks yet</p>
-            </div>
-        );
-    }
-
     return (
         <>
             <div className="website-list">

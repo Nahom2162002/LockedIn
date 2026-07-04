@@ -31,7 +31,7 @@ function UpgradePage({ onUpgrade, onClose }: UpgradePageProps) {
                 maxWidth: 340,
                 margin: '0 auto'
             }}>
-                {/* Header */}
+                
                 <div style={{ textAlign: 'center', marginBottom: 20 }}>
                     <p style={{ fontSize: 32, margin: 0 }}>⭐</p>
                     <h2 style={{ color: 'white', fontSize: 20, fontWeight: 700, margin: '8px 0 4px' }}>
@@ -42,12 +42,11 @@ function UpgradePage({ onUpgrade, onClose }: UpgradePageProps) {
                     </p>
                 </div>
 
-                {/* Features list */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 20 }}>
                     {features.map((f, i) => (
                         <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-                            <span style={{ fontSize: 18, flexShrink: 0 }}>{f.emoji}</span>
-                            <div>
+                            <div style={{ width: 28, height: 28, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>{f.emoji}</div>
+                            <div style={{ flex: 1 }}>
                                 <p style={{ color: 'white', fontSize: 13, fontWeight: 600, margin: '0 0 2px 0' }}>
                                     {f.title}
                                 </p>
@@ -59,7 +58,6 @@ function UpgradePage({ onUpgrade, onClose }: UpgradePageProps) {
                     ))}
                 </div>
 
-                {/* CTA */}
                 <button
                     onClick={onUpgrade}
                     style={{
