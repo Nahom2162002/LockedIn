@@ -1,5 +1,5 @@
 html, body, #root {
-  width: 200px;
+  width: 200px; 
   height: 150px;
   margin: 0;
   padding: 0;
@@ -7,7 +7,7 @@ html, body, #root {
 
 .matrixBackground {
   background-image: url("assets/matrixcode.gif");
-  height: 700px;
+  height: 700px; 
 }
 
 .menuBackground, .login-background, .forgot-password-background, .create-account-background {
@@ -17,7 +17,7 @@ html, body, #root {
   background-repeat: no-repeat;
   width: 100vw;
   height: 100vh;
-  min-height: 100vh;
+  min-height: 100vh; 
 }
 
 @keyframes fadeInUp {
@@ -42,7 +42,7 @@ html, body, #root {
   top: 50%;
   left: 25%;
   transform: translate(-50%, -50%);
-  width: 50vw;
+  width: 50vw; 
   height: 50vh;
 }
 
@@ -52,7 +52,7 @@ html, body, #root {
   position: fixed;
   top: 50%;
   left: 50%;
-  width: 80%;
+  width: 80%; 
   height: 50%;
   z-index: 999;
   padding: 20px;

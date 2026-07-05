@@ -85,7 +85,7 @@ function RestrictionInfo({ onClose }: {onClose: () => void}) {
 
     return (
         <div className="sitechoicebackground" style={{width: '350px'}}>
-            <h3 id="websiteinfo" style={{position: 'fixed', top: '0.5%'}}>Website information</h3>
+            <h3 id="websiteinfo" style={{position: 'fixed', top: '0.5%', left: '30%'}}>Website information</h3>
             <p id="url">URL:</p>
             <input id="urltext" type="text" value={text} onChange={(e) => setText(e.target.value)} placeholder="Enter URL here"/>
             <input id="datetext" type="date" value={date} min={today} onChange={(e) => setDate(e.target.value)}/>
