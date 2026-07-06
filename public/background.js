@@ -158,6 +158,7 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
                     }).catch(err => console.error('Failed to record block event:', err));
                 }
 
+                recentlyBlocked.set(details.tabId, Date.now());
                 chrome.tabs.update(details.tabId, {
                     url: chrome.runtime.getURL(`blocked.html?url=${encodeURIComponent(details.url)}`)
                 });
