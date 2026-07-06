@@ -84,11 +84,18 @@ function RecurringList() {
         fetchBlocks();
     }, []);
 
-    const requiredConfirmIfBlocking = async (action: () => void) => {
+    const getEffectiveStrictMode = (block: RecurringBlock, globalStrictMode: boolean) => {
+        if (block.strictMode !== null && block.strictMode !== undefined) {
+            return block.strictMode;
+        }
+        return globalStrictMode;
+    };
+
+    const requiredConfirmIfBlocking = async (block: RecurringBlock, action: () => void) => {
         if (isActivelyBlocking(blocks)) {
             const result = await chrome.storage.local.get('strictMode');
             const sm = (result.strictMode as boolean) ?? false;
-            strictModeRef.current = sm;
+            strictModeRef.current = getEffectiveStrictMode(block, sm);
             setPendingAction(() => action);
             setShowConfirm(true);
         } else {
@@ -339,14 +346,14 @@ function RecurringList() {
                                             <button
                                                 className="edit-button"
                                                 style={{ flex: 1, fontSize: 11 }}
-                                                onClick={async () => await requiredConfirmIfBlocking(() => toggleActive(block._id, block.active))}
+                                                onClick={async () => await requiredConfirmIfBlocking(block, () => toggleActive(block._id, block.active))}
                                             >
                                                 {block.active ? 'Pause' : 'Resume'}
                                             </button>
                                             <button
                                                 className="delete-button"
                                                 style={{ flex: 1, fontSize: 11 }}
-                                                onClick={async () => await requiredConfirmIfBlocking(() => deleteBlock(block._id))}
+                                                onClick={async () => await requiredConfirmIfBlocking(block, () => deleteBlock(block._id))}
                                             >
                                                 Delete
                                             </button>
