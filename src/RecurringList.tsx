@@ -65,7 +65,7 @@ function RecurringList() {
             const sm = (result.strictMode as boolean) ?? false;
             strictModeRef.current = sm;
 
-            const response = await fetch('https://lockedin-web-six.vercel.app/api/recurring', {
+            const response = await fetch('https://deeplockin.com/api/recurring', {
                 headers: { 'authorization': `Bearer ${token}` }
             });
 
@@ -130,7 +130,7 @@ function RecurringList() {
         const result = await chrome.storage.local.get('token');
         const token = result.token as string;
 
-        const response = await fetch(`https://lockedin-web-six.vercel.app/api/recurring/${id}`, {
+        const response = await fetch(`https://deeplockin.com/api/recurring/${id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -151,7 +151,7 @@ function RecurringList() {
         const result = await chrome.storage.local.get('token');
         const token = result.token as string;
 
-        const response = await fetch(`https://lockedin-web-six.vercel.app/api/recurring/${id}`, {
+        const response = await fetch(`https://deeplockin.com/api/recurring/${id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -171,7 +171,7 @@ function RecurringList() {
         const result = await chrome.storage.local.get('token');
         const token = result.token as string;
 
-        const response = await fetch(`https://lockedin-web-six.vercel.app/api/recurring/${id}`, {
+        const response = await fetch(`https://deeplockin.com/api/recurring/${id}`, {
             method: 'DELETE',
             headers: { 'authorization': `Bearer ${token}` }
         });

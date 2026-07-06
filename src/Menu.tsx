@@ -65,7 +65,7 @@ function Menu() {
 
             if (!token) return;
 
-            const planRes = await fetch('https://lockedin-web-six.vercel.app/api/user/plan', {
+            const planRes = await fetch('https://deeplockin.com/api/user/plan', {
                 headers: { 'authorization': `Bearer ${token}` }
             });
             const planData = await planRes.json();
@@ -74,7 +74,7 @@ function Menu() {
                 setPlan(planData.plan);
             }
 
-            const userRes = await fetch('https://lockedin-web-six.vercel.app/api/user/me', {
+            const userRes = await fetch('https://deeplockin.com/api/user/me', {
                 headers: { 'authorization': `Bearer ${token}` }
             });
             const userData = await userRes.json();
@@ -84,7 +84,7 @@ function Menu() {
             }
 
             if (planData.plan === 'pro') {
-                const recurringRes = await fetch('https://lockedin-web-six.vercel.app/api/recurring', {
+                const recurringRes = await fetch('https://deeplockin.com/api/recurring', {
                     headers: { 'authorization': `Bearer ${token}`}
                 });
                 const recurringData = await recurringRes.json();
@@ -94,7 +94,7 @@ function Menu() {
                 }
             }
 
-            const websitesRes = await fetch('https://lockedin-web-six.vercel.app/api/websites', {
+            const websitesRes = await fetch('https://deeplockin.com/api/websites', {
                 headers: { 'authorization': `Bearer ${token}` }
             });
             const websitesData = await websitesRes.json();
@@ -103,7 +103,7 @@ function Menu() {
                 setWebsites(websitesData);
             }
 
-            const settingsRes = await fetch('https://lockedin-web-six.vercel.app/api/user/settings', {
+            const settingsRes = await fetch('https://deeplockin.com/api/user/settings', {
                 headers: { 'authorization': `Bearer ${token}` }
             });
             const settingsData = await settingsRes.json();
@@ -133,7 +133,7 @@ function Menu() {
                 const token = result.token as string | undefined;
                 if (!token) return;
 
-                const planRes = await fetch('https://lockedin-web-six.vercel.app/api/user/plan', {
+                const planRes = await fetch('https://deeplockin.com/api/user/plan', {
                     headers: { 'authorization': `Bearer ${token}` }
                 });
                 const planData = await planRes.json();
@@ -183,7 +183,7 @@ function Menu() {
 
     const handleUpgrade = async () => {
         const { token } = await chrome.storage.local.get('token');
-        const response = await fetch('https://lockedin-web-six.vercel.app/api/stripe/checkout', {
+        const response = await fetch('https://deeplockin.com/api/stripe/checkout', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -197,7 +197,7 @@ function Menu() {
             chrome.tabs.create({ url: data.url });
 
             const interval = setInterval(async () => {
-                const planRes = await fetch('https://lockedin-web-six.vercel.app/api/user/plan', {
+                const planRes = await fetch('https://deeplockin.com/api/user/plan', {
                     headers: { 'authorization': `Bearer ${token}` }
                 });
                 const planData = await planRes.json();
@@ -214,7 +214,7 @@ function Menu() {
 
     const handleManageSubscription = async () => {
         const { token } = await chrome.storage.local.get('token');
-        const response = await fetch('https://lockedin-web-six.vercel.app/api/stripe/portal', {
+        const response = await fetch('https://deeplockin.com/api/stripe/portal', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -232,7 +232,7 @@ function Menu() {
         const result = await chrome.storage.local.get('token');
         const token = result.token as string;
         chrome.tabs.create({
-            url: `https://lockedin-web-six.vercel.app/dashboard?token=${token}`
+            url: `https://deeplockin.com/dashboard?token=${token}`
         });
     };
 
@@ -241,7 +241,7 @@ function Menu() {
         const token = result.token as string;
         const newValue = !strictMode;
 
-        await fetch('https://lockedin-web-six.vercel.app/api/user/settings', {
+        await fetch('https://deeplockin.com/api/user/settings', {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -270,7 +270,7 @@ function Menu() {
         if (!token) return;
 
         try {
-            const websitesRes = await fetch('https://lockedin-web-six.vercel.app/api/websites', {
+            const websitesRes = await fetch('https://deeplockin.com/api/websites', {
                 headers: { 'authorization': `Bearer ${token}` }
             });
             const websitesData = await websitesRes.json();
@@ -280,7 +280,7 @@ function Menu() {
             }
 
             if (plan === 'pro') {
-                const recurringRes = await fetch('https://lockedin-web-six.vercel.app/api/recurring', {
+                const recurringRes = await fetch('https://deeplockin.com/api/recurring', {
                     headers: { 'authorization': `Bearer ${token}` }
                 });
                 const recurring = await recurringRes.json();

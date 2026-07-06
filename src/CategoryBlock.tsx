@@ -81,7 +81,7 @@ function CategoryBlock({ onClose }: { onClose: () => void}) {
                 body.days = selectedDays;
             }
 
-            const response = await fetch('https://lockedin-web-six.vercel.app/api/category-block', {
+            const response = await fetch('https://deeplockin.com/api/category-block', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
