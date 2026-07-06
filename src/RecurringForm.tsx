@@ -59,7 +59,7 @@ function RecurringForm({ onClose }: { onClose: () => void }) {
             const result = await chrome.storage.local.get('token');
             const token = result.token as string;
 
-            const response = await fetch('https://deeplockin.com/api/recurring', {
+            const response = await fetch('https://www.deeplockin.com/api/recurring', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

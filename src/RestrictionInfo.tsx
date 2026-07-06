@@ -41,7 +41,7 @@ function RestrictionInfo({ onClose }: {onClose: () => void}) {
                 return;
             }
             
-            const response = await fetch('https://deeplockin.com/api/websites', {
+            const response = await fetch('https://www.deeplockin.com/api/websites', {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',

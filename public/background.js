@@ -32,7 +32,7 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
 
         for (const site of expired) {
             try {
-                await fetch(`https://deeplockin.com/api/websites/${site._id}`, {
+                await fetch(`https://www.deeplockin.com/api/websites/${site._id}`, {
                     method: 'DELETE',
                     headers: { 'authorization': `Bearer ${token}` }
                 });
@@ -61,7 +61,7 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
         if (!token) return;
 
         try {
-            const websitesRes = await fetch('https://deeplockin.com/api/websites', {
+            const websitesRes = await fetch('https://www.deeplockin.com/api/websites', {
                 headers: { 'authorization': `Bearer ${token}` }
             });
             if (websitesRes.ok) {
@@ -75,7 +75,7 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
             }
 
             if (plan === 'pro') {
-                const recurringRes = await fetch('https://deeplockin.com/api/recurring', {
+                const recurringRes = await fetch('https://www.deeplockin.com/api/recurring', {
                     headers: { 'authorization': `Bearer ${token}` }
                 });
                 if (recurringRes.ok) {
@@ -124,7 +124,7 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
             currentTime <= site.endTime) {
           
           if (token) {
-            fetch('https://deeplockin.com/api/user/block-event', {
+            fetch('https://www.deeplockin.com/api/user/block-event', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -148,7 +148,7 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
             currentTime >= block.startTime &&
             currentTime <= block.endTime) {
                 if (token) {
-                    fetch('https://deeplockin.com/api/user/block-event', {
+                    fetch('https://www.deeplockin.com/api/user/block-event', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

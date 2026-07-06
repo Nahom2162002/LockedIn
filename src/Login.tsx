@@ -13,7 +13,7 @@ function Login() {
       setLoading(true);
       setError('');
       try {
-        const response = await fetch('https://deeplockin.com/api/auth/login', {
+        const response = await fetch('https://www.deeplockin.com/api/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username, password })
@@ -22,7 +22,7 @@ function Login() {
         if (data.token) {
             chrome.storage.local.set({ token: data.token });
 
-            const planRes = await fetch('https://deeplockin.com/api/user/plan', {
+            const planRes = await fetch('https://www.deeplockin.com/api/user/plan', {
                 headers: { 'authorization': `Bearer ${data.token}` }
             });
             const planData = await planRes.json();

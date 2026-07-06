@@ -55,7 +55,7 @@ function WebsiteList() {
 
             if (!token) return;
 
-            const planRes = await fetch('https://deeplockin.com/api/user/plan', {
+            const planRes = await fetch('https://www.deeplockin.com/api/user/plan', {
                 headers: { 'authorization': `Bearer ${token}` }
             });
             const planData = await planRes.json();
@@ -65,7 +65,7 @@ function WebsiteList() {
                 setPlan(planData.plan);
             }
 
-            const response = await fetch('https://deeplockin.com/api/websites', {
+            const response = await fetch('https://www.deeplockin.com/api/websites', {
                 headers: { 'authorization': `Bearer ${token}`}
             });
 
@@ -91,7 +91,7 @@ function WebsiteList() {
                 return;
             }
 
-            const response = await fetch('https://deeplockin.com/api/websites', {
+            const response = await fetch('https://www.deeplockin.com/api/websites', {
                 headers: {
                     'authorization': `Bearer ${token}`
                 }
@@ -143,7 +143,7 @@ function WebsiteList() {
 
             for (const site of expired) {
                 try {
-                    await fetch(`https://deeplockin.com/api/websites/${site._id}`, {
+                    await fetch(`https://www.deeplockin.com/api/websites/${site._id}`, {
                         method: 'DELETE',
                         headers: { 'authorization': `Bearer ${token}` }
                     });
@@ -205,7 +205,7 @@ function WebsiteList() {
                 return;
             }
 
-            const response = await fetch(`https://deeplockin.com/api/websites/${id}`, {
+            const response = await fetch(`https://www.deeplockin.com/api/websites/${id}`, {
                 method: 'PUT',
                 headers: { 
                     'Content-Type': 'application/json',
@@ -253,7 +253,7 @@ function WebsiteList() {
             const result = await chrome.storage.local.get('token');
             const token = result.token as string;
             
-            await fetch(`https://deeplockin.com/api/websites/${id}`, {
+            await fetch(`https://www.deeplockin.com/api/websites/${id}`, {
                 method: 'DELETE',
                 headers: {
                     'authorization': `Bearer ${token}`
