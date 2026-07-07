@@ -50,6 +50,7 @@ function Menu() {
     const [showUpgradePage, setShowUpgradePage] = useState(false);
     const [recurringKey, setRecurringKey] = useState(0);
     const [showAddSite, setShowAddSite] = useState(false);
+    const [cancelAtPeriodEnd, setCancelAtPeriodEnd] = useState(false);
 
     useEffect(() => {
         const syncAll = async () => {
@@ -65,14 +66,15 @@ function Menu() {
 
             if (!token) return;
 
-            const planRes = await fetch('https://www.deeplockin.com/api/user/plan', {
+            const statusRes = await fetch('https://www.deeplockin.com/api/stripe/status', {
                 headers: { 'authorization': `Bearer ${token}` }
             });
-            const planData = await planRes.json();
-            if (planData.plan !== cachedPlan) {
-                await chrome.storage.local.set({ plan: planData.plan });
-                setPlan(planData.plan);
+            const statusData = await statusRes.json();
+            if (statusData.plan !== cachedPlan) {
+                await chrome.storage.local.set({ plan: statusData.plan });
+                setPlan(statusData.plan);
             }
+            setCancelAtPeriodEnd(statusData.cancelAtPeriodEnd ?? false);
 
             const userRes = await fetch('https://www.deeplockin.com/api/user/me', {
                 headers: { 'authorization': `Bearer ${token}` }
@@ -83,7 +85,7 @@ function Menu() {
                 await chrome.storage.local.set({ username: userData.username });
             }
 
-            if (planData.plan === 'pro') {
+            if (statusData.plan === 'pro') {
                 const recurringRes = await fetch('https://www.deeplockin.com/api/recurring', {
                     headers: { 'authorization': `Bearer ${token}`}
                 });
@@ -133,14 +135,16 @@ function Menu() {
                 const token = result.token as string | undefined;
                 if (!token) return;
 
-                const planRes = await fetch('https://www.deeplockin.com/api/user/plan', {
+                const statusRes = await fetch('https://www.deeplockin.com/api/stripe/status', {
                     headers: { 'authorization': `Bearer ${token}` }
                 });
-                const planData = await planRes.json();
-                const cached = await chrome.storage.local.get('plan');
-                if (planData.plan !== cached.plan) {
-                    await chrome.storage.local.set({ plan: planData.plan });
-                    setPlan(planData.plan);
+                const statusData = await statusRes.json();
+                
+                setCancelAtPeriodEnd(statusData.cancelAtPeriodEnd ?? false);
+
+                if (statusData.plan !== plan) {
+                    await chrome.storage.local.set({ plan: statusData.plan });
+                    setPlan(statusData.plan);
                 }
             }
         };
@@ -225,6 +229,26 @@ function Menu() {
 
         if (data.url) {
             chrome.tabs.create({ url: data.url });
+
+            const interval = setInterval(async () => {
+                const statusRes = await fetch('https://www.deeplockin.com/api/stripe/status', {
+                    headers: { 'authorization': `Bearer ${token}` }
+                });
+                const statusData = await statusRes.json();
+
+                setCancelAtPeriodEnd(statusData.cancelAtPeriodEnd ?? false);
+
+                if (statusData.plan !== plan) {
+                    await chrome.storage.local.set({ plan: statusData.plan });
+                    setPlan(statusData.plan);
+                }
+
+                if (statusData.cancelAtPeriodEnd) {
+                    clearInterval(interval);
+                }
+            }, 3000);
+
+            setTimeout(() => clearInterval(interval), 600000);
         }
     };
 
@@ -366,9 +390,11 @@ function Menu() {
                                         background: plan === 'pro'
                                             ? 'linear-gradient(135deg, #0099ff, #0055ff)'
                                             : 'rgba(0,170,255,0.15)',
-                                        color: 'white'
+                                        color: 'white',
+                                        whiteSpace: 'nowrap',
+                                        display: 'inline-block'
                                     }}>
-                                        {plan === 'pro' ? '⭐ PRO' : 'FREE'}
+                                        {plan === 'pro' ? cancelAtPeriodEnd ?  '⭐ PRO - Cancels at period end' : '⭐ PRO' : 'FREE'}
                                     </span>
                                 </div>
                             </div>
@@ -549,7 +575,6 @@ function Menu() {
                 )}
             </div>
 
-            {showRecurringForm && <RecurringForm onClose={() => setShowRecurringForm(false)} />}
             {showCategoryBlock && <CategoryBlock onClose={() => setShowCategoryBlock(false)} />}
             {showLogoutConfirm && (
                 <ConfirmPhrase
