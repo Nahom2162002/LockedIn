@@ -11,7 +11,7 @@ html, body, #root {
 }
 
 .menuBackground, .login-background, .forgot-password-background, .create-account-background {
-  background-image: url("assets/futuristicbackground.jpg");
+  background-image: url("assets/futuristicbackground.png");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
