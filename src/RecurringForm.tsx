@@ -104,19 +104,16 @@ function RecurringForm({ onClose }: { onClose: () => void }) {
 
             <div style={{ display: 'flex', gap: 6, position: 'fixed', top: '30%', left: '20%' }}>
                 {PRESETS.map(preset => (
-                    <button 
+                    <button
                         key={preset.label}
+                        className={JSON.stringify(selectedDays.sort()) === JSON.stringify([...preset.days].sort()) ? 'pill pill-active' : 'pill'}
                         onClick={() => applyPreset(preset.days)}
                         style={{
                             padding: '4px 10px',
-                            borderRadius: 20,
-                            border: '1px solid rgba(255, 255, 255, 0.2)',
                             background: JSON.stringify(selectedDays.sort()) === JSON.stringify([...preset.days].sort())
                                 ? '#0099ff'
-                                : 'rgba(255, 255, 255, 0.05)',
-                            color: 'white',
-                            fontSize: 11,
-                            cursor: 'pointer'
+                                : undefined,
+                            fontSize: 11
                         }}
                     >
                         {preset.label}
@@ -126,20 +123,18 @@ function RecurringForm({ onClose }: { onClose: () => void }) {
 
             <div style={{ display: 'flex', gap: 6, position: 'fixed', top: '42%', left: '20%' }}>
                 {DAYS.map(day => (
-                    <button 
+                    <button
                         key={day.value}
+                        className={selectedDays.includes(day.value) ? 'pill pill-active' : 'pill'}
                         onClick={() => toggleDay(day.value)}
                         style={{
                             width: 30,
                             height: 30,
                             borderRadius: '50%',
-                            border: '1px solid rgba(255, 255, 255, 0.2)',
                             background: selectedDays.includes(day.value)
                                 ? '#0099ff'
-                                : 'rgba(255, 255, 255, 0.05)',
-                            color: 'white',
+                                : undefined,
                             fontSize: 11,
-                            cursor: 'pointer',
                             fontWeight: selectedDays.includes(day.value) ? 700 : 400
                         }}
                     >
@@ -148,63 +143,59 @@ function RecurringForm({ onClose }: { onClose: () => void }) {
                 ))}
             </div>
             
-            <p id="time">Time:</p>
-            <input 
-                id="starttime"
-                type="time"
-                value={startTime}
-                onChange={e => setStartTime(e.target.value)}
-            />
-            <p id="to" style={{ position: 'fixed', left: '45.5%', top: '59%' }}>to</p>
-            <input 
-                id="endtime"
-                type="time"
-                value={endTime}
-                onChange={e => setEndTime(e.target.value)}
-                style={{ position: 'fixed', left: '51%' }}
-            /> 
+            <p style={{ position: 'fixed', top: '58%', right: '82%', color: 'white', fontWeight: 'bold' }}>Time:</p>
+            <div style={{ position: 'fixed', top: '60%', left: '20%', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <input
+                    id="starttime"
+                    type="time"
+                    value={startTime}
+                    onChange={e => setStartTime(e.target.value)}
+                    style={{ position: 'static' }}
+                />
+                <span style={{ color: 'white' }}>to</span>
+                <input
+                    id="endtime"
+                    type="time"
+                    value={endTime}
+                    onChange={e => setEndTime(e.target.value)}
+                    style={{ position: 'static' }}
+                />
+            </div>
 
             {error && <p className="error-message">{error}</p>}
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, position: 'fixed', top: '72%', left: '20%' }}>
                 <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 12, margin: 0 }}>Strict mode:</p>
                 <button
+                    className={strictModeOverride === null ? 'pill pill-active' : 'pill'}
                     onClick={() => setStrictModeOverride(null)}
                     style={{
                         padding: '3px 8px',
-                        borderRadius: 20,
-                        border: '1px solid rgba(255,255,255,0.2)',
-                        background: strictModeOverride === null ? '#0099ff' : 'rgba(255,255,255,0.05)',
-                        color: 'white',
-                        fontSize: 10,
-                        cursor: 'pointer'
+                        background: strictModeOverride === null ? '#0099ff' : undefined,
+                        fontSize: 10
                     }}
                 >
                     Default
                 </button>
                 <button
+                    className={strictModeOverride === true ? 'pill pill-active' : 'pill'}
                     onClick={() => setStrictModeOverride(true)}
                     style={{
                         padding: '3px 8px',
-                        borderRadius: 20,
-                        border: '1px solid rgba(255,255,255,0.2)',
-                        background: strictModeOverride === true ? '#ff4d4d' : 'rgba(255,255,255,0.05)',
-                        color: 'white',
-                        fontSize: 10,
-                        cursor: 'pointer'
+                        background: strictModeOverride === true ? '#ff4d4d' : undefined,
+                        borderColor: strictModeOverride === true ? '#ff4d4d' : undefined,
+                        fontSize: 10
                     }}
                 >
                     On
                 </button>
                 <button
+                    className={strictModeOverride === false ? 'pill pill-active' : 'pill'}
                     onClick={() => setStrictModeOverride(false)}
                     style={{
                         padding: '3px 8px',
-                        borderRadius: 20,
-                        border: '1px solid rgba(255,255,255,0.2)',
-                        background: strictModeOverride === false ? '#4CAF50' : 'rgba(255,255,255,0.05)',
-                        color: 'white',
-                        fontSize: 10,
-                        cursor: 'pointer'
+                        background: strictModeOverride === false ? '#4CAF50' : undefined,
+                        borderColor: strictModeOverride === false ? '#4CAF50' : undefined,
+                        fontSize: 10
                     }}
                 >
                     Off

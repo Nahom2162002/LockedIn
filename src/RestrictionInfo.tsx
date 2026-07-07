@@ -90,52 +90,47 @@ function RestrictionInfo({ onClose }: {onClose: () => void}) {
             <input id="urltext" type="text" value={text} onChange={(e) => setText(e.target.value)} placeholder="Enter URL here"/>
             <input id="datetext" type="date" value={date} min={today} onChange={(e) => setDate(e.target.value)}/>
             <p id="date">Date:</p>
-            <input id="starttime" type="time" value={starttime} min={date === today ? currentTime: undefined} onChange={(e) => setStartTime(e.target.value)}/>
-            <p id="time" style={{position: 'fixed', top: '59%'}}>Time:</p>
-            <input id="endtime" style={{position: 'fixed', left: '53%'}} type="time" value={endtime} min={starttime} onChange={(e) => setEndTime(e.target.value)}/>
-            <p id="to" style={{position: 'fixed', top: '59%', right: '50%'}}>to</p>
+            <p style={{ position: 'fixed', top: '58%', right: '82%', color: 'white', fontWeight: 'bold' }}>Time:</p>
+            <div style={{ position: 'fixed', top: '60%', left: '20%', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <input id="starttime" type="time" value={starttime} min={date === today ? currentTime: undefined} onChange={(e) => setStartTime(e.target.value)} style={{ position: 'static' }}/>
+                <span style={{ color: 'white' }}>to</span>
+                <input id="endtime" type="time" value={endtime} min={starttime} onChange={(e) => setEndTime(e.target.value)} style={{ position: 'static' }}/>
+            </div>
             {error && <p className="error-message">{error}</p>}
             {plan === 'pro' && (
                 <div style={{ position: 'fixed', alignItems: 'center', gap: 6, top: '72%', left: '20%', display: 'flex' }}>
                     <p style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: 12, margin: 0 }}>Strict mode:</p>
-                    <button onClick={() => setStrictModeOverride(null)}
+                    <button className={strictModeOverride === null ? 'pill pill-active' : 'pill'}
+                            onClick={() => setStrictModeOverride(null)}
                             style={{
                                 padding: '3px 8px',
-                                borderRadius: 20,
-                                border: '1px solid rgba(255, 255, 255, 0.2)',
-                                background: strictModeOverride === null ? '#0099ff' : 'rgba(255, 255, 255, 0.05)',
-                                color: 'white',
-                                fontSize: 10,
-                                cursor: 'pointer'
+                                background: strictModeOverride === null ? '#0099ff' : undefined,
+                                fontSize: 10
                             }}
                     >
-                        Default 
+                        Default
                     </button>
-                    <button onClick={() => setStrictModeOverride(true)}
+                    <button className={strictModeOverride === true ? 'pill pill-active' : 'pill'}
+                            onClick={() => setStrictModeOverride(true)}
                             style={{
                                 padding: '3px 8px',
-                                borderRadius: 20,
-                                border: '1px solid rgba(255, 255, 255, 0.2)',
-                                background: strictModeOverride === true ? '#ff4d4d' : 'rgba(255, 255, 255, 0.05)',
-                                color: 'white',
-                                fontSize: 10,
-                                cursor: 'pointer'
+                                background: strictModeOverride === true ? '#ff4d4d' : undefined,
+                                borderColor: strictModeOverride === true ? '#ff4d4d' : undefined,
+                                fontSize: 10
                             }}
                     >
                         On
                     </button>
-                    <button onClick={() => setStrictModeOverride(false)}
+                    <button className={strictModeOverride === false ? 'pill pill-active' : 'pill'}
+                            onClick={() => setStrictModeOverride(false)}
                             style={{
                                 padding: '3px 8px',
-                                borderRadius: 20,
-                                border: '1px solid rgba(255, 255, 255, 0.2)',
-                                background: strictModeOverride === false ? '#4CAF50' : 'rgba(255, 255, 255, 0.05)',
-                                color: 'white',
-                                fontSize: 10,
-                                cursor: 'pointer'
+                                background: strictModeOverride === false ? '#4CAF50' : undefined,
+                                borderColor: strictModeOverride === false ? '#4CAF50' : undefined,
+                                fontSize: 10
                             }}
                     >
-                        Off 
+                        Off
                     </button>
                 </div>
             )}

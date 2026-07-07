@@ -114,9 +114,12 @@ function CategoryBlock({ onClose }: { onClose: () => void}) {
         <div className="sitechoicebackground">
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, margin: '8px 0' }}>
                 {Object.entries(CATEGORIES).map(([key, cat]) => (
-                    <button key={key} onClick={() => setSelectedCategory(key)} style={{ padding: '6px 10px', borderRadius: 20, border: '1px solid rgba(255, 255, 255, 0.2)', 
-                        background: selectedCategory === key ? '#0099ff' : 'rgba(255, 255, 255, 0.05)', color: 'white',
-                        fontSize: 11, cursor: 'pointer',
+                    <button key={key}
+                        className={selectedCategory === key ? 'pill pill-active' : 'pill'}
+                        onClick={() => setSelectedCategory(key)}
+                        style={{ padding: '6px 10px',
+                        background: selectedCategory === key ? '#0099ff' : undefined,
+                        fontSize: 11,
                         fontWeight: selectedCategory === key ? 700 : 400
                     }}
                     >
@@ -132,31 +135,29 @@ function CategoryBlock({ onClose }: { onClose: () => void}) {
             )}
 
             <div style={{ display: 'flex', gap: 6, margin: '8px 0' }}>
-                <button onClick={() => setScheduleType('one-time')} style={{
+                <button
+                    className={scheduleType === 'one-time' ? 'pill pill-active' : 'pill'}
+                    onClick={() => setScheduleType('one-time')} style={{
                     flex: 1,
                     padding: '6px',
                     borderRadius: 8,
-                    border: '1px solid rgba(255, 255, 255, 0.2)',
-                    background: scheduleType === 'one-time' ? '#0099ff' : 'rgba(255, 255, 255, 0.05)',
-                    color: 'white',
-                    fontSize: 11,
-                    cursor: 'pointer'
+                    background: scheduleType === 'one-time' ? '#0099ff' : undefined,
+                    fontSize: 11
                 }}
                 >
-                    One-time 
+                    One-time
                 </button>
-                <button onClick={() => setScheduleType('recurring')} style={{
+                <button
+                    className={scheduleType === 'recurring' ? 'pill pill-active' : 'pill'}
+                    onClick={() => setScheduleType('recurring')} style={{
                     flex: 1,
                     padding: '6px',
                     borderRadius: 8,
-                    border: '1px solid rgba(255, 255, 255, 0.2)',
-                    background: scheduleType === 'recurring' ? '#0099ff' : 'rgba(255, 255, 255, 0.05)',
-                    color: 'white',
-                    fontSize: 11,
-                    cursor: 'pointer'
+                    background: scheduleType === 'recurring' ? '#0099ff' : undefined,
+                    fontSize: 11
                 }}
                 >
-                    Recurring 
+                    Recurring
                 </button>
             </div>
             {scheduleType === 'one-time' && (
@@ -169,16 +170,14 @@ function CategoryBlock({ onClose }: { onClose: () => void}) {
                 <>
                     <div style={{ display: 'flex', gap: 6, margin: '4px 0' }}>
                         {PRESETS.map(preset => (
-                            <button key={preset.label} onClick={() => setSelectedDays(preset.days)} style={{
+                            <button key={preset.label}
+                                className={JSON.stringify(selectedDays.sort()) === JSON.stringify([...preset.days].sort()) ? 'pill pill-active' : 'pill'}
+                                onClick={() => setSelectedDays(preset.days)} style={{
                                 padding: '4px 8px',
-                                borderRadius: 20,
-                                border: '1px solid rgba(255, 255, 255, 0.2)',
                                 background: JSON.stringify(selectedDays.sort()) === JSON.stringify([...preset.days].sort())
                                     ? '#0099ff'
-                                    : 'rgba(255, 255, 255, 0.05)',
-                                color: 'white',
-                                fontSize: 10,
-                                cursor: 'pointer'
+                                    : undefined,
+                                fontSize: 10
                             }}
                             >
                                 {preset.label}
@@ -187,18 +186,17 @@ function CategoryBlock({ onClose }: { onClose: () => void}) {
                     </div>
                     <div style={{ display: 'flex', gap: 6, margin: '4px 0' }}>
                         {DAYS.map(day => (
-                            <button key={day.value} onClick={() => toggleDay(day.value)}
+                            <button key={day.value}
+                            className={selectedDays.includes(day.value) ? 'pill pill-active' : 'pill'}
+                            onClick={() => toggleDay(day.value)}
                             style={{
                                 width: 28,
                                 height: 28,
                                 borderRadius: '50%',
-                                border: '1px solid rgba(255, 255, 255, 0.2)',
                                 background: selectedDays.includes(day.value)
                                     ? '#0099ff'
-                                    : 'rgba(255, 255, 255, 0.05)',
-                                color: 'white',
+                                    : undefined,
                                 fontSize: 10,
-                                cursor: 'pointer',
                                 fontWeight: selectedDays.includes(day.value) ? 700 : 400
                             }}
                             >
@@ -209,14 +207,12 @@ function CategoryBlock({ onClose }: { onClose: () => void}) {
                 </>
             )}
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, margin: '8px 0' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <p id="time" style={{ position: 'fixed', top: '59.5%'}}>Time:</p>
-                    <input id="starttime" type="time" value={startTime} onChange={e => setStartTime(e.target.value)}/>
-                    <p id="time" style={{ position: 'fixed', left: '30%', top: '59%' }}>to</p>
-                    <input id="endtime" type="time" style={{ position: 'fixed', left: '33%' }} value={endTime} onChange={e => setEndTime(e.target.value)}/>
-                </div>
-            </div>  
+            <p style={{ position: 'fixed', top: '58%', right: '82%', color: 'white', fontWeight: 'bold' }}>Time:</p>
+            <div style={{ position: 'fixed', top: '60%', left: '20%', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <input id="starttime" type="time" value={startTime} onChange={e => setStartTime(e.target.value)} style={{ position: 'static' }}/>
+                <span style={{ color: 'white' }}>to</span>
+                <input id="endtime" type="time" value={endTime} onChange={e => setEndTime(e.target.value)} style={{ position: 'static' }}/>
+            </div>
             
             {error && <p className="error-message">{error}</p>}
             {success && <p style={{ color: '#4CAF50', fontSize: 12, textAlign: 'center' }}>{success}</p>}

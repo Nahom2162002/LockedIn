@@ -309,14 +309,15 @@ function Menu() {
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 padding: '12px 16px',
-                borderBottom: '1px solid rgba(255,255,255,0.08)'
+                borderBottom: '1px solid rgba(0,170,255,0.2)'
             }}>
-                <h1 style={{ color: 'white', fontSize: 18, fontWeight: 700, margin: 0 }}>
+                <h1 style={{ color: 'white', fontSize: 18, fontWeight: 700, margin: 0, textShadow: '0 0 8px rgba(0,170,255,0.5)' }}>
                     🔒 LockedIn
                 </h1>
 
                 <div ref={profileRef} style={{ position: 'relative' }}>
                     <button
+                        className="profile-avatar"
                         onClick={() => setShowProfileMenu(prev => !prev)}
                         style={{
                             width: 36,
@@ -324,8 +325,9 @@ function Menu() {
                             borderRadius: '50%',
                             background: plan === 'pro'
                                 ? 'linear-gradient(135deg, #0099ff, #0055ff)'
-                                : 'rgba(255,255,255,0.15)',
-                            border: plan === 'pro' ? '2px solid #0099ff' : '2px solid rgba(255,255,255,0.2)',
+                                : 'rgba(0,170,255,0.15)',
+                            border: plan === 'pro' ? '2px solid #0099ff' : '2px solid rgba(0,170,255,0.4)',
+                            boxShadow: plan === 'pro' ? '0 0 10px 2px rgba(0,170,255,0.55)' : '0 0 6px 1px rgba(0,170,255,0.3)',
                             color: 'white',
                             fontSize: 13,
                             fontWeight: 700,
@@ -339,22 +341,18 @@ function Menu() {
                     </button>
 
                     {showProfileMenu && (
-                        <div style={{
+                        <div className="profile-menu" style={{
                             position: 'absolute',
                             top: 44,
                             right: 0,
-                            background: '#1a1a2e',
-                            border: '1px solid rgba(255,255,255,0.1)',
-                            borderRadius: 12,
                             padding: '8px 0',
                             minWidth: 200,
-                            zIndex: 100,
-                            boxShadow: '0 8px 32px rgba(0,0,0,0.4)'
+                            zIndex: 100
                         }}>
-                            
+
                             <div style={{
                                 padding: '10px 16px 12px',
-                                borderBottom: '1px solid rgba(255,255,255,0.08)'
+                                borderBottom: '1px solid rgba(0,170,255,0.2)'
                             }}>
                                 <p style={{ color: 'white', fontWeight: 600, fontSize: 14, margin: '0 0 2px 0' }}>
                                     {username}
@@ -367,7 +365,7 @@ function Menu() {
                                         fontWeight: 700,
                                         background: plan === 'pro'
                                             ? 'linear-gradient(135deg, #0099ff, #0055ff)'
-                                            : 'rgba(255,255,255,0.1)',
+                                            : 'rgba(0,170,255,0.15)',
                                         color: 'white'
                                     }}>
                                         {plan === 'pro' ? '⭐ PRO' : 'FREE'}
@@ -378,6 +376,7 @@ function Menu() {
                             {plan === 'free' && (
                                 <>
                                 <button
+                                    className="menu-item"
                                     onClick={() => setShowUpgradePage(true)/*{ handleUpgrade(); setShowProfileMenu(false); }*/}
                                     style={menuItemStyle}
                                 >
@@ -397,13 +396,13 @@ function Menu() {
 
                             {plan === 'pro' && (
                                 <>
-                                    <button onClick={() => { handleDashboard(); setShowProfileMenu(false); }} style={menuItemStyle}>
+                                    <button className="menu-item" onClick={() => { handleDashboard(); setShowProfileMenu(false); }} style={menuItemStyle}>
                                         📊 Stats Dashboard
                                     </button>
-                                    <button onClick={() => { handleManageSubscription(); setShowProfileMenu(false); }} style={menuItemStyle}>
+                                    <button className="menu-item" onClick={() => { handleManageSubscription(); setShowProfileMenu(false); }} style={menuItemStyle}>
                                         💳 Manage Subscription
                                     </button>
-                                    <button onClick={() => { setShowCategoryBlock(true); setShowProfileMenu(false); }} style={menuItemStyle}>
+                                    <button className="menu-item" onClick={() => { setShowCategoryBlock(true); setShowProfileMenu(false); }} style={menuItemStyle}>
                                         🗂 Block Category
                                     </button>
 
@@ -424,7 +423,8 @@ function Menu() {
                                             borderRadius: 20,
                                             fontSize: 10,
                                             fontWeight: 700,
-                                            background: strictMode ? '#ff4d4d' : 'rgba(255,255,255,0.1)',
+                                            background: strictMode ? '#ff4d4d' : 'rgba(0,170,255,0.15)',
+                                            boxShadow: strictMode ? '0 0 6px 1px rgba(255,77,77,0.5)' : 'none',
                                             color: 'white'
                                         }}>
                                             {strictMode ? 'ON' : 'OFF'}
@@ -436,21 +436,17 @@ function Menu() {
                                         alignItems: 'center',
                                         justifyContent: 'space-between',
                                         padding: '10px 16px',
-                                        borderTop: '1px solid rgba(255,255,255,0.08)'
+                                        borderTop: '1px solid rgba(0,170,255,0.2)'
                                     }}>
-                                        <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11 }}>
+                                        <span style={{ color: 'rgba(150,210,255,0.5)', fontSize: 11 }}>
                                             🔄 {formatLastSynced(lastSynced)}
                                         </span>
                                         <button
+                                            className="pill"
                                             onClick={handleManualSync}
                                             style={{
                                                 padding: '2px 8px',
-                                                borderRadius: 20,
-                                                border: '1px solid rgba(255,255,255,0.15)',
-                                                background: 'transparent',
-                                                color: 'rgba(255,255,255,0.4)',
-                                                fontSize: 10,
-                                                cursor: 'pointer'
+                                                fontSize: 10
                                             }}
                                         >
                                             Sync now
@@ -459,8 +455,9 @@ function Menu() {
                                 </>
                             )}
 
-                            <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', marginTop: 4 }}>
+                            <div style={{ borderTop: '1px solid rgba(0,170,255,0.2)', marginTop: 4 }}>
                                 <button
+                                    className="menu-item"
                                     onClick={() => { handleLogout(); setShowProfileMenu(false); }}
                                     style={{ ...menuItemStyle, color: '#ff4d4d' }}
                                 >
@@ -474,31 +471,25 @@ function Menu() {
 
             <div style={{ padding: '12px 16px' }}>
                 <div style={{ marginBottom: 12 }}>
-                    <div 
+                    <div
+                        className="dropdown-header"
                         onClick={() => setIsOpen(prev => !prev)}
                         style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                            cursor: 'pointer',
-                            padding: '8px 12px',
-                            borderRadius: 8,
-                            background: 'rgba(255, 255, 255, 0.05)',
-                            border: '1px solid rgba(255, 255, 255, 0.08)',
                             marginBottom: isOpen ? 8 : 0
                         }}>
                         <span style={{ color: 'white', fontSize: 13, fontWeight: 600 }}>
                             🔒 Blocked Sites ({websites.length}{plan === 'free' ? '/3' : ''})
                         </span>
-                        <span style={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: 12 }}>
+                        <span style={{ color: 'rgba(150,210,255,0.6)', fontSize: 12 }}>
                             {isOpen ? '▲' : '▼'}
                         </span>
-                    </div> 
-                    
+                    </div>
+
                     {isOpen && (
                         <div>
                             <WebsiteList key={refreshKey} />
-                            <button 
+                            <button
+                                className="dashed-button"
                                 onClick={() => {
                                     if (plan === 'free' && websites.length >= 3) {
                                         setShowUpgradePage(true);
@@ -506,17 +497,7 @@ function Menu() {
                                         setShowAddSite(true);
                                     }
                                 }}
-                                style={{
-                                    width: '100%',
-                                    marginTop: 8,
-                                    padding: '7px',
-                                    borderRadius: 8,
-                                    border: '1px dashed rgba(255, 255, 255, 0.2)',
-                                    background: 'transparent',
-                                    color: 'rgba(255, 255, 255, 0.5)',
-                                    fontSize: 12,
-                                    cursor: 'pointer'
-                                }}
+                                style={{ marginTop: 8 }}
                             >
                                 + Add site
                             </button>
@@ -537,24 +518,17 @@ function Menu() {
 
                 {plan === 'pro' && (
                     <div style={{ marginBottom: 12 }}>
-                        <div 
+                        <div
+                            className="dropdown-header"
                             onClick={() => setShowRecurringList(prev => !prev)}
                             style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'space-between',
-                                cursor: 'pointer',
-                                padding: '8px 12px',
-                                borderRadius: 8,
-                                background: 'rgba(255, 255, 255, 0.05)',
-                                border: '1px solid rgba(255, 255, 255, 0.08)',
                                 marginBottom: showRecurringList ? 8 : 0
                             }}
                         >
                             <span style={{ color: 'white', fontSize: 13, fontWeight: 600 }}>
                                 🔁 Recurring Blocks ({recurringBlocks.length})
                             </span>
-                            <span style={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: 12 }}>
+                            <span style={{ color: 'rgba(150,210,255,0.6)', fontSize: 12 }}>
                                 {showRecurringList ? '▲' : '▼'}
                             </span>
                         </div>
@@ -562,21 +536,12 @@ function Menu() {
                         {showRecurringList && (
                             <div>
                                 <RecurringList key={recurringKey} />
-                                <button 
+                                <button
+                                    className="dashed-button"
                                     onClick={() => setShowRecurringForm(true)}
-                                    style={{
-                                        width: '100%',
-                                        marginTop: 8,
-                                        padding: '7px',
-                                        borderRadius: 8,
-                                        border: '1px dashed rgba(255, 255, 255, 0.2)',
-                                        background: 'transparent',
-                                        color: 'rgba(255, 255, 255, 0.5)',
-                                        fontSize: 12,
-                                        cursor: 'pointer'
-                                    }}
+                                    style={{ marginTop: 8 }}
                                 >
-                                    + Add recurring block 
+                                    + Add recurring block
                                 </button>
                             </div>
                         )}

@@ -275,13 +275,7 @@ function WebsiteList() {
     return (
         <div className="website-list">
             {websites.map((site) => (
-                <div key={site._id} style={{
-                    background: 'rgba(255, 255, 255, 0.04)',
-                    border: '1px solid rgba(255, 255, 255, 0.08)',
-                    borderRadius: 8,
-                    marginBottom: 6,
-                    overflow: 'hidden' 
-                }}>
+                <div key={site._id} className="list-item-card">
                     <div style={{
                         display: 'flex',
                         alignItems: 'center',
@@ -293,13 +287,13 @@ function WebsiteList() {
                         <span style={{ color: 'white', fontSize: 12, fontWeight: 600 }}>
                             {site.url.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0]}
                         </span>
-                        <span style={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: 11 }}>
+                        <span style={{ color: 'rgba(150, 210, 255, 0.6)', fontSize: 11 }}>
                             {expandedId === site._id ? '▲' : '▼'}
                         </span>
                     </div>
 
                     {expandedId === site._id && (
-                        <div style={{ padding: '0 10px 10px', borderTop: '1px solid rgba(255, 255, 255, 0.06)' }}>
+                        <div style={{ padding: '0 10px 10px', borderTop: '1px solid rgba(0, 170, 255, 0.15)' }}>
                             {editingId === site._id ? (
                                 <>
                                     <input id="editurl" value={editForm.url} onChange={(e) => setEditForm({ ...editForm, url: e.target.value })} placeholder="URL" style={{ width: '100%', marginTop: 8, boxSizing: 'border-box' as const }} />
@@ -317,12 +311,14 @@ function WebsiteList() {
                                                 { label: 'On', value: true, color: '#ff4d4d' },
                                                 { label: 'Off', value: false, color: '#4CAF50' }
                                             ].map(opt => (
-                                                <button key={opt.label} onClick={() => setEditForm({ ...editForm, strictMode: opt.value })}
+                                                <button key={opt.label}
+                                                    className={editForm.strictMode === opt.value ? 'pill pill-active' : 'pill'}
+                                                    onClick={() => setEditForm({ ...editForm, strictMode: opt.value })}
                                                     style={{
-                                                        padding: '2px 7px', borderRadius: 20,
-                                                        border: '1px solid rgba(255, 255, 255, 0.2)',
-                                                        background: editForm.strictMode === opt.value ? opt.color : 'rgba(255, 255, 255, 0.05)',
-                                                        color: 'white', fontSize: 10, cursor: 'pointer'
+                                                        padding: '2px 7px',
+                                                        background: editForm.strictMode === opt.value ? opt.color : undefined,
+                                                        borderColor: editForm.strictMode === opt.value ? opt.color : undefined,
+                                                        fontSize: 10
                                                     }}
                                                 >{opt.label}</button>
                                             ))}

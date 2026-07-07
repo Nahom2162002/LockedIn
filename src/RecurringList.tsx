@@ -194,12 +194,7 @@ function RecurringList() {
         <>
             <div className="website-list">
                 {blocks.map(block => (
-                    <div key={block._id} style={{
-                        background: 'rgba(255,255,255,0.04)',
-                        border: '1px solid rgba(255,255,255,0.08)',
-                        borderRadius: 8,
-                        marginBottom: 6,
-                        overflow: 'hidden',
+                    <div key={block._id} className="list-item-card" style={{
                         opacity: block.active ? 1 : 0.5
                     }}>
         
@@ -223,34 +218,34 @@ function RecurringList() {
                                 }}>
                                     {block.active ? '🟢' : '⏸'}
                                 </span>
-                                <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11 }}>
+                                <span style={{ color: 'rgba(150,210,255,0.6)', fontSize: 11 }}>
                                     {expandedId === block._id ? '▲' : '▼'}
                                 </span>
                             </div>
                         </div>
 
                         {expandedId === block._id && (
-                            <div style={{ padding: '0 10px 10px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                            <div style={{ padding: '0 10px 10px', borderTop: '1px solid rgba(0,170,255,0.15)' }}>
                                 {editingId === block._id ? (
                                     <>
                                         <input
                                             value={editForm.url}
                                             onChange={e => setEditForm({ ...editForm, url: e.target.value })}
                                             placeholder="URL"
-                                            style={{ width: '100%', marginTop: 8, boxSizing: 'border-box' as const, background: 'rgb(5,5,53)', color: 'white', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 4, padding: '4px 8px', fontSize: 12 }}
+                                            style={{ width: '100%', marginTop: 8, boxSizing: 'border-box' as const, background: 'rgb(5,5,53)', color: 'white', border: '1px solid rgba(0,170,255,0.4)', borderRadius: 4, padding: '4px 8px', fontSize: 12 }}
                                         />
 
                                         <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginTop: 6 }}>
                                             {PRESETS.map(preset => (
                                                 <button
                                                     key={preset.label}
+                                                    className={JSON.stringify(editForm.days.slice().sort()) === JSON.stringify([...preset.days].sort()) ? 'pill pill-active' : 'pill'}
                                                     onClick={() => setEditForm({ ...editForm, days: preset.days })}
                                                     style={{
-                                                        padding: '3px 8px', borderRadius: 20,
-                                                        border: '1px solid rgba(255,255,255,0.2)',
+                                                        padding: '3px 8px',
                                                         background: JSON.stringify(editForm.days.slice().sort()) === JSON.stringify([...preset.days].sort())
-                                                            ? '#0099ff' : 'rgba(255,255,255,0.05)',
-                                                        color: 'white', fontSize: 10, cursor: 'pointer'
+                                                            ? '#0099ff' : undefined,
+                                                        fontSize: 10
                                                     }}
                                                 >
                                                     {preset.label}
@@ -262,12 +257,12 @@ function RecurringList() {
                                             {DAYS.map(day => (
                                                 <button
                                                     key={day.value}
+                                                    className={editForm.days.includes(day.value) ? 'pill pill-active' : 'pill'}
                                                     onClick={() => toggleEditDay(day.value)}
                                                     style={{
                                                         width: 26, height: 26, borderRadius: '50%',
-                                                        border: '1px solid rgba(255,255,255,0.2)',
-                                                        background: editForm.days.includes(day.value) ? '#0099ff' : 'rgba(255,255,255,0.05)',
-                                                        color: 'white', fontSize: 10, cursor: 'pointer',
+                                                        background: editForm.days.includes(day.value) ? '#0099ff' : undefined,
+                                                        fontSize: 10,
                                                         fontWeight: editForm.days.includes(day.value) ? 700 : 400
                                                     }}
                                                 >
@@ -281,14 +276,14 @@ function RecurringList() {
                                                 type="time"
                                                 value={editForm.startTime}
                                                 onChange={e => setEditForm({ ...editForm, startTime: e.target.value })}
-                                                style={{ flex: 1, background: 'rgb(5,5,53)', color: 'white', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 4, padding: '4px', fontSize: 11 }}
+                                                style={{ flex: 1, background: 'rgb(5,5,53)', color: 'white', border: '1px solid rgba(0,170,255,0.4)', borderRadius: 4, padding: '4px', fontSize: 11 }}
                                             />
                                             <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11 }}>to</span>
                                             <input
                                                 type="time"
                                                 value={editForm.endTime}
                                                 onChange={e => setEditForm({ ...editForm, endTime: e.target.value })}
-                                                style={{ flex: 1, background: 'rgb(5,5,53)', color: 'white', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 4, padding: '4px', fontSize: 11 }}
+                                                style={{ flex: 1, background: 'rgb(5,5,53)', color: 'white', border: '1px solid rgba(0,170,255,0.4)', borderRadius: 4, padding: '4px', fontSize: 11 }}
                                             />
                                         </div>
 
@@ -301,12 +296,13 @@ function RecurringList() {
                                             ].map(opt => (
                                                 <button
                                                     key={opt.label}
+                                                    className={editForm.strictMode === opt.value ? 'pill pill-active' : 'pill'}
                                                     onClick={() => setEditForm({ ...editForm, strictMode: opt.value })}
                                                     style={{
-                                                        padding: '2px 7px', borderRadius: 20,
-                                                        border: '1px solid rgba(255,255,255,0.2)',
-                                                        background: editForm.strictMode === opt.value ? opt.color : 'rgba(255,255,255,0.05)',
-                                                        color: 'white', fontSize: 10, cursor: 'pointer'
+                                                        padding: '2px 7px',
+                                                        background: editForm.strictMode === opt.value ? opt.color : undefined,
+                                                        borderColor: editForm.strictMode === opt.value ? opt.color : undefined,
+                                                        fontSize: 10
                                                     }}
                                                 >
                                                     {opt.label}

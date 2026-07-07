@@ -47,17 +47,20 @@ html, body, #root {
 }
 
 .sitechoicebackground {
-  background-color: rgb(5, 5, 53);
+  background-color: rgba(5, 5, 53, 0.9);
+  border: 1px solid rgba(0, 170, 255, 0.4);
+  border-radius: 16px;
+  backdrop-filter: blur(6px);
   transform: translate(-50%, -50%);
   position: fixed;
   top: 50%;
   left: 50%;
-  width: 80%; 
+  width: 80%;
   height: 50%;
   z-index: 999;
   padding: 20px;
   overflow-y: auto;
-  box-shadow: 0 0 10px 5px rgb(0, 170, 255);
+  box-shadow: 0 0 20px 3px rgba(0, 170, 255, 0.4), inset 0 0 30px rgba(0, 170, 255, 0.05);
 }
 
 #websiteinfo {
@@ -66,6 +69,7 @@ html, body, #root {
   top: -10%;
   left: 35%;
   font-weight: bold;
+  text-shadow: 0 0 8px rgba(0, 170, 255, 0.6);
 }
 
 .addbutton {
@@ -73,6 +77,17 @@ html, body, #root {
   top: 87%;
   left: 43%;
   background-color: rgb(5, 5, 53);
+  color: #e6f6ff;
+  border: 1px solid rgba(0, 170, 255, 0.5);
+  border-radius: 6px;
+  padding: 6px 16px;
+  box-shadow: 0 0 8px 2px rgba(0, 170, 255, 0.35);
+  cursor: pointer;
+  transition: box-shadow 0.2s ease;
+}
+
+.addbutton:hover:not(:disabled) {
+  box-shadow: 0 0 14px 4px rgba(0, 170, 255, 0.6);
 }
 
 #url {
@@ -135,11 +150,36 @@ html, body, #root {
   font-weight: bold;
 }
 
+#urltext, #datetext, #starttime, #endtime, #editurl, #editdate, #editstart, #editend {
+  color: #e6f6ff;
+  border: 1px solid rgba(0, 170, 255, 0.4);
+  border-radius: 6px;
+  padding: 6px 8px;
+  outline: none;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+#urltext:focus, #datetext:focus, #starttime:focus, #endtime:focus,
+#editurl:focus, #editdate:focus, #editstart:focus, #editend:focus {
+  border-color: rgb(0, 170, 255);
+  box-shadow: 0 0 8px 2px rgba(0, 170, 255, 0.45);
+}
+
 #xbutton {
   position: fixed;
   top: 2%;
   right: 1%;
   background-color: rgb(5, 5, 53);
+  color: #e6f6ff;
+  border: 1px solid rgba(0, 170, 255, 0.5);
+  border-radius: 6px;
+  box-shadow: 0 0 8px 2px rgba(0, 170, 255, 0.35);
+  cursor: pointer;
+  transition: box-shadow 0.2s ease;
+}
+
+#xbutton:hover {
+  box-shadow: 0 0 14px 4px rgba(0, 170, 255, 0.6);
 }
 
 .website-list {
@@ -215,12 +255,104 @@ html, body, #root {
   background-color: rgb(5, 5, 53);
 }
 
-#plusbutton {
+#plusbutton, #savebutton, #cancelbutton {
+  background-color: rgb(5, 5, 53);
+  color: #e6f6ff;
+  border: 1px solid rgba(0, 170, 255, 0.5);
+  border-radius: 6px;
+  box-shadow: 0 0 8px 2px rgba(0, 170, 255, 0.35);
+  cursor: pointer;
+  transition: box-shadow 0.2s ease;
+}
+
+#plusbutton:hover, #savebutton:hover, #cancelbutton:hover {
+  box-shadow: 0 0 14px 4px rgba(0, 170, 255, 0.6);
+}
+
+#editurl, #editdate, #editstart, #editend {
   background-color: rgb(5, 5, 53);
 }
 
-#editurl, #editdate, #editstart, #editend, #savebutton, #cancelbutton {
-  background-color: rgb(5, 5, 53);
+/* --- Shared neon-cyan chrome for menu, dropdowns, list cards & profile UI --- */
+
+.dropdown-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: rgba(0, 170, 255, 0.07);
+  border: 1px solid rgba(0, 170, 255, 0.25);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.dropdown-header:hover {
+  border-color: rgba(0, 170, 255, 0.55);
+  box-shadow: 0 0 10px 1px rgba(0, 170, 255, 0.25);
+}
+
+.dashed-button {
+  width: 100%;
+  padding: 7px;
+  border-radius: 8px;
+  border: 1px dashed rgba(0, 170, 255, 0.4);
+  background: rgba(0, 170, 255, 0.05);
+  color: rgba(180, 225, 255, 0.85);
+  font-size: 12px;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+
+.dashed-button:hover {
+  border-color: rgba(0, 170, 255, 0.8);
+  background: rgba(0, 170, 255, 0.1);
+  color: #e6f6ff;
+}
+
+.list-item-card {
+  background: rgba(0, 170, 255, 0.06);
+  border: 1px solid rgba(0, 170, 255, 0.22);
+  border-radius: 8px;
+  margin-bottom: 6px;
+  overflow: hidden;
+}
+
+.profile-avatar {
+  transition: box-shadow 0.2s ease;
+}
+
+.profile-menu {
+  background: rgba(5, 5, 53, 0.94);
+  border: 1px solid rgba(0, 170, 255, 0.35);
+  border-radius: 12px;
+  box-shadow: 0 0 20px 2px rgba(0, 170, 255, 0.3), 0 8px 32px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(6px);
+}
+
+.menu-item {
+  transition: background 0.15s ease;
+}
+
+.menu-item:hover {
+  background: rgba(0, 170, 255, 0.12);
+}
+
+.pill {
+  border-radius: 20px;
+  border: 1px solid rgba(0, 170, 255, 0.3);
+  background: rgba(0, 170, 255, 0.06);
+  color: white;
+  cursor: pointer;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.pill:hover {
+  border-color: rgba(0, 170, 255, 0.6);
+}
+
+.pill-active {
+  box-shadow: 0 0 8px 2px rgba(0, 170, 255, 0.5);
 }
 
 .error-message {
@@ -240,12 +372,19 @@ html, body, #root {
   gap: 16px;
   position: relative;
   top: 10%;
+  padding: 24px 20px;
+  background: rgba(4, 6, 36, 0.55);
+  border: 1px solid rgba(0, 170, 255, 0.35);
+  border-radius: 16px;
+  box-shadow: 0 0 20px 2px rgba(0, 170, 255, 0.25), inset 0 0 30px rgba(0, 170, 255, 0.05);
+  backdrop-filter: blur(6px);
 }
 
 #lock-icon {
   width: 200px;
   height: 200px;
   margin-bottom: 8px;
+  filter: drop-shadow(0 0 12px rgba(0, 170, 255, 0.6));
 }
 
 #usernametext, #passwordtext, #email, #confirmpassword {
@@ -253,16 +392,57 @@ html, body, #root {
   height: 10px;
   padding: 10px;
   border-radius: 6px;
-  border: 1px solid #ccc;
+  border: 1px solid rgba(0, 170, 255, 0.4);
+  background-color: rgba(5, 5, 53, 0.6);
+  color: #e6f6ff;
+  outline: none;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+#usernametext::placeholder, #passwordtext::placeholder, #email::placeholder, #confirmpassword::placeholder {
+  color: rgba(220, 240, 255, 0.5);
+}
+
+#usernametext:focus, #passwordtext:focus, #email:focus, #confirmpassword:focus {
+  border-color: rgb(0, 170, 255);
+  box-shadow: 0 0 10px 2px rgba(0, 170, 255, 0.5);
 }
 
 .authbutton {
   width: auto;
   padding: 10px 20px;
   border-radius: 6px;
-  border: 1px solid #ccc;
+  border: 1px solid rgba(0, 170, 255, 0.5);
+  background-color: rgb(5, 5, 53);
+  color: #e6f6ff;
+  box-shadow: 0 0 8px 2px rgba(0, 170, 255, 0.35);
   white-space: nowrap;
   text-align: center;
+  cursor: pointer;
+  transition: box-shadow 0.2s ease, transform 0.1s ease;
+}
+
+.authbutton:hover:not(:disabled) {
+  box-shadow: 0 0 14px 4px rgba(0, 170, 255, 0.6);
+}
+
+.authbutton:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.authbutton:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.login a, .create a, .forgot a {
+  color: rgb(120, 200, 255);
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.login a:hover, .create a:hover, .forgot a:hover {
+  text-decoration: underline;
 }
 
 #verify {
