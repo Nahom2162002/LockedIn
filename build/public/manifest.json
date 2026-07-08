@@ -1,0 +1,33 @@
+{
+  "manifest_version": 3,
+  "name": "LockedIn",
+  "version": "2.0.0",
+  "description": "LockedIn: Your digital detox for increased productivity",
+  "action": {
+    "default_popup": "index.html",
+    "default_icon": {
+      "16": "lock-16x16.png",
+      "32": "lock-32x32.png",
+      "128": "lock-128x128.png",
+      "192": "lock-192x192.png",
+      "512": "lock-512x512.png"
+    }
+  },
+  "icons": {
+    "16": "lock-16x16.png",
+    "32": "lock-32x32.png",
+    "128": "lock-128x128.png",
+    "192": "lock-192x192.png",
+    "512": "lock-512x512.png" 
+  },
+  "permissions": ["storage", "webNavigation", "tabs", "alarms"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["index.html", "assets/*", "blocked.html", "blocked.js"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

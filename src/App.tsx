@@ -8,8 +8,10 @@ import { HashRouter, Routes, Route } from 'react-router-dom';
 function Home() {
   return (
     <div className='matrixBackground'>
-      <h1>Welcome to LockedIn!</h1>
-      <a href={chrome.runtime.getURL("index.html#/login")} target="_blank" rel="noreferrer">Click here to get started</a>
+      <div style={{ animation: 'fadeInUp 0.8s ease-out forwards' }}>
+        <h1>Welcome to LockedIn!</h1>
+        <a href={chrome.runtime.getURL("index.html#/login")} target="_blank" rel="noreferrer">Click here to get started</a>
+      </div>
     </div>
   );
 }

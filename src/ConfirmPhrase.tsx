@@ -36,6 +36,7 @@ function ConfirmPhrase({ onConfirm, onCancel, action, strictMode = false }: Conf
             padding: 16
         }}>
             <div style={{
+                animation: 'fadeInUp 0.8s ease-out forwards',
                 background: '#1a1a2e',
                 border: '1px solid rgba(255,255,255,0.1)',
                 borderRadius: 16,

@@ -328,6 +328,7 @@ function Menu() {
 
     return (
         <div className="menuBackground">
+            <div style={{ animation: 'fadeInUp 0.8s ease-out forwards' }}>
             <div style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -573,6 +574,7 @@ function Menu() {
                         )}
                     </div>
                 )}
+            </div>
             </div>
 
             {showCategoryBlock && <CategoryBlock onClose={() => setShowCategoryBlock(false)} />}

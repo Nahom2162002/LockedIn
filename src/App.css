@@ -31,6 +31,17 @@ html, body, #root {
   }
 }
 
+@keyframes fadeInUpCentered {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) translateY(0);
+  }
+}
+
 #hello {
   animation: fadeInUp 0.6s ease-out forwards;
   font-style: oblique;
@@ -47,11 +58,11 @@ html, body, #root {
 }
 
 .sitechoicebackground {
+  animation: fadeInUpCentered 0.8s ease-out forwards;
   background-color: rgba(5, 5, 53, 0.9);
   border: 1px solid rgba(0, 170, 255, 0.4);
   border-radius: 16px;
   backdrop-filter: blur(6px);
-  transform: translate(-50%, -50%);
   position: fixed;
   top: 50%;
   left: 50%;

@@ -24,6 +24,7 @@ function UpgradePage({ onUpgrade, onClose }: UpgradePageProps) {
             padding: '16px'
         }}>
             <div style={{
+                animation: 'fadeInUp 0.8s ease-out forwards',
                 background: 'linear-gradient(135deg, #0d0d1a, #1a1a2e)',
                 border: '1px solid rgba(0,153,255,0.3)',
                 borderRadius: 16,
