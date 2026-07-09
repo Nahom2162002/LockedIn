@@ -79,7 +79,7 @@ function UpgradePage({ onUpgrade, onClose, hasHadTrial = false }: UpgradePagePro
                 </button>
                 {!hasHadTrial && (
                     <p style={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: 11, textAlign: 'center', margin: '8px 0 0' }}>
-                        No credit card required. Cancel anytime. If Stripe asks for payment details during checkout you can skip it — it is optional for the free trial
+                        No credit card required. Cancel anytime. (If Stripe asks for payment details during checkout you can skip it — it is optional for the free trial)
                     </p>
                 )}
 

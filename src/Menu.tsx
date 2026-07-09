@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import RecurringForm from './RecurringForm.tsx';
 import RecurringList from './RecurringList.tsx';
 import ConfirmPhrase from './ConfirmPhrase.tsx';
+import ConfirmDialog from './ConfirmDialog.tsx';
 import CategoryBlock from './CategoryBlock.tsx';
 import UpgradePage from './UpgradePage.tsx';
 
@@ -54,6 +55,7 @@ function Menu() {
     const [isTrialing, setIsTrialing] = useState(false);
     const [trialEnd, setTrialEnd] = useState<string | null>(null);
     const [hasHadTrial, setHasHadTrial] = useState(false);
+    const [showCancelTrialConfirm, setShowCancelTrialConfirm] = useState(false);
 
     useEffect(() => {
         const syncAll = async () => {
@@ -255,6 +257,9 @@ function Menu() {
             setPlan('free');
             setIsTrialing(false);
             setShowProfileMenu(false);
+            if (data.url) {
+                chrome.tabs.create({ url: data.url });
+            }
             return;
         }
 
@@ -457,7 +462,18 @@ function Menu() {
                                     <button className="menu-item" onClick={() => { handleDashboard(); setShowProfileMenu(false); }} style={menuItemStyle}>
                                         📊 Stats Dashboard
                                     </button>
-                                    <button className="menu-item" onClick={() => { handleManageSubscription(); setShowProfileMenu(false); }} style={menuItemStyle}>
+                                    <button
+                                        className="menu-item"
+                                        onClick={() => {
+                                            if (isTrialing) {
+                                                setShowCancelTrialConfirm(true);
+                                            } else {
+                                                handleManageSubscription();
+                                            }
+                                            setShowProfileMenu(false);
+                                        }}
+                                        style={menuItemStyle}
+                                    >
                                         {isTrialing ? '❌ Cancel Trial' : '💳 Manage Subscription'}
                                     </button>
                                     <button className="menu-item" onClick={() => { setShowCategoryBlock(true); setShowProfileMenu(false); }} style={menuItemStyle}>
@@ -632,6 +648,20 @@ function Menu() {
             )}
             {showAddSite && <RestrictionInfo onClose={() => { setShowAddSite(false); setRefreshKey(prev => prev + 1); }} />}
             {showRecurringForm && <RecurringForm onClose={() => { setShowRecurringForm(false); setRecurringKey(prev => prev + 1); }} />}
+            {showCancelTrialConfirm && (
+                <ConfirmDialog
+                    title="Cancel your free trial?"
+                    message="You'll lose access to Pro features (recurring schedules, category blocking, stats dashboard, strict mode, and cross-device sync) right away. You'll need to upgrade to Pro again if you want them back."
+                    confirmLabel="Cancel Trial"
+                    cancelLabel="Keep Trial"
+                    danger
+                    onConfirm={() => {
+                        setShowCancelTrialConfirm(false);
+                        handleManageSubscription();
+                    }}
+                    onCancel={() => setShowCancelTrialConfirm(false)}
+                />
+            )}
         </div>
     );
 }
