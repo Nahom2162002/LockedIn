@@ -29,15 +29,18 @@ function Login() {
 
             await chrome.storage.local.set({
                 token: data.token,
-                plan: planData.plan 
+                plan: planData.plan
             });
-            
+
             navigate('/menu');
         } else {
             setError(data.error);
         }
       } catch (err) {
+        setError('Connection failed. Please try again.');
         console.error(err);
+      } finally {
+        setLoading(false);
       }
     };
 
