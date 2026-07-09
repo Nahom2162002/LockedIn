@@ -51,6 +51,8 @@ function Menu() {
     const [recurringKey, setRecurringKey] = useState(0);
     const [showAddSite, setShowAddSite] = useState(false);
     const [cancelAtPeriodEnd, setCancelAtPeriodEnd] = useState(false);
+    const [isTrialing, setIsTrialing] = useState(false);
+    const [trialEnd, setTrialEnd] = useState<string | null>(null);
 
     useEffect(() => {
         const syncAll = async () => {
@@ -75,6 +77,8 @@ function Menu() {
                 setPlan(statusData.plan);
             }
             setCancelAtPeriodEnd(statusData.cancelAtPeriodEnd ?? false);
+            setIsTrialing(statusData.isTrialing ?? false);
+            setTrialEnd(statusData.trialEnd ?? null);
 
             const userRes = await fetch('https://www.deeplockin.com/api/user/me', {
                 headers: { 'authorization': `Bearer ${token}` }
@@ -141,6 +145,8 @@ function Menu() {
                 const statusData = await statusRes.json();
                 
                 setCancelAtPeriodEnd(statusData.cancelAtPeriodEnd ?? false);
+                setIsTrialing(statusData.isTrialing ?? false);
+                setTrialEnd(statusData.trialEnd ?? null);
 
                 if (statusData.plan !== plan) {
                     await chrome.storage.local.set({ plan: statusData.plan });
@@ -395,7 +401,7 @@ function Menu() {
                                         whiteSpace: 'nowrap',
                                         display: 'inline-block'
                                     }}>
-                                        {plan === 'pro' ? cancelAtPeriodEnd ?  '⭐ PRO - Cancels at period end' : '⭐ PRO' : 'FREE'}
+                                        {plan === 'pro' ? isTrialing ? `⭐ PRO TRIAL — ${Math.ceil((new Date(trialEnd!).getTime() - Date.now()) / (1000 * 60 * 60 * 24))} days left` : cancelAtPeriodEnd ?  '⭐ PRO - Cancels at period end' : '⭐ PRO' : 'FREE'}
                                     </span>
                                 </div>
                             </div>

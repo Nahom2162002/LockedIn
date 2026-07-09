@@ -58,7 +58,28 @@ function UpgradePage({ onUpgrade, onClose }: UpgradePageProps) {
                         </div>
                     ))}
                 </div>
-
+                
+                <button 
+                    onClick={onUpgrade}
+                    style={{
+                        width: '100%',
+                        padding: '12px',
+                        borderRadius: 10,
+                        border: 'none',
+                        background: 'linear-gradient(135deg, #0099ff, #0055ff)',
+                        color: 'white',
+                        fontSize: 14,
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        marginBottom: 10
+                    }}
+                >
+                    Start 14-Day Free Trial 
+                </button>
+                <p style={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: 11, textAlign: 'center', margin: '8px 0 0' }}>
+                    No credit card required. Cancel anytime.
+                </p>
+                
                 <button
                     onClick={onUpgrade}
                     style={{
