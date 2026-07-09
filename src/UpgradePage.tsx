@@ -1,9 +1,10 @@
 interface UpgradePageProps {
     onUpgrade: () => void;
     onClose: () => void;
+    hasHadTrial?: boolean;
 }
 
-function UpgradePage({ onUpgrade, onClose }: UpgradePageProps) {
+function UpgradePage({ onUpgrade, onClose, hasHadTrial = false }: UpgradePageProps) {
     const features = [
         { emoji: '🔒', title: 'Unlimited Site Blocking', desc: 'Block as many sites as you need, no restrictions' },
         { emoji: '🔁', title: 'Recurring Schedules', desc: 'Set blocks to repeat every weekday, weekend, or any custom schedule' },
@@ -39,7 +40,7 @@ function UpgradePage({ onUpgrade, onClose }: UpgradePageProps) {
                         Upgrade to Pro
                     </h2>
                     <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 12, margin: 0 }}>
-                        $7/month — cancel anytime
+                        {hasHadTrial ? '$7/month — cancel anytime' : '14 days free, then $7/month — cancel anytime'}
                     </p>
                 </div>
 
@@ -59,27 +60,6 @@ function UpgradePage({ onUpgrade, onClose }: UpgradePageProps) {
                     ))}
                 </div>
                 
-                <button 
-                    onClick={onUpgrade}
-                    style={{
-                        width: '100%',
-                        padding: '12px',
-                        borderRadius: 10,
-                        border: 'none',
-                        background: 'linear-gradient(135deg, #0099ff, #0055ff)',
-                        color: 'white',
-                        fontSize: 14,
-                        fontWeight: 700,
-                        cursor: 'pointer',
-                        marginBottom: 10
-                    }}
-                >
-                    Start 14-Day Free Trial 
-                </button>
-                <p style={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: 11, textAlign: 'center', margin: '8px 0 0' }}>
-                    No credit card required. Cancel anytime.
-                </p>
-                
                 <button
                     onClick={onUpgrade}
                     style={{
@@ -95,8 +75,14 @@ function UpgradePage({ onUpgrade, onClose }: UpgradePageProps) {
                         marginBottom: 10
                     }}
                 >
-                    Upgrade to Pro — $7/month
+                    {hasHadTrial ? 'Upgrade to Pro — $7/month' : 'Start 14-Day Free Trial'}
                 </button>
+                {!hasHadTrial && (
+                    <p style={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: 11, textAlign: 'center', margin: '8px 0 0' }}>
+                        No credit card required. Cancel anytime. If Stripe asks for payment details during checkout you can skip it — it is optional for the free trial
+                    </p>
+                )}
+
                 <button
                     onClick={onClose}
                     style={{

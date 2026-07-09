@@ -53,6 +53,7 @@ function Menu() {
     const [cancelAtPeriodEnd, setCancelAtPeriodEnd] = useState(false);
     const [isTrialing, setIsTrialing] = useState(false);
     const [trialEnd, setTrialEnd] = useState<string | null>(null);
+    const [hasHadTrial, setHasHadTrial] = useState(false);
 
     useEffect(() => {
         const syncAll = async () => {
@@ -71,6 +72,13 @@ function Menu() {
             const statusRes = await fetch('https://www.deeplockin.com/api/stripe/status', {
                 headers: { 'authorization': `Bearer ${token}` }
             });
+
+            if (statusRes.status === 401) {
+                await chrome.storage.local.remove('token');
+                window.location.href = chrome.runtime.getURL('index.html#/login');
+                return;
+            }
+
             const statusData = await statusRes.json();
             if (statusData.plan !== cachedPlan) {
                 await chrome.storage.local.set({ plan: statusData.plan });
@@ -79,6 +87,7 @@ function Menu() {
             setCancelAtPeriodEnd(statusData.cancelAtPeriodEnd ?? false);
             setIsTrialing(statusData.isTrialing ?? false);
             setTrialEnd(statusData.trialEnd ?? null);
+            setHasHadTrial(statusData.hasHadTrial ?? false);
 
             const userRes = await fetch('https://www.deeplockin.com/api/user/me', {
                 headers: { 'authorization': `Bearer ${token}` }
@@ -142,11 +151,19 @@ function Menu() {
                 const statusRes = await fetch('https://www.deeplockin.com/api/stripe/status', {
                     headers: { 'authorization': `Bearer ${token}` }
                 });
+
+                if (statusRes.status === 401) {
+                    await chrome.storage.local.remove('token');
+                    window.location.href = chrome.runtime.getURL('index.html#/login');
+                    return;
+                }
+
                 const statusData = await statusRes.json();
-                
+
                 setCancelAtPeriodEnd(statusData.cancelAtPeriodEnd ?? false);
                 setIsTrialing(statusData.isTrialing ?? false);
                 setTrialEnd(statusData.trialEnd ?? null);
+                setHasHadTrial(statusData.hasHadTrial ?? false);
 
                 if (statusData.plan !== plan) {
                     await chrome.storage.local.set({ plan: statusData.plan });
@@ -232,6 +249,14 @@ function Menu() {
             }
         });
         const data = await response.json();
+
+        if (data.cancelled) {
+            await chrome.storage.local.set({ plan: 'free' });
+            setPlan('free');
+            setIsTrialing(false);
+            setShowProfileMenu(false);
+            return;
+        }
 
         if (data.url) {
             chrome.tabs.create({ url: data.url });
@@ -433,7 +458,7 @@ function Menu() {
                                         📊 Stats Dashboard
                                     </button>
                                     <button className="menu-item" onClick={() => { handleManageSubscription(); setShowProfileMenu(false); }} style={menuItemStyle}>
-                                        💳 Manage Subscription
+                                        {isTrialing ? '❌ Cancel Trial' : '💳 Manage Subscription'}
                                     </button>
                                     <button className="menu-item" onClick={() => { setShowCategoryBlock(true); setShowProfileMenu(false); }} style={menuItemStyle}>
                                         🗂 Block Category
@@ -596,7 +621,8 @@ function Menu() {
                 />
             )}
             {showUpgradePage && (
-                <UpgradePage 
+                <UpgradePage
+                    hasHadTrial={hasHadTrial}
                     onUpgrade={() => {
                         setShowUpgradePage(false);
                         handleUpgrade();
