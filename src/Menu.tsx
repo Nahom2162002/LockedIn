@@ -384,11 +384,9 @@ function Menu() {
                             width: 36,
                             height: 36,
                             borderRadius: '50%',
-                            background: plan === 'pro'
-                                ? 'linear-gradient(135deg, #0099ff, #0055ff)'
-                                : 'rgba(0,170,255,0.15)',
-                            border: plan === 'pro' ? '2px solid #0099ff' : '2px solid rgba(0,170,255,0.4)',
-                            boxShadow: plan === 'pro' ? '0 0 10px 2px rgba(0,170,255,0.55)' : '0 0 6px 1px rgba(0,170,255,0.3)',
+                            background: plan === 'pro' ? 'oklch(0.6 0.19 265)' : 'oklch(0.3 0.03 260 / 0.7)',
+                            border: plan === 'pro' ? '2px solid oklch(0.6 0.19 265)' : '2px solid oklch(1 0 0 / 0.15)',
+                            boxShadow: plan === 'pro' ? '0 0 12px -2px oklch(0.6 0.19 265 / 0.7)' : 'none',
                             color: 'white',
                             fontSize: 13,
                             fontWeight: 700,
@@ -402,142 +400,90 @@ function Menu() {
                     </button>
 
                     {showProfileMenu && (
-                        <div className="profile-menu" style={{
-                            position: 'absolute',
-                            top: 44,
-                            right: 0,
-                            padding: '8px 0',
-                            minWidth: 200,
-                            zIndex: 100
-                        }}>
-
-                            <div style={{
-                                padding: '10px 16px 12px',
-                                borderBottom: '1px solid rgba(0,170,255,0.2)'
-                            }}>
-                                <p style={{ color: 'white', fontWeight: 600, fontSize: 14, margin: '0 0 2px 0' }}>
-                                    {username}
-                                </p>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                    <span style={{
-                                        padding: '2px 8px',
-                                        borderRadius: 20,
-                                        fontSize: 10,
-                                        fontWeight: 700,
-                                        background: plan === 'pro'
-                                            ? 'linear-gradient(135deg, #0099ff, #0055ff)'
-                                            : 'rgba(0,170,255,0.15)',
-                                        color: 'white',
-                                        whiteSpace: 'nowrap',
-                                        display: 'inline-block'
-                                    }}>
-                                        {plan === 'pro' ? isTrialing ? `⭐ PRO TRIAL — ${Math.ceil((new Date(trialEnd!).getTime() - Date.now()) / (1000 * 60 * 60 * 24))} days left` : cancelAtPeriodEnd ?  '⭐ PRO - Cancels at period end' : '⭐ PRO' : 'FREE'}
-                                    </span>
-                                </div>
+                        <div className="profile-panel">
+                            <div className="profile-panel-avatar">{getInitials(username)}</div>
+                            <p className="profile-panel-name">{username}</p>
+                            <div className={plan === 'pro' ? 'profile-plan-badge' : 'profile-plan-badge profile-plan-badge-free'}>
+                                {plan === 'pro'
+                                    ? <><span>★</span> {isTrialing ? `PRO TRIAL — ${Math.ceil((new Date(trialEnd!).getTime() - Date.now()) / (1000 * 60 * 60 * 24))} days left` : cancelAtPeriodEnd ? 'PRO — Cancels at period end' : 'PRO'}</>
+                                    : 'FREE'}
                             </div>
+
+                            <div className="profile-divider" />
 
                             {plan === 'free' && (
                                 <>
-                                <button
-                                    className="menu-item"
-                                    onClick={() => setShowUpgradePage(true)/*{ handleUpgrade(); setShowProfileMenu(false); }*/}
-                                    style={menuItemStyle}
-                                >
-                                    ⭐ Upgrade to Pro
-                                </button>
-                                <p style={{
-                                    color: websites.length >= 3 ? '#ff4d4d' : 'rgba(255, 255, 255, 0.4)',
-                                    fontSize: 11,
-                                    textAlign: 'center',
-                                    margin: '4px 0'
-                                }}>
-                                    {websites.length}/3 sites used 
-                                    {websites.length >= 3 && ' - Upgrade to Pro for unlimited'}
-                                </p>
+                                    <button
+                                        className="profile-item"
+                                        onClick={() => setShowUpgradePage(true)}
+                                    >
+                                        <span className="profile-item-icon">⭐</span>
+                                        <span className="profile-item-label">Upgrade to Pro</span>
+                                    </button>
+                                    <p className="profile-sub-text" style={{ color: websites.length >= 3 ? '#ff4d4d' : 'oklch(0.55 0.02 260)' }}>
+                                        {websites.length}/3 sites used
+                                        {websites.length >= 3 && ' - Upgrade to Pro for unlimited'}
+                                    </p>
                                 </>
                             )}
 
                             {plan === 'pro' && (
                                 <>
-                                    <button className="menu-item" onClick={() => { handleDashboard(); setShowProfileMenu(false); }} style={menuItemStyle}>
-                                        📊 Stats Dashboard
-                                    </button>
-                                    <button
-                                        className="menu-item"
-                                        onClick={() => {
-                                            if (isTrialing) {
-                                                setShowCancelTrialConfirm(true);
-                                            } else {
-                                                handleManageSubscription();
-                                            }
-                                            setShowProfileMenu(false);
-                                        }}
-                                        style={menuItemStyle}
-                                    >
-                                        {isTrialing ? '❌ Cancel Trial' : '💳 Manage Subscription'}
-                                    </button>
-                                    <button className="menu-item" onClick={() => { setShowCategoryBlock(true); setShowProfileMenu(false); }} style={menuItemStyle}>
-                                        🗂 Block Category
-                                    </button>
-
-                                    <div style={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'space-between',
-                                        padding: '10px 16px',
-                                        cursor: 'pointer'
-                                    }}
-                                        onClick={handleToggleStrictMode}
-                                    >
-                                        <span style={{ color: 'rgba(255,255,255,0.8)', fontSize: 13 }}>
-                                            🚨 Strict Mode
-                                        </span>
-                                        <span style={{
-                                            padding: '2px 8px',
-                                            borderRadius: 20,
-                                            fontSize: 10,
-                                            fontWeight: 700,
-                                            background: strictMode ? '#ff4d4d' : 'rgba(0,170,255,0.15)',
-                                            boxShadow: strictMode ? '0 0 6px 1px rgba(255,77,77,0.5)' : 'none',
-                                            color: 'white'
-                                        }}>
-                                            {strictMode ? 'ON' : 'OFF'}
-                                        </span>
-                                    </div>
-
-                                    <div style={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'space-between',
-                                        padding: '10px 16px',
-                                        borderTop: '1px solid rgba(0,170,255,0.2)'
-                                    }}>
-                                        <span style={{ color: 'rgba(150,210,255,0.5)', fontSize: 11 }}>
-                                            🔄 {formatLastSynced(lastSynced)}
-                                        </span>
+                                    <div className="profile-item-list">
+                                        <button className="profile-item" onClick={() => { handleDashboard(); setShowProfileMenu(false); }}>
+                                            <span className="profile-item-icon">📊</span>
+                                            <span className="profile-item-label">Stats Dashboard</span>
+                                        </button>
                                         <button
-                                            className="pill"
-                                            onClick={handleManualSync}
-                                            style={{
-                                                padding: '2px 8px',
-                                                fontSize: 10
+                                            className="profile-item"
+                                            onClick={() => {
+                                                if (isTrialing) {
+                                                    setShowCancelTrialConfirm(true);
+                                                } else {
+                                                    handleManageSubscription();
+                                                }
+                                                setShowProfileMenu(false);
                                             }}
                                         >
+                                            <span className="profile-item-icon">{isTrialing ? '❌' : '💳'}</span>
+                                            <span className="profile-item-label">{isTrialing ? 'Cancel Trial' : 'Manage Subscription'}</span>
+                                        </button>
+                                        <button className="profile-item" onClick={() => { setShowCategoryBlock(true); setShowProfileMenu(false); }}>
+                                            <span className="profile-item-icon">🗂️</span>
+                                            <span className="profile-item-label">Block Category</span>
+                                        </button>
+
+                                        <div className="profile-item-row" onClick={handleToggleStrictMode}>
+                                            <div className="profile-item-row-left">
+                                                <span className="profile-item-icon">🔕</span>
+                                                <span className="profile-item-label">Strict Mode</span>
+                                            </div>
+                                            <span className={strictMode ? 'profile-toggle-pill profile-toggle-pill-on' : 'profile-toggle-pill'}>
+                                                {strictMode ? 'ON' : 'OFF'}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div className="profile-divider" />
+
+                                    <div className="profile-sync-row">
+                                        <span className="profile-sync-text">Synced {formatLastSynced(lastSynced)}</span>
+                                        <button className="profile-sync-btn" onClick={handleManualSync}>
                                             Sync now
                                         </button>
                                     </div>
                                 </>
                             )}
 
-                            <div style={{ borderTop: '1px solid rgba(0,170,255,0.2)', marginTop: 4 }}>
-                                <button
-                                    className="menu-item"
-                                    onClick={() => { handleLogout(); setShowProfileMenu(false); }}
-                                    style={{ ...menuItemStyle, color: '#ff4d4d' }}
-                                >
-                                    🚪 Log out
-                                </button>
-                            </div>
+                            <div className="profile-divider" />
+
+                            <button
+                                className="profile-item"
+                                onClick={() => { handleLogout(); setShowProfileMenu(false); }}
+                            >
+                                <span className="profile-item-icon profile-item-icon-danger">🚪</span>
+                                <span className="profile-item-label profile-item-label-danger">Log out</span>
+                            </button>
                         </div>
                     )}
                 </div>
@@ -665,18 +611,5 @@ function Menu() {
         </div>
     );
 }
-
-const menuItemStyle: React.CSSProperties = {
-    display: 'block',
-    width: '100%',
-    padding: '10px 16px',
-    background: 'transparent',
-    border: 'none',
-    color: 'rgba(255, 255, 255, 0.8)',
-    fontSize: 13,
-    textAlign: 'left',
-    cursor: 'pointer',
-    transition: 'background 0.15s'
-};
 
 export default Menu;
