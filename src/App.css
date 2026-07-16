@@ -57,111 +57,7 @@ html, body, #root {
   height: 50vh;
 }
 
-.sitechoicebackground {
-  animation: fadeInUpCentered 0.8s ease-out forwards;
-  background-color: rgba(5, 5, 53, 0.9);
-  border: 1px solid rgba(0, 170, 255, 0.4);
-  border-radius: 16px;
-  backdrop-filter: blur(6px);
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  width: 80%;
-  height: 50%;
-  z-index: 999;
-  padding: 20px;
-  overflow-y: auto;
-  box-shadow: 0 0 20px 3px rgba(0, 170, 255, 0.4), inset 0 0 30px rgba(0, 170, 255, 0.05);
-}
-
-#websiteinfo {
-  color: white;
-  position: fixed;
-  top: -10%;
-  left: 35%;
-  font-weight: bold;
-  text-shadow: 0 0 8px rgba(0, 170, 255, 0.6);
-}
-
-.addbutton {
-  position: fixed;
-  top: 87%;
-  left: 43%;
-  background-color: rgb(5, 5, 53);
-  color: #e6f6ff;
-  border: 1px solid rgba(0, 170, 255, 0.5);
-  border-radius: 6px;
-  padding: 6px 16px;
-  box-shadow: 0 0 8px 2px rgba(0, 170, 255, 0.35);
-  cursor: pointer;
-  transition: box-shadow 0.2s ease;
-}
-
-.addbutton:hover:not(:disabled) {
-  box-shadow: 0 0 14px 4px rgba(0, 170, 255, 0.6);
-}
-
-#url {
-  position: fixed;
-  top: 18%;
-  right: 82%;
-  color: white;
-  font-weight: bold;
-}
-
-#urltext {
-  position: fixed;
-  top: 20%;
-  left: 20%;
-  background-color: rgb(5, 5, 53);
-}
-
-#datetext {
-  position: fixed;
-  top: 40%;
-  left: 20%;
-  background-color: rgb(5, 5, 53);
-}
-
-#date {
-  position: fixed;
-  top: 38%;
-  right: 82%;
-  color: white;
-  font-weight: bold;
-}
-
-#starttime {
-  position: fixed;
-  top: 60%;
-  left: 20%;
-  background-color: rgb(5, 5, 53);
-}
-
-#time {
-  position: fixed;
-  top: 58%;
-  right: 82%;
-  color: white;
-  font-weight: bold;
-}
-
-#endtime {
-  position: fixed;
-  top: 60%;
-  left: 42%;
-  background-color: rgb(5, 5, 53);
-}
-
-#to {
-  position: fixed;
-  top: 58%;
-  right: 59%;
-  color: white;
-  font-weight: bold;
-}
-
-#urltext, #datetext, #starttime, #endtime, #editurl, #editdate, #editstart, #editend {
+#editurl, #editdate, #editstart, #editend {
   color: #e6f6ff;
   border: 1px solid rgba(0, 170, 255, 0.4);
   border-radius: 6px;
@@ -170,27 +66,9 @@ html, body, #root {
   transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
-#urltext:focus, #datetext:focus, #starttime:focus, #endtime:focus,
 #editurl:focus, #editdate:focus, #editstart:focus, #editend:focus {
   border-color: rgb(0, 170, 255);
   box-shadow: 0 0 8px 2px rgba(0, 170, 255, 0.45);
-}
-
-#xbutton {
-  position: fixed;
-  top: 2%;
-  right: 1%;
-  background-color: rgb(5, 5, 53);
-  color: #e6f6ff;
-  border: 1px solid rgba(0, 170, 255, 0.5);
-  border-radius: 6px;
-  box-shadow: 0 0 8px 2px rgba(0, 170, 255, 0.35);
-  cursor: pointer;
-  transition: box-shadow 0.2s ease;
-}
-
-#xbutton:hover {
-  box-shadow: 0 0 14px 4px rgba(0, 170, 255, 0.6);
 }
 
 .website-list {
@@ -458,4 +336,262 @@ html, body, #root {
 
 #verify {
   color: white;
+}
+
+/* --- Violet glass redesign: Add Website, Recurring Block, Category Block modals --- */
+
+.add-website-btn {
+  padding: 13px 0;
+  border-radius: 12px;
+  border: none;
+  background: oklch(0.6 0.19 265);
+  color: white;
+  font-size: 15px;
+  font-family: 'Inter', Helvetica, Arial, sans-serif;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 8px 24px -6px oklch(0.6 0.19 265 / 0.6);
+  transition: box-shadow 0.2s ease, transform 0.1s ease;
+}
+
+.add-website-btn:hover:not(:disabled) {
+  box-shadow: 0 10px 30px -6px oklch(0.6 0.19 265 / 0.75);
+}
+
+.add-website-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.add-website-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.glass-modal {
+  animation: fadeInUpCentered 0.8s ease-out forwards;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 340px;
+  max-width: 90%;
+  max-height: 85%;
+  overflow-y: auto;
+  box-sizing: border-box;
+  background: oklch(0.2 0.03 260 / 0.9);
+  backdrop-filter: blur(16px);
+  border: 1px solid oklch(0.6 0.1 265 / 0.35);
+  border-radius: 20px;
+  box-shadow: 0 24px 60px -20px oklch(0 0 0 / 0.65), 0 0 40px -10px oklch(0.55 0.15 265 / 0.3);
+  padding: 22px 22px 20px;
+  font-family: 'Inter', Helvetica, Arial, sans-serif;
+  z-index: 999;
+}
+
+.glass-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.glass-modal-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: oklch(0.97 0.005 260);
+  margin: 0;
+}
+
+.glass-close-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  border: 1px solid oklch(1 0 0 / 0.12);
+  background: oklch(0.26 0.03 260 / 0.8);
+  color: oklch(0.8 0.02 260);
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.glass-field {
+  margin-bottom: 14px;
+}
+
+.glass-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: oklch(0.7 0.02 260);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 0 0 6px;
+}
+
+.glass-input {
+  box-sizing: border-box;
+  background: oklch(0.15 0.025 260 / 0.7);
+  border: 1px solid oklch(1 0 0 / 0.12);
+  border-radius: 10px;
+  padding: 9px 12px;
+  color: oklch(0.95 0.005 260);
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.glass-input:focus {
+  border-color: oklch(0.6 0.19 265 / 0.8);
+  box-shadow: 0 0 0 3px oklch(0.6 0.19 265 / 0.2);
+}
+
+.glass-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.glass-row span {
+  color: oklch(0.6 0.02 260);
+  font-size: 12px;
+}
+
+.glass-pill-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.glass-pill {
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid oklch(1 0 0 / 0.12);
+  background: oklch(0.15 0.025 260 / 0.6);
+  color: oklch(0.75 0.02 260);
+  font-size: 11px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.glass-pill:hover {
+  border-color: oklch(0.6 0.19 265 / 0.5);
+}
+
+.glass-pill-active {
+  background: oklch(0.6 0.19 265);
+  border-color: oklch(0.6 0.19 265);
+  color: white;
+  font-weight: 700;
+  box-shadow: 0 0 14px -2px oklch(0.6 0.19 265 / 0.7);
+}
+
+.glass-segment-toggle {
+  flex: 1;
+  padding: 6px 0;
+  border-radius: 8px;
+}
+
+.glass-day-row {
+  display: flex;
+  gap: 6px;
+}
+
+.glass-day {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid oklch(1 0 0 / 0.12);
+  background: oklch(0.15 0.025 260 / 0.6);
+  color: oklch(0.75 0.02 260);
+  font-size: 10px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.glass-day:hover {
+  border-color: oklch(0.6 0.19 265 / 0.5);
+}
+
+.glass-day-active {
+  background: oklch(0.6 0.19 265);
+  border-color: oklch(0.6 0.19 265);
+  color: white;
+  font-weight: 700;
+  box-shadow: 0 0 10px -2px oklch(0.6 0.19 265 / 0.7);
+}
+
+.glass-segment {
+  display: flex;
+  gap: 6px;
+  background: oklch(0.15 0.025 260 / 0.7);
+  border: 1px solid oklch(1 0 0 / 0.1);
+  border-radius: 10px;
+  padding: 4px;
+}
+
+.glass-segment-option {
+  flex: 1;
+  text-align: center;
+  padding: 6px 0;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: oklch(0.7 0.02 260);
+  font-size: 11px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s ease, box-shadow 0.15s ease, color 0.15s ease;
+}
+
+.glass-helper-text {
+  color: oklch(0.65 0.02 260);
+  font-size: 10px;
+  margin: -6px 0 14px;
+}
+
+.glass-success-text {
+  color: #4CAF50;
+  font-size: 12px;
+  text-align: center;
+  margin: 0 0 10px;
+}
+
+/* Category buttons (CategoryBlock category picker) */
+
+.category-pill {
+  padding: 7px 12px;
+  border-radius: 999px;
+  border: 1px solid oklch(1 0 0 / 0.12);
+  background: oklch(0.15 0.025 260 / 0.6);
+  color: oklch(0.8 0.02 260);
+  font-size: 11px;
+  font-weight: 500;
+  font-family: 'Inter', Helvetica, Arial, sans-serif;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.category-pill:hover {
+  border-color: oklch(0.6 0.19 265 / 0.5);
+}
+
+.category-pill-active {
+  background: oklch(0.6 0.19 265);
+  border-color: oklch(0.6 0.19 265);
+  color: white;
+  font-weight: 700;
+  box-shadow: 0 0 14px -2px oklch(0.6 0.19 265 / 0.7);
 }

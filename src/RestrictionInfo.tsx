@@ -40,10 +40,10 @@ function RestrictionInfo({ onClose }: {onClose: () => void}) {
                 console.error('No userId found');
                 return;
             }
-            
+
             const response = await fetch('https://www.deeplockin.com/api/websites', {
                 method: 'POST',
-                headers: { 
+                headers: {
                     'Content-Type': 'application/json',
                     'authorization': `Bearer ${token}`
                 },
@@ -52,7 +52,7 @@ function RestrictionInfo({ onClose }: {onClose: () => void}) {
                     dateCreated: date,
                     startTime: starttime,
                     endTime: endtime,
-                    strictMode: strictModeOverride 
+                    strictMode: strictModeOverride
                 })
             });
 
@@ -83,59 +83,94 @@ function RestrictionInfo({ onClose }: {onClose: () => void}) {
     const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
     const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 
+    const strictOptions: { label: string; value: boolean | null; color: string }[] = [
+        { label: 'Default', value: null, color: 'oklch(0.6 0.19 265)' },
+        { label: 'On', value: true, color: '#ff4d4d' },
+        { label: 'Off', value: false, color: '#4CAF50' }
+    ];
+
     return (
-        <div className="sitechoicebackground" style={{width: '350px'}}>
-            <h3 id="websiteinfo" style={{position: 'fixed', top: '0.5%', left: '30%'}}>Website information</h3>
-            <p id="url">URL:</p>
-            <input id="urltext" type="text" value={text} onChange={(e) => setText(e.target.value)} placeholder="Enter URL here"/>
-            <input id="datetext" type="date" value={date} min={today} onChange={(e) => setDate(e.target.value)}/>
-            <p id="date">Date:</p>
-            <p style={{ position: 'fixed', top: '58%', right: '82%', color: 'white', fontWeight: 'bold' }}>Time:</p>
-            <div style={{ position: 'fixed', top: '60%', left: '20%', display: 'flex', alignItems: 'center', gap: 8 }}>
-                <input id="starttime" type="time" value={starttime} min={date === today ? currentTime: undefined} onChange={(e) => setStartTime(e.target.value)} style={{ position: 'static' }}/>
-                <span style={{ color: 'white' }}>to</span>
-                <input id="endtime" type="time" value={endtime} min={starttime} onChange={(e) => setEndTime(e.target.value)} style={{ position: 'static' }}/>
+        <div className="glass-modal">
+            <div className="glass-modal-header">
+                <h3 className="glass-modal-title">Website information</h3>
+                <button className="glass-close-btn" onClick={onClose}>✕</button>
             </div>
+
+            <div className="glass-field">
+                <label className="glass-label">URL</label>
+                <input
+                    className="glass-input"
+                    type="text"
+                    value={text}
+                    onChange={(e) => setText(e.target.value)}
+                    placeholder="Enter URL here"
+                    style={{ width: '100%' }}
+                />
+            </div>
+
+            <div className="glass-field">
+                <label className="glass-label">Date</label>
+                <input
+                    className="glass-input"
+                    type="date"
+                    value={date}
+                    min={today}
+                    onChange={(e) => setDate(e.target.value)}
+                    style={{ width: '100%' }}
+                />
+            </div>
+
+            <div className="glass-field">
+                <label className="glass-label">Time</label>
+                <div className="glass-row">
+                    <input
+                        className="glass-input"
+                        type="time"
+                        value={starttime}
+                        min={date === today ? currentTime : undefined}
+                        onChange={(e) => setStartTime(e.target.value)}
+                        style={{ flex: 1, minWidth: 0 }}
+                    />
+                    <span>to</span>
+                    <input
+                        className="glass-input"
+                        type="time"
+                        value={endtime}
+                        min={starttime}
+                        onChange={(e) => setEndTime(e.target.value)}
+                        style={{ flex: 1, minWidth: 0 }}
+                    />
+                </div>
+            </div>
+
             {error && <p className="error-message">{error}</p>}
+
             {plan === 'pro' && (
-                <div style={{ position: 'fixed', alignItems: 'center', gap: 6, top: '72%', left: '20%', display: 'flex' }}>
-                    <p style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: 12, margin: 0 }}>Strict mode:</p>
-                    <button className={strictModeOverride === null ? 'pill pill-active' : 'pill'}
-                            onClick={() => setStrictModeOverride(null)}
-                            style={{
-                                padding: '3px 8px',
-                                background: strictModeOverride === null ? '#0099ff' : undefined,
-                                fontSize: 10
-                            }}
-                    >
-                        Default
-                    </button>
-                    <button className={strictModeOverride === true ? 'pill pill-active' : 'pill'}
-                            onClick={() => setStrictModeOverride(true)}
-                            style={{
-                                padding: '3px 8px',
-                                background: strictModeOverride === true ? '#ff4d4d' : undefined,
-                                borderColor: strictModeOverride === true ? '#ff4d4d' : undefined,
-                                fontSize: 10
-                            }}
-                    >
-                        On
-                    </button>
-                    <button className={strictModeOverride === false ? 'pill pill-active' : 'pill'}
-                            onClick={() => setStrictModeOverride(false)}
-                            style={{
-                                padding: '3px 8px',
-                                background: strictModeOverride === false ? '#4CAF50' : undefined,
-                                borderColor: strictModeOverride === false ? '#4CAF50' : undefined,
-                                fontSize: 10
-                            }}
-                    >
-                        Off
-                    </button>
+                <div className="glass-field">
+                    <label className="glass-label">Strict mode</label>
+                    <div className="glass-segment">
+                        {strictOptions.map(opt => (
+                            <button
+                                key={opt.label}
+                                className="glass-segment-option"
+                                onClick={() => setStrictModeOverride(opt.value)}
+                                style={strictModeOverride === opt.value ? {
+                                    background: opt.color,
+                                    color: 'white',
+                                    fontWeight: 700,
+                                    boxShadow: `0 0 14px -2px ${opt.color}`
+                                } : undefined}
+                            >
+                                {opt.label}
+                            </button>
+                        ))}
+                    </div>
                 </div>
             )}
-            <button className="addbutton" onClick={addWebsite}>Add</button>
-            <button id="xbutton" onClick={onClose}>X</button>
+
+            <button className="add-website-btn" onClick={addWebsite} style={{ width: '100%' }}>
+                Add
+            </button>
         </div>
     );
 }

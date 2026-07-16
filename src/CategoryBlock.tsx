@@ -37,6 +37,9 @@ function CategoryBlock({ onClose }: { onClose: () => void}) {
         );
     };
 
+    const isPresetActive = (days: number[]) =>
+        JSON.stringify(selectedDays.slice().sort()) === JSON.stringify([...days].sort());
+
     const handleBlock = async () => {
         if (!selectedCategory) {
             setError('Please select a category');
@@ -69,10 +72,10 @@ function CategoryBlock({ onClose }: { onClose: () => void}) {
             const urls = CATEGORIES[selectedCategory].urls;
 
             const body: any = {
-                urls, 
+                urls,
                 startTime,
                 endTime,
-                scheduleType 
+                scheduleType
             };
 
             if (scheduleType === 'one-time') {
@@ -111,116 +114,128 @@ function CategoryBlock({ onClose }: { onClose: () => void}) {
     };
 
     return (
-        <div className="sitechoicebackground">
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, margin: '8px 0' }}>
-                {Object.entries(CATEGORIES).map(([key, cat]) => (
-                    <button key={key}
-                        className={selectedCategory === key ? 'pill pill-active' : 'pill'}
-                        onClick={() => setSelectedCategory(key)}
-                        style={{ padding: '6px 10px',
-                        background: selectedCategory === key ? '#0099ff' : undefined,
-                        fontSize: 11,
-                        fontWeight: selectedCategory === key ? 700 : 400
-                    }}
-                    >
-                        {cat.emoji} {cat.label}
-                    </button>
-                ))}
+        <div className="glass-modal">
+            <div className="glass-modal-header">
+                <h3 className="glass-modal-title">Block Category</h3>
+                <button className="glass-close-btn" onClick={onClose}>✕</button>
             </div>
-            {selectedCategory && (
-                <p style={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: 10, margin: '4px 0' }}>
-                    Blocks: {CATEGORIES[selectedCategory].urls.slice(0, 4).join(', ')}
-                    {CATEGORIES[selectedCategory].urls.length > 4 && ` +${CATEGORIES[selectedCategory].urls.length - 4} more`}
-                </p>
-            )}
 
-            <div style={{ display: 'flex', gap: 6, margin: '8px 0' }}>
-                <button
-                    className={scheduleType === 'one-time' ? 'pill pill-active' : 'pill'}
-                    onClick={() => setScheduleType('one-time')} style={{
-                    flex: 1,
-                    padding: '6px',
-                    borderRadius: 8,
-                    background: scheduleType === 'one-time' ? '#0099ff' : undefined,
-                    fontSize: 11
-                }}
-                >
-                    One-time
-                </button>
-                <button
-                    className={scheduleType === 'recurring' ? 'pill pill-active' : 'pill'}
-                    onClick={() => setScheduleType('recurring')} style={{
-                    flex: 1,
-                    padding: '6px',
-                    borderRadius: 8,
-                    background: scheduleType === 'recurring' ? '#0099ff' : undefined,
-                    fontSize: 11
-                }}
-                >
-                    Recurring
-                </button>
+            <div className="glass-field">
+                <label className="glass-label">Category</label>
+                <div className="glass-pill-row">
+                    {Object.entries(CATEGORIES).map(([key, cat]) => (
+                        <button key={key}
+                            className={selectedCategory === key ? 'category-pill category-pill-active' : 'category-pill'}
+                            onClick={() => setSelectedCategory(key)}
+                        >
+                            {cat.emoji} {cat.label}
+                        </button>
+                    ))}
+                </div>
+                {selectedCategory && (
+                    <p className="glass-helper-text">
+                        Blocks: {CATEGORIES[selectedCategory].urls.slice(0, 4).join(', ')}
+                        {CATEGORIES[selectedCategory].urls.length > 4 && ` +${CATEGORIES[selectedCategory].urls.length - 4} more`}
+                    </p>
+                )}
             </div>
+
+            <div className="glass-field">
+                <div className="glass-segment">
+                    <button
+                        className="glass-segment-option glass-segment-toggle"
+                        onClick={() => setScheduleType('one-time')}
+                        style={scheduleType === 'one-time' ? {
+                            background: 'oklch(0.6 0.19 265)',
+                            color: 'white',
+                            fontWeight: 700,
+                            boxShadow: '0 0 14px -2px oklch(0.6 0.19 265 / 0.7)'
+                        } : undefined}
+                    >
+                        One-time
+                    </button>
+                    <button
+                        className="glass-segment-option glass-segment-toggle"
+                        onClick={() => setScheduleType('recurring')}
+                        style={scheduleType === 'recurring' ? {
+                            background: 'oklch(0.6 0.19 265)',
+                            color: 'white',
+                            fontWeight: 700,
+                            boxShadow: '0 0 14px -2px oklch(0.6 0.19 265 / 0.7)'
+                        } : undefined}
+                    >
+                        Recurring
+                    </button>
+                </div>
+            </div>
+
             {scheduleType === 'one-time' && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 4, margin: '8px 0' }}>
-                    <p id="time" style={{ position: 'fixed', top: '39%' }}>Date:</p>
-                    <input id="datetext" type="date" value={date} min={today} onChange={e => setDate(e.target.value)}/>
+                <div className="glass-field">
+                    <label className="glass-label">Date</label>
+                    <input
+                        className="glass-input"
+                        type="date"
+                        value={date}
+                        min={today}
+                        onChange={e => setDate(e.target.value)}
+                        style={{ width: '100%' }}
+                    />
                 </div>
             )}
+
             {scheduleType === 'recurring' && (
-                <>
-                    <div style={{ display: 'flex', gap: 6, margin: '4px 0' }}>
+                <div className="glass-field">
+                    <label className="glass-label">Days</label>
+                    <div className="glass-pill-row">
                         {PRESETS.map(preset => (
                             <button key={preset.label}
-                                className={JSON.stringify(selectedDays.sort()) === JSON.stringify([...preset.days].sort()) ? 'pill pill-active' : 'pill'}
-                                onClick={() => setSelectedDays(preset.days)} style={{
-                                padding: '4px 8px',
-                                background: JSON.stringify(selectedDays.sort()) === JSON.stringify([...preset.days].sort())
-                                    ? '#0099ff'
-                                    : undefined,
-                                fontSize: 10
-                            }}
+                                className={isPresetActive(preset.days) ? 'glass-pill glass-pill-active' : 'glass-pill'}
+                                onClick={() => setSelectedDays(preset.days)}
                             >
                                 {preset.label}
                             </button>
                         ))}
                     </div>
-                    <div style={{ display: 'flex', gap: 6, margin: '4px 0' }}>
+                    <div className="glass-day-row">
                         {DAYS.map(day => (
                             <button key={day.value}
-                            className={selectedDays.includes(day.value) ? 'pill pill-active' : 'pill'}
-                            onClick={() => toggleDay(day.value)}
-                            style={{
-                                width: 28,
-                                height: 28,
-                                borderRadius: '50%',
-                                background: selectedDays.includes(day.value)
-                                    ? '#0099ff'
-                                    : undefined,
-                                fontSize: 10,
-                                fontWeight: selectedDays.includes(day.value) ? 700 : 400
-                            }}
+                                className={selectedDays.includes(day.value) ? 'glass-day glass-day-active' : 'glass-day'}
+                                onClick={() => toggleDay(day.value)}
                             >
                                 {day.label}
-                        </button>
+                            </button>
                         ))}
                     </div>
-                </>
+                </div>
             )}
 
-            <p style={{ position: 'fixed', top: '58%', right: '82%', color: 'white', fontWeight: 'bold' }}>Time:</p>
-            <div style={{ position: 'fixed', top: '60%', left: '20%', display: 'flex', alignItems: 'center', gap: 8 }}>
-                <input id="starttime" type="time" value={startTime} onChange={e => setStartTime(e.target.value)} style={{ position: 'static' }}/>
-                <span style={{ color: 'white' }}>to</span>
-                <input id="endtime" type="time" value={endTime} onChange={e => setEndTime(e.target.value)} style={{ position: 'static' }}/>
+            <div className="glass-field">
+                <label className="glass-label">Time</label>
+                <div className="glass-row">
+                    <input
+                        className="glass-input"
+                        type="time"
+                        value={startTime}
+                        onChange={e => setStartTime(e.target.value)}
+                        style={{ flex: 1, minWidth: 0 }}
+                    />
+                    <span>to</span>
+                    <input
+                        className="glass-input"
+                        type="time"
+                        value={endTime}
+                        onChange={e => setEndTime(e.target.value)}
+                        style={{ flex: 1, minWidth: 0 }}
+                    />
+                </div>
             </div>
-            
-            {error && <p className="error-message">{error}</p>}
-            {success && <p style={{ color: '#4CAF50', fontSize: 12, textAlign: 'center' }}>{success}</p>}
 
-            <button className="addbutton" onClick={handleBlock} disabled={loading}>
+            {error && <p className="error-message">{error}</p>}
+            {success && <p className="glass-success-text">{success}</p>}
+
+            <button className="add-website-btn" onClick={handleBlock} disabled={loading} style={{ width: '100%' }}>
                 {loading ? 'Blocking...' : 'Block Category'}
             </button>
-            <button id="xbutton" onClick={onClose}>X</button>
         </div>
     );
 }

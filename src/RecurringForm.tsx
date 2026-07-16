@@ -90,121 +90,107 @@ function RecurringForm({ onClose }: { onClose: () => void }) {
         }
     };
 
+    const isPresetActive = (days: number[]) =>
+        JSON.stringify(selectedDays.slice().sort()) === JSON.stringify([...days].sort());
+
+    const strictOptions: { label: string; value: boolean | null; color: string }[] = [
+        { label: 'Default', value: null, color: 'oklch(0.6 0.19 265)' },
+        { label: 'On', value: true, color: '#ff4d4d' },
+        { label: 'Off', value: false, color: '#4CAF50' }
+    ];
+
     return (
-        <div className="sitechoicebackground" style={{ position: 'fixed', width: '30%'}}>
-            <h3 id="websiteinfo" style={{ position: 'fixed', top: '1%' }}>Recurring Block</h3>
-            <p id="url">URL:</p>
-            <input 
-                id="urltext"
-                type="text"
-                value={url}
-                onChange={e => setUrl(e.target.value)}
-                placeholder="e.g. youtube.com"
-            />
-
-            <div style={{ display: 'flex', gap: 6, position: 'fixed', top: '30%', left: '20%' }}>
-                {PRESETS.map(preset => (
-                    <button
-                        key={preset.label}
-                        className={JSON.stringify(selectedDays.sort()) === JSON.stringify([...preset.days].sort()) ? 'pill pill-active' : 'pill'}
-                        onClick={() => applyPreset(preset.days)}
-                        style={{
-                            padding: '4px 10px',
-                            background: JSON.stringify(selectedDays.sort()) === JSON.stringify([...preset.days].sort())
-                                ? '#0099ff'
-                                : undefined,
-                            fontSize: 11
-                        }}
-                    >
-                        {preset.label}
-                    </button>
-                ))}
+        <div className="glass-modal">
+            <div className="glass-modal-header">
+                <h3 className="glass-modal-title">Recurring Block</h3>
+                <button className="glass-close-btn" onClick={onClose}>✕</button>
             </div>
 
-            <div style={{ display: 'flex', gap: 6, position: 'fixed', top: '42%', left: '20%' }}>
-                {DAYS.map(day => (
-                    <button
-                        key={day.value}
-                        className={selectedDays.includes(day.value) ? 'pill pill-active' : 'pill'}
-                        onClick={() => toggleDay(day.value)}
-                        style={{
-                            width: 30,
-                            height: 30,
-                            borderRadius: '50%',
-                            background: selectedDays.includes(day.value)
-                                ? '#0099ff'
-                                : undefined,
-                            fontSize: 11,
-                            fontWeight: selectedDays.includes(day.value) ? 700 : 400
-                        }}
-                    >
-                        {day.label}
-                    </button>
-                ))}
+            <div className="glass-field">
+                <label className="glass-label">URL</label>
+                <input
+                    className="glass-input"
+                    type="text"
+                    value={url}
+                    onChange={e => setUrl(e.target.value)}
+                    placeholder="e.g. youtube.com"
+                    style={{ width: '100%' }}
+                />
             </div>
-            
-            <p style={{ position: 'fixed', top: '58%', right: '82%', color: 'white', fontWeight: 'bold' }}>Time:</p>
-            <div style={{ position: 'fixed', top: '60%', left: '20%', display: 'flex', alignItems: 'center', gap: 8 }}>
-                <input
-                    id="starttime"
-                    type="time"
-                    value={startTime}
-                    onChange={e => setStartTime(e.target.value)}
-                    style={{ position: 'static' }}
-                />
-                <span style={{ color: 'white' }}>to</span>
-                <input
-                    id="endtime"
-                    type="time"
-                    value={endTime}
-                    onChange={e => setEndTime(e.target.value)}
-                    style={{ position: 'static' }}
-                />
+
+            <div className="glass-field">
+                <label className="glass-label">Days</label>
+                <div className="glass-pill-row">
+                    {PRESETS.map(preset => (
+                        <button
+                            key={preset.label}
+                            className={isPresetActive(preset.days) ? 'glass-pill glass-pill-active' : 'glass-pill'}
+                            onClick={() => applyPreset(preset.days)}
+                        >
+                            {preset.label}
+                        </button>
+                    ))}
+                </div>
+                <div className="glass-day-row">
+                    {DAYS.map(day => (
+                        <button
+                            key={day.value}
+                            className={selectedDays.includes(day.value) ? 'glass-day glass-day-active' : 'glass-day'}
+                            onClick={() => toggleDay(day.value)}
+                        >
+                            {day.label}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            <div className="glass-field">
+                <label className="glass-label">Time</label>
+                <div className="glass-row">
+                    <input
+                        className="glass-input"
+                        type="time"
+                        value={startTime}
+                        onChange={e => setStartTime(e.target.value)}
+                        style={{ flex: 1, minWidth: 0 }}
+                    />
+                    <span>to</span>
+                    <input
+                        className="glass-input"
+                        type="time"
+                        value={endTime}
+                        onChange={e => setEndTime(e.target.value)}
+                        style={{ flex: 1, minWidth: 0 }}
+                    />
+                </div>
             </div>
 
             {error && <p className="error-message">{error}</p>}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, position: 'fixed', top: '72%', left: '20%' }}>
-                <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 12, margin: 0 }}>Strict mode:</p>
-                <button
-                    className={strictModeOverride === null ? 'pill pill-active' : 'pill'}
-                    onClick={() => setStrictModeOverride(null)}
-                    style={{
-                        padding: '3px 8px',
-                        background: strictModeOverride === null ? '#0099ff' : undefined,
-                        fontSize: 10
-                    }}
-                >
-                    Default
-                </button>
-                <button
-                    className={strictModeOverride === true ? 'pill pill-active' : 'pill'}
-                    onClick={() => setStrictModeOverride(true)}
-                    style={{
-                        padding: '3px 8px',
-                        background: strictModeOverride === true ? '#ff4d4d' : undefined,
-                        borderColor: strictModeOverride === true ? '#ff4d4d' : undefined,
-                        fontSize: 10
-                    }}
-                >
-                    On
-                </button>
-                <button
-                    className={strictModeOverride === false ? 'pill pill-active' : 'pill'}
-                    onClick={() => setStrictModeOverride(false)}
-                    style={{
-                        padding: '3px 8px',
-                        background: strictModeOverride === false ? '#4CAF50' : undefined,
-                        borderColor: strictModeOverride === false ? '#4CAF50' : undefined,
-                        fontSize: 10
-                    }}
-                >
-                    Off
-                </button>
+
+            <div className="glass-field">
+                <label className="glass-label">Strict mode</label>
+                <div className="glass-segment">
+                    {strictOptions.map(opt => (
+                        <button
+                            key={opt.label}
+                            className="glass-segment-option"
+                            onClick={() => setStrictModeOverride(opt.value)}
+                            style={strictModeOverride === opt.value ? {
+                                background: opt.color,
+                                color: 'white',
+                                fontWeight: 700,
+                                boxShadow: `0 0 14px -2px ${opt.color}`
+                            } : undefined}
+                        >
+                            {opt.label}
+                        </button>
+                    ))}
+                </div>
             </div>
-            <button className="addbutton" onClick={handleAdd} disabled={loading}>
+
+            <button className="add-website-btn" onClick={handleAdd} disabled={loading} style={{ width: '100%' }}>
                 {loading ? 'Adding...' : 'Add'}
             </button>
-            <button id="xbutton" onClick={onClose}>X</button>
         </div>
     );
 }
