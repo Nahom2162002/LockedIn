@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import ConfirmPhrase from './ConfirmPhrase.tsx';
+import { matchCategory, type MatchedCategory } from './matchCategory';
 
 interface RecurringBlock {
     _id: string;
@@ -10,6 +11,35 @@ interface RecurringBlock {
     active: boolean;
     strictMode: boolean | null;
 }
+
+interface BlockGroup {
+    id: string;
+    blocks: RecurringBlock[];
+    category: MatchedCategory | null;
+}
+
+const groupBlocks = (blocks: RecurringBlock[]): BlockGroup[] => {
+    const bySignature = new Map<string, RecurringBlock[]>();
+    for (const block of blocks) {
+        const sig = `${block.days.slice().sort().join(',')}|${block.startTime}|${block.endTime}|${block.strictMode}|${block.active}`;
+        const existing = bySignature.get(sig);
+        if (existing) existing.push(block);
+        else bySignature.set(sig, [block]);
+    }
+
+    const groups: BlockGroup[] = [];
+    for (const [sig, blocksInGroup] of bySignature) {
+        const category = blocksInGroup.length > 1 ? matchCategory(blocksInGroup.map(b => b.url)) : null;
+        if (category) {
+            groups.push({ id: sig, blocks: blocksInGroup, category });
+        } else {
+            for (const block of blocksInGroup) {
+                groups.push({ id: block._id, blocks: [block], category: null });
+            }
+        }
+    }
+    return groups;
+};
 
 const DAY_LABELS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 
@@ -111,7 +141,20 @@ function RecurringList() {
             endTime: block.endTime,
             days: block.days,
             active: block.active,
-            strictMode: block.strictMode 
+            strictMode: block.strictMode
+        });
+    };
+
+    const startEditingGroup = (group: BlockGroup) => {
+        const block = group.blocks[0];
+        setEditingId(group.id);
+        setEditForm({
+            url: '',
+            startTime: block.startTime,
+            endTime: block.endTime,
+            days: block.days,
+            active: block.active,
+            strictMode: block.strictMode
         });
     };
 
@@ -154,187 +197,242 @@ function RecurringList() {
         }
     };
 
-    const toggleActive = async (id: string, current: boolean) => {
+    const saveGroupEdit = async (ids: string[]) => {
+        if (!editForm.startTime || !editForm.endTime || editForm.days.length === 0) {
+            alert('Please fill in all fields and select at least one day');
+            return;
+        }
+        if (editForm.endTime <= editForm.startTime) {
+            alert('End time must be after start time');
+            return;
+        }
+
         const result = await chrome.storage.local.get('token');
         const token = result.token as string;
 
-        const response = await fetch(`https://www.deeplockin.com/api/recurring/${id}`, {
+        const results = await Promise.all(ids.map(id => fetch(`https://www.deeplockin.com/api/recurring/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                startTime: editForm.startTime,
+                endTime: editForm.endTime,
+                days: editForm.days,
+                strictMode: editForm.strictMode
+            })
+        })));
+
+        if (results.every(r => r.ok)) {
+            const updated = blocks.map(b => ids.includes(b._id)
+                ? { ...b, startTime: editForm.startTime, endTime: editForm.endTime, days: editForm.days, strictMode: editForm.strictMode }
+                : b);
+            setBlocks(updated);
+            await chrome.storage.local.set({ recurringBlocks: updated });
+            setEditingId(null);
+        }
+    };
+
+    const toggleActiveGroup = async (ids: string[], current: boolean) => {
+        const result = await chrome.storage.local.get('token');
+        const token = result.token as string;
+
+        const results = await Promise.all(ids.map(id => fetch(`https://www.deeplockin.com/api/recurring/${id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
                 'authorization': `Bearer ${token}`
             },
             body: JSON.stringify({ active: !current })
-        });
+        })));
 
-        if (response.ok) {
-            const updated = blocks.map(b => b._id === id ? { ...b, active: !current } : b);
+        if (results.every(r => r.ok)) {
+            const updated = blocks.map(b => ids.includes(b._id) ? { ...b, active: !current } : b);
             setBlocks(updated);
             await chrome.storage.local.set({ recurringBlocks: updated });
         }
     };
 
-    const deleteBlock = async (id: string) => {
+    const deleteBlockGroup = async (ids: string[]) => {
         const result = await chrome.storage.local.get('token');
         const token = result.token as string;
 
-        const response = await fetch(`https://www.deeplockin.com/api/recurring/${id}`, {
+        const results = await Promise.all(ids.map(id => fetch(`https://www.deeplockin.com/api/recurring/${id}`, {
             method: 'DELETE',
             headers: { 'authorization': `Bearer ${token}` }
-        });
+        })));
 
-        if (response.ok) {
-            const updated = blocks.filter(b => b._id !== id);
+        if (results.every(r => r.ok)) {
+            const updated = blocks.filter(b => !ids.includes(b._id));
             setBlocks(updated);
             await chrome.storage.local.set({ recurringBlocks: updated });
         }
     };
+
+    const groups = groupBlocks(blocks);
 
     return (
         <>
             <div className="website-list">
-                {blocks.map(block => (
-                    <div key={block._id} className="site-card" style={{
-                        opacity: block.active ? 1 : 0.5
-                    }}>
+                {groups.map(group => {
+                    const block = group.blocks[0];
+                    const isCategory = group.category !== null;
+                    const ids = group.blocks.map(b => b._id);
 
-                        <div className="site-card-header" onClick={() => setExpandedId(expandedId === block._id ? null : block._id)}>
-                            <span className="site-card-name">
-                                {block.url.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0]}
-                            </span>
-                            <div className="site-card-header-right">
-                                <span className={block.active ? 'site-status-dot site-status-dot-active' : 'site-status-dot site-status-dot-paused'} />
-                                <span className="site-dropdown-chevron">
-                                    {expandedId === block._id ? '▲' : '▼'}
+                    return (
+                        <div key={group.id} className="site-card" style={{
+                            opacity: block.active ? 1 : 0.5
+                        }}>
+
+                            <div className="site-card-header" onClick={() => setExpandedId(expandedId === group.id ? null : group.id)}>
+                                <span className="site-card-name">
+                                    {isCategory
+                                        ? `${group.category!.emoji} ${group.category!.label}`
+                                        : block.url.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0]}
                                 </span>
+                                <div className="site-card-header-right">
+                                    <span className={block.active ? 'site-status-dot site-status-dot-active' : 'site-status-dot site-status-dot-paused'} />
+                                    <span className="site-dropdown-chevron">
+                                        {expandedId === group.id ? '▲' : '▼'}
+                                    </span>
+                                </div>
                             </div>
+
+                            {expandedId === group.id && (
+                                <div className="site-card-body">
+                                    {editingId === group.id ? (
+                                        <>
+                                            {!isCategory && (
+                                                <input
+                                                    className="glass-input"
+                                                    value={editForm.url}
+                                                    onChange={e => setEditForm({ ...editForm, url: e.target.value })}
+                                                    placeholder="URL"
+                                                    style={{ width: '100%', marginTop: 12, boxSizing: 'border-box' as const }}
+                                                />
+                                            )}
+
+                                            <div className="glass-pill-row" style={{ marginTop: isCategory ? 12 : 8 }}>
+                                                {PRESETS.map(preset => (
+                                                    <button
+                                                        key={preset.label}
+                                                        className={JSON.stringify(editForm.days.slice().sort()) === JSON.stringify([...preset.days].sort()) ? 'glass-pill glass-pill-active' : 'glass-pill'}
+                                                        onClick={() => setEditForm({ ...editForm, days: preset.days })}
+                                                    >
+                                                        {preset.label}
+                                                    </button>
+                                                ))}
+                                            </div>
+
+                                            <div className="glass-day-row">
+                                                {DAYS.map(day => (
+                                                    <button
+                                                        key={day.value}
+                                                        className={editForm.days.includes(day.value) ? 'glass-day glass-day-active' : 'glass-day'}
+                                                        onClick={() => toggleEditDay(day.value)}
+                                                    >
+                                                        {day.label}
+                                                    </button>
+                                                ))}
+                                            </div>
+
+                                            <div className="glass-row" style={{ marginTop: 8 }}>
+                                                <input
+                                                    className="glass-input"
+                                                    type="time"
+                                                    value={editForm.startTime}
+                                                    onChange={e => setEditForm({ ...editForm, startTime: e.target.value })}
+                                                    style={{ flex: 1, minWidth: 0 }}
+                                                />
+                                                <span>to</span>
+                                                <input
+                                                    className="glass-input"
+                                                    type="time"
+                                                    value={editForm.endTime}
+                                                    onChange={e => setEditForm({ ...editForm, endTime: e.target.value })}
+                                                    style={{ flex: 1, minWidth: 0 }}
+                                                />
+                                            </div>
+
+                                            <div className="glass-segment" style={{ marginTop: 8 }}>
+                                                {[
+                                                    { label: 'Default', value: null, color: 'oklch(0.6 0.19 265)' },
+                                                    { label: 'On', value: true, color: '#ff4d4d' },
+                                                    { label: 'Off', value: false, color: '#4CAF50' }
+                                                ].map(opt => (
+                                                    <button
+                                                        key={opt.label}
+                                                        className="glass-segment-option"
+                                                        onClick={() => setEditForm({ ...editForm, strictMode: opt.value })}
+                                                        style={editForm.strictMode === opt.value ? {
+                                                            background: opt.color,
+                                                            color: 'white',
+                                                            fontWeight: 700,
+                                                            boxShadow: `0 0 14px -2px ${opt.color}`
+                                                        } : undefined}
+                                                    >
+                                                        {opt.label}
+                                                    </button>
+                                                ))}
+                                            </div>
+
+                                            <div className="site-btn-row" style={{ marginTop: 10 }}>
+                                                <button className="site-btn site-btn-primary" onClick={() => isCategory ? saveGroupEdit(ids) : saveEdit(block._id)}>Save</button>
+                                                <button className="site-btn" onClick={() => setEditingId(null)}>Cancel</button>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <div className="site-detail-row">
+                                                <div>
+                                                    <span className="site-detail-label">Days </span>
+                                                    <span className="site-detail-value">{block.days.slice().sort().map(d => DAY_LABELS[d]).join(', ')}</span>
+                                                </div>
+                                                <div>
+                                                    <span className="site-detail-label">Time </span>
+                                                    <span className="site-detail-value-accent">{block.startTime} – {block.endTime}</span>
+                                                </div>
+                                                <div>
+                                                    <span className="site-detail-label">Status </span>
+                                                    <span className={block.active ? 'site-detail-value-active' : 'site-detail-value'}>
+                                                        {block.active ? '● Active' : '⏸ Paused'}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            {isCategory && (
+                                                <p className="site-blocks-note">
+                                                    Blocks: {group.blocks.slice(0, 4).map(b => b.url.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0]).join(', ')}
+                                                    {group.blocks.length > 4 && ` +${group.blocks.length - 4} more`}
+                                                </p>
+                                            )}
+                                            <div className="site-btn-row" style={{ marginTop: isCategory ? 10 : 0 }}>
+                                                <button
+                                                    className="site-btn"
+                                                    onClick={() => isCategory ? startEditingGroup(group) : startEditing(block)}
+                                                >
+                                                    Edit
+                                                </button>
+                                                <button
+                                                    className="site-btn"
+                                                    onClick={async () => await requiredConfirmIfBlocking(block, () => toggleActiveGroup(ids, block.active))}
+                                                >
+                                                    {block.active ? 'Pause' : 'Resume'}
+                                                </button>
+                                                <button
+                                                    className="site-btn site-btn-danger"
+                                                    onClick={async () => await requiredConfirmIfBlocking(block, () => deleteBlockGroup(ids))}
+                                                >
+                                                    Delete
+                                                </button>
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
+                            )}
                         </div>
-
-                        {expandedId === block._id && (
-                            <div className="site-card-body">
-                                {editingId === block._id ? (
-                                    <>
-                                        <input
-                                            className="glass-input"
-                                            value={editForm.url}
-                                            onChange={e => setEditForm({ ...editForm, url: e.target.value })}
-                                            placeholder="URL"
-                                            style={{ width: '100%', marginTop: 12, boxSizing: 'border-box' as const }}
-                                        />
-
-                                        <div className="glass-pill-row" style={{ marginTop: 8 }}>
-                                            {PRESETS.map(preset => (
-                                                <button
-                                                    key={preset.label}
-                                                    className={JSON.stringify(editForm.days.slice().sort()) === JSON.stringify([...preset.days].sort()) ? 'glass-pill glass-pill-active' : 'glass-pill'}
-                                                    onClick={() => setEditForm({ ...editForm, days: preset.days })}
-                                                >
-                                                    {preset.label}
-                                                </button>
-                                            ))}
-                                        </div>
-
-                                        <div className="glass-day-row">
-                                            {DAYS.map(day => (
-                                                <button
-                                                    key={day.value}
-                                                    className={editForm.days.includes(day.value) ? 'glass-day glass-day-active' : 'glass-day'}
-                                                    onClick={() => toggleEditDay(day.value)}
-                                                >
-                                                    {day.label}
-                                                </button>
-                                            ))}
-                                        </div>
-
-                                        <div className="glass-row" style={{ marginTop: 8 }}>
-                                            <input
-                                                className="glass-input"
-                                                type="time"
-                                                value={editForm.startTime}
-                                                onChange={e => setEditForm({ ...editForm, startTime: e.target.value })}
-                                                style={{ flex: 1, minWidth: 0 }}
-                                            />
-                                            <span>to</span>
-                                            <input
-                                                className="glass-input"
-                                                type="time"
-                                                value={editForm.endTime}
-                                                onChange={e => setEditForm({ ...editForm, endTime: e.target.value })}
-                                                style={{ flex: 1, minWidth: 0 }}
-                                            />
-                                        </div>
-
-                                        <div className="glass-segment" style={{ marginTop: 8 }}>
-                                            {[
-                                                { label: 'Default', value: null, color: 'oklch(0.6 0.19 265)' },
-                                                { label: 'On', value: true, color: '#ff4d4d' },
-                                                { label: 'Off', value: false, color: '#4CAF50' }
-                                            ].map(opt => (
-                                                <button
-                                                    key={opt.label}
-                                                    className="glass-segment-option"
-                                                    onClick={() => setEditForm({ ...editForm, strictMode: opt.value })}
-                                                    style={editForm.strictMode === opt.value ? {
-                                                        background: opt.color,
-                                                        color: 'white',
-                                                        fontWeight: 700,
-                                                        boxShadow: `0 0 14px -2px ${opt.color}`
-                                                    } : undefined}
-                                                >
-                                                    {opt.label}
-                                                </button>
-                                            ))}
-                                        </div>
-
-                                        <div className="site-btn-row" style={{ marginTop: 10 }}>
-                                            <button className="site-btn site-btn-primary" onClick={() => saveEdit(block._id)}>Save</button>
-                                            <button className="site-btn" onClick={() => setEditingId(null)}>Cancel</button>
-                                        </div>
-                                    </>
-                                ) : (
-                                    <>
-                                        <div className="site-detail-row">
-                                            <div>
-                                                <span className="site-detail-label">Days </span>
-                                                <span className="site-detail-value">{block.days.slice().sort().map(d => DAY_LABELS[d]).join(', ')}</span>
-                                            </div>
-                                            <div>
-                                                <span className="site-detail-label">Time </span>
-                                                <span className="site-detail-value-accent">{block.startTime} – {block.endTime}</span>
-                                            </div>
-                                            <div>
-                                                <span className="site-detail-label">Status </span>
-                                                <span className={block.active ? 'site-detail-value-active' : 'site-detail-value'}>
-                                                    {block.active ? '● Active' : '⏸ Paused'}
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <div className="site-btn-row">
-                                            <button
-                                                className="site-btn"
-                                                onClick={() => startEditing(block)}
-                                            >
-                                                Edit
-                                            </button>
-                                            <button
-                                                className="site-btn"
-                                                onClick={async () => await requiredConfirmIfBlocking(block, () => toggleActive(block._id, block.active))}
-                                            >
-                                                {block.active ? 'Pause' : 'Resume'}
-                                            </button>
-                                            <button
-                                                className="site-btn site-btn-danger"
-                                                onClick={async () => await requiredConfirmIfBlocking(block, () => deleteBlock(block._id))}
-                                            >
-                                                Delete
-                                            </button>
-                                        </div>
-                                    </>
-                                )}
-                            </div>
-                        )}
-                    </div>
-                ))}
+                    );
+                })}
             </div>
 
             {showConfirm && (

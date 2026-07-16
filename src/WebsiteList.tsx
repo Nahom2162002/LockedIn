@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import ConfirmPhrase from './ConfirmPhrase.tsx';
+import { matchCategory, type MatchedCategory } from './matchCategory';
 
 interface Website {
     _id: string;
@@ -9,6 +10,35 @@ interface Website {
     endTime: string;
     strictMode: boolean | null;
 }
+
+interface SiteGroup {
+    id: string;
+    sites: Website[];
+    category: MatchedCategory | null;
+}
+
+const groupWebsites = (websites: Website[]): SiteGroup[] => {
+    const bySignature = new Map<string, Website[]>();
+    for (const site of websites) {
+        const sig = `${site.dateCreated?.split('T')[0]}|${site.startTime}|${site.endTime}|${site.strictMode}`;
+        const existing = bySignature.get(sig);
+        if (existing) existing.push(site);
+        else bySignature.set(sig, [site]);
+    }
+
+    const groups: SiteGroup[] = [];
+    for (const [sig, sites] of bySignature) {
+        const category = sites.length > 1 ? matchCategory(sites.map(s => s.url)) : null;
+        if (category) {
+            groups.push({ id: sig, sites, category });
+        } else {
+            for (const site of sites) {
+                groups.push({ id: site._id, sites: [site], category: null });
+            }
+        }
+    }
+    return groups;
+};
 
 const isActivelyBlocking = (websites: any[], recurringBlocks: any[]) => {
     const now = new Date();
@@ -37,7 +67,7 @@ function WebsiteList() {
     const [websites, setWebsites] = useState<Website[]>([]);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [editForm, setEditForm] = useState<Omit<Website, '_id'>>({ url: '', dateCreated: '', startTime: '', endTime: '', strictMode: null});
-    const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+    const [pendingDeleteIds, setPendingDeleteIds] = useState<string[] | null>(null);
     const [showConfirm, setShowConfirm] = useState(false);
     const [strictMode, setStrictMode] = useState(false);
     const [isStrictMode, setIsStrictMode] = useState(false);
@@ -181,6 +211,12 @@ function WebsiteList() {
         setEditForm({ url: site.url, dateCreated: site.dateCreated ? site.dateCreated.split('T')[0] : '', startTime: site.startTime, endTime: site.endTime, strictMode: site.strictMode });
     };
 
+    const startEditingGroup = (group: SiteGroup) => {
+        const site = group.sites[0];
+        setEditingId(group.id);
+        setEditForm({ url: '', dateCreated: site.dateCreated ? site.dateCreated.split('T')[0] : '', startTime: site.startTime, endTime: site.endTime, strictMode: site.strictMode });
+    };
+
     const saveEdit = async (id: string) => {
         if (!editForm.url || !editForm.dateCreated || !editForm.startTime || !editForm.endTime) {
             alert('Please fill in all fields');
@@ -207,7 +243,7 @@ function WebsiteList() {
 
             const response = await fetch(`https://www.deeplockin.com/api/websites/${id}`, {
                 method: 'PUT',
-                headers: { 
+                headers: {
                     'Content-Type': 'application/json',
                     'authorization': `Bearer ${token}`
                 },
@@ -230,37 +266,91 @@ function WebsiteList() {
         }
     };
 
-    const handleDeleteClick = async (id: string) => {
+    const saveGroupEdit = async (ids: string[]) => {
+        if (!editForm.dateCreated || !editForm.startTime || !editForm.endTime) {
+            alert('Please fill in all fields');
+            return;
+        }
+
+        if (editForm.endTime <= editForm.startTime) {
+            alert('End time must be after start time');
+            return;
+        }
+
+        if (editForm.startTime < currentTime) {
+            alert('This time has already passed');
+            return;
+        }
+
+        try {
+            const { token } = await chrome.storage.local.get('token');
+
+            if (!token) {
+                console.error('No userId found');
+                return;
+            }
+
+            const updates = await Promise.all(ids.map(async (id) => {
+                const site = websites.find(s => s._id === id);
+                const response = await fetch(`https://www.deeplockin.com/api/websites/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ ...editForm, url: site?.url })
+                });
+
+                if (response.status === 401) {
+                    await chrome.storage.local.remove('token');
+                    window.location.href = chrome.runtime.getURL('index.html#/login');
+                    throw new Error('unauthorized');
+                }
+
+                return response.json();
+            }));
+
+            const updatedById = new Map(updates.map((u) => [u._id, u]));
+            const updated = websites.map((site) => updatedById.get(site._id) ?? site);
+            setWebsites(updated);
+            chrome.storage.local.set({ websites: updated });
+            setEditingId(null);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const handleDeleteClick = async (ids: string[]) => {
         if (plan === 'pro') {
             const result = await chrome.storage.local.get(['websites', 'recurringBlocks']);
             const freshWebsites = (result.websites as any[]) || [];
             const blocking = isActivelyBlocking(freshWebsites, (result.recurringBlocks as any[]) || []);
 
             if (blocking) {
-                const site = websites.find(s => s._id === id);
+                const site = websites.find(s => ids.includes(s._id));
                 const effective = site ? getEffectiveStrictMode(site, strictMode) : strictMode;
                 setIsStrictMode(effective);
-                setPendingDeleteId(id);
+                setPendingDeleteIds(ids);
                 setShowConfirm(true);
                 return;
             }
         }
-        deleteWebsite(id);
+        deleteWebsites(ids);
     };
 
-    const deleteWebsite = async (id: string) => {
+    const deleteWebsites = async (ids: string[]) => {
         try {
             const result = await chrome.storage.local.get('token');
             const token = result.token as string;
-            
-            await fetch(`https://www.deeplockin.com/api/websites/${id}`, {
+
+            await Promise.all(ids.map(id => fetch(`https://www.deeplockin.com/api/websites/${id}`, {
                 method: 'DELETE',
                 headers: {
                     'authorization': `Bearer ${token}`
                 }
-            });
+            })));
 
-            const updated = websites.filter((site) => site._id !== id);
+            const updated = websites.filter((site) => !ids.includes(site._id));
             setWebsites(updated);
             chrome.storage.local.set({ websites: updated });
         } catch (err) {
@@ -272,86 +362,103 @@ function WebsiteList() {
     const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
     const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 
+    const groups = groupWebsites(websites);
+
     return (
         <div className="website-list">
-            {websites.map((site) => (
-                <div key={site._id} className="site-card">
-                    <div className="site-card-header" onClick={() => setExpandedId(expandedId === site._id ? null : site._id)}>
-                        <span className="site-card-name">
-                            {site.url.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0]}
-                        </span>
-                        <span className="site-dropdown-chevron">
-                            {expandedId === site._id ? '▲' : '▼'}
-                        </span>
-                    </div>
+            {groups.map((group) => {
+                const site = group.sites[0];
+                const isCategory = group.category !== null;
 
-                    {expandedId === site._id && (
-                        <div className="site-card-body">
-                            {editingId === site._id ? (
-                                <>
-                                    <input className="glass-input" value={editForm.url} onChange={(e) => setEditForm({ ...editForm, url: e.target.value })} placeholder="URL" style={{ width: '100%', marginTop: 12, boxSizing: 'border-box' as const }} />
-                                    <input className="glass-input" type="date" value={editForm.dateCreated ? editForm.dateCreated.split('T')[0] : ''} min={today} onChange={(e) => setEditForm({ ...editForm, dateCreated: e.target.value })} style={{ width: '100%', marginTop: 8, boxSizing: 'border-box' as const }} />
-                                    <div className="glass-row" style={{ marginTop: 8 }}>
-                                        <input className="glass-input" type="time" value={editForm.startTime} onChange={(e) => setEditForm({ ...editForm, startTime: e.target.value })} style={{ flex: 1, minWidth: 0 }} />
-                                        <span>to</span>
-                                        <input className="glass-input" type="time" value={editForm.endTime} onChange={(e) => setEditForm({ ...editForm, endTime: e.target.value })} style={{ flex: 1, minWidth: 0 }} />
-                                    </div>
-                                    {plan === 'pro' && (
-                                        <div className="glass-segment" style={{ marginTop: 8 }}>
-                                            {[
-                                                { label: 'Default', value: null, color: 'oklch(0.6 0.19 265)' },
-                                                { label: 'On', value: true, color: '#ff4d4d' },
-                                                { label: 'Off', value: false, color: '#4CAF50' }
-                                            ].map(opt => (
-                                                <button key={opt.label}
-                                                    className="glass-segment-option"
-                                                    onClick={() => setEditForm({ ...editForm, strictMode: opt.value })}
-                                                    style={editForm.strictMode === opt.value ? {
-                                                        background: opt.color,
-                                                        color: 'white',
-                                                        fontWeight: 700,
-                                                        boxShadow: `0 0 14px -2px ${opt.color}`
-                                                    } : undefined}
-                                                >{opt.label}</button>
-                                            ))}
-                                        </div>
-                                    )}
-                                    <div className="site-btn-row" style={{ marginTop: 10 }}>
-                                        <button className="site-btn site-btn-primary" onClick={() => saveEdit(site._id)}>Save</button>
-                                        <button className="site-btn" onClick={() => setEditingId(null)}>Cancel</button>
-                                    </div>
-                                </>
-                            ) : (
-                                <>
-                                    <div className="site-detail-row">
-                                        <div>
-                                            <span className="site-detail-label">Date </span>
-                                            <span className="site-detail-value">{site.dateCreated.split('T')[0]}</span>
-                                        </div>
-                                        <div>
-                                            <span className="site-detail-label">Time </span>
-                                            <span className="site-detail-value-accent">{site.startTime} – {site.endTime}</span>
-                                        </div>
-                                    </div>
-                                    <div className="site-btn-row">
-                                        <button className="site-btn" onClick={() => startEditing(site)}>Edit</button>
-                                        <button className="site-btn site-btn-danger" onClick={() => handleDeleteClick(site._id)}>Delete</button>
-                                    </div>
-                                </>
-                            )}
+                return (
+                    <div key={group.id} className="site-card">
+                        <div className="site-card-header" onClick={() => setExpandedId(expandedId === group.id ? null : group.id)}>
+                            <span className="site-card-name">
+                                {isCategory
+                                    ? `${group.category!.emoji} ${group.category!.label}`
+                                    : site.url.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0]}
+                            </span>
+                            <span className="site-dropdown-chevron">
+                                {expandedId === group.id ? '▲' : '▼'}
+                            </span>
                         </div>
-                    )}
-                </div>
-            ))}
+
+                        {expandedId === group.id && (
+                            <div className="site-card-body">
+                                {editingId === group.id ? (
+                                    <>
+                                        {!isCategory && (
+                                            <input className="glass-input" value={editForm.url} onChange={(e) => setEditForm({ ...editForm, url: e.target.value })} placeholder="URL" style={{ width: '100%', marginTop: 12, boxSizing: 'border-box' as const }} />
+                                        )}
+                                        <input className="glass-input" type="date" value={editForm.dateCreated ? editForm.dateCreated.split('T')[0] : ''} min={today} onChange={(e) => setEditForm({ ...editForm, dateCreated: e.target.value })} style={{ width: '100%', marginTop: isCategory ? 12 : 8, boxSizing: 'border-box' as const }} />
+                                        <div className="glass-row" style={{ marginTop: 8 }}>
+                                            <input className="glass-input" type="time" value={editForm.startTime} onChange={(e) => setEditForm({ ...editForm, startTime: e.target.value })} style={{ flex: 1, minWidth: 0 }} />
+                                            <span>to</span>
+                                            <input className="glass-input" type="time" value={editForm.endTime} onChange={(e) => setEditForm({ ...editForm, endTime: e.target.value })} style={{ flex: 1, minWidth: 0 }} />
+                                        </div>
+                                        {plan === 'pro' && (
+                                            <div className="glass-segment" style={{ marginTop: 8 }}>
+                                                {[
+                                                    { label: 'Default', value: null, color: 'oklch(0.6 0.19 265)' },
+                                                    { label: 'On', value: true, color: '#ff4d4d' },
+                                                    { label: 'Off', value: false, color: '#4CAF50' }
+                                                ].map(opt => (
+                                                    <button key={opt.label}
+                                                        className="glass-segment-option"
+                                                        onClick={() => setEditForm({ ...editForm, strictMode: opt.value })}
+                                                        style={editForm.strictMode === opt.value ? {
+                                                            background: opt.color,
+                                                            color: 'white',
+                                                            fontWeight: 700,
+                                                            boxShadow: `0 0 14px -2px ${opt.color}`
+                                                        } : undefined}
+                                                    >{opt.label}</button>
+                                                ))}
+                                            </div>
+                                        )}
+                                        <div className="site-btn-row" style={{ marginTop: 10 }}>
+                                            <button className="site-btn site-btn-primary" onClick={() => isCategory ? saveGroupEdit(group.sites.map(s => s._id)) : saveEdit(site._id)}>Save</button>
+                                            <button className="site-btn" onClick={() => setEditingId(null)}>Cancel</button>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <>
+                                        <div className="site-detail-row">
+                                            <div>
+                                                <span className="site-detail-label">Date </span>
+                                                <span className="site-detail-value">{site.dateCreated.split('T')[0]}</span>
+                                            </div>
+                                            <div>
+                                                <span className="site-detail-label">Time </span>
+                                                <span className="site-detail-value-accent">{site.startTime} – {site.endTime}</span>
+                                            </div>
+                                        </div>
+                                        {isCategory && (
+                                            <p className="site-blocks-note">
+                                                Blocks: {group.sites.slice(0, 4).map(s => s.url.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0]).join(', ')}
+                                                {group.sites.length > 4 && ` +${group.sites.length - 4} more`}
+                                            </p>
+                                        )}
+                                        <div className="site-btn-row" style={{ marginTop: isCategory ? 10 : 0 }}>
+                                            <button className="site-btn" onClick={() => isCategory ? startEditingGroup(group) : startEditing(site)}>Edit</button>
+                                            <button className="site-btn site-btn-danger" onClick={() => handleDeleteClick(group.sites.map(s => s._id))}>Delete</button>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                );
+            })}
             {showConfirm && (
                 <ConfirmPhrase action="delete this block" strictMode={isStrictMode} onConfirm={() => {
-                    if (pendingDeleteId) deleteWebsite(pendingDeleteId);
+                    if (pendingDeleteIds) deleteWebsites(pendingDeleteIds);
                     setShowConfirm(false);
-                    setPendingDeleteId(null);
+                    setPendingDeleteIds(null);
                 }}
                 onCancel={() => {
                     setShowConfirm(false);
-                    setPendingDeleteId(null);
+                    setPendingDeleteIds(null);
                 }}
                 />
             )}

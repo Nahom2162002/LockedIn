@@ -1116,3 +1116,10 @@ html, body, #root {
   border-color: oklch(1 0 0 / 0.3);
   background: oklch(1 0 0 / 0.05);
 }
+
+.site-blocks-note {
+  color: oklch(0.6 0.02 260);
+  font-size: 11px;
+  line-height: 1.4;
+  margin: 10px 0 0;
+}

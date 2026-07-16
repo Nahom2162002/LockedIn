@@ -570,7 +570,13 @@ function Menu() {
             </div>
             </div>
 
-            {showCategoryBlock && <CategoryBlock onClose={() => setShowCategoryBlock(false)} />}
+            {showCategoryBlock && (
+                <CategoryBlock onClose={() => {
+                    setShowCategoryBlock(false);
+                    setRefreshKey(prev => prev + 1);
+                    setRecurringKey(prev => prev + 1);
+                }} />
+            )}
             {showLogoutConfirm && (
                 <ConfirmPhrase
                     action="log out and disable blocking"
