@@ -546,15 +546,15 @@ function Menu() {
             <div style={{ padding: '12px 16px' }}>
                 <div style={{ marginBottom: 12 }}>
                     <div
-                        className="dropdown-header"
+                        className="site-dropdown-header"
                         onClick={() => setIsOpen(prev => !prev)}
                         style={{
                             marginBottom: isOpen ? 8 : 0
                         }}>
-                        <span style={{ color: 'white', fontSize: 13, fontWeight: 600 }}>
-                            🔒 Blocked Sites ({websites.length}{plan === 'free' ? '/3' : ''})
+                        <span className="site-dropdown-title">
+                            🔒 Blocked Sites <span className="site-dropdown-count">({websites.length}{plan === 'free' ? '/3' : ''})</span>
                         </span>
-                        <span style={{ color: 'rgba(150,210,255,0.6)', fontSize: 12 }}>
+                        <span className="site-dropdown-chevron">
                             {isOpen ? '▲' : '▼'}
                         </span>
                     </div>
@@ -563,7 +563,7 @@ function Menu() {
                         <div>
                             <WebsiteList key={refreshKey} />
                             <button
-                                className="dashed-button"
+                                className="site-add-btn"
                                 onClick={() => {
                                     if (plan === 'free' && websites.length >= 3) {
                                         setShowUpgradePage(true);
@@ -571,7 +571,7 @@ function Menu() {
                                         setShowAddSite(true);
                                     }
                                 }}
-                                style={{ marginTop: 8 }}
+                                style={{ marginTop: 10 }}
                             >
                                 + Add site
                             </button>
@@ -593,16 +593,16 @@ function Menu() {
                 {plan === 'pro' && (
                     <div style={{ marginBottom: 12 }}>
                         <div
-                            className="dropdown-header"
+                            className="site-dropdown-header"
                             onClick={() => setShowRecurringList(prev => !prev)}
                             style={{
                                 marginBottom: showRecurringList ? 8 : 0
                             }}
                         >
-                            <span style={{ color: 'white', fontSize: 13, fontWeight: 600 }}>
-                                🔁 Recurring Blocks ({recurringBlocks.length})
+                            <span className="site-dropdown-title">
+                                🔁 Recurring Blocks <span className="site-dropdown-count">({recurringBlocks.length})</span>
                             </span>
-                            <span style={{ color: 'rgba(150,210,255,0.6)', fontSize: 12 }}>
+                            <span className="site-dropdown-chevron">
                                 {showRecurringList ? '▲' : '▼'}
                             </span>
                         </div>
@@ -611,9 +611,9 @@ function Menu() {
                             <div>
                                 <RecurringList key={recurringKey} />
                                 <button
-                                    className="dashed-button"
+                                    className="site-add-btn"
                                     onClick={() => setShowRecurringForm(true)}
-                                    style={{ marginTop: 8 }}
+                                    style={{ marginTop: 10 }}
                                 >
                                     + Add recurring block
                                 </button>

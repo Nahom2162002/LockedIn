@@ -194,161 +194,136 @@ function RecurringList() {
         <>
             <div className="website-list">
                 {blocks.map(block => (
-                    <div key={block._id} className="list-item-card" style={{
+                    <div key={block._id} className="site-card" style={{
                         opacity: block.active ? 1 : 0.5
                     }}>
-        
-                        <div
-                            style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'space-between',
-                                padding: '8px 10px',
-                                cursor: 'pointer'
-                            }}
-                            onClick={() => setExpandedId(expandedId === block._id ? null : block._id)}
-                        >
-                            <span style={{ color: 'white', fontSize: 12, fontWeight: 600 }}>
+
+                        <div className="site-card-header" onClick={() => setExpandedId(expandedId === block._id ? null : block._id)}>
+                            <span className="site-card-name">
                                 {block.url.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0]}
                             </span>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                <span style={{
-                                    fontSize: 10,
-                                    color: block.active ? '#4CAF50' : 'rgba(255,255,255,0.4)'
-                                }}>
-                                    {block.active ? '🟢' : '⏸'}
-                                </span>
-                                <span style={{ color: 'rgba(150,210,255,0.6)', fontSize: 11 }}>
+                            <div className="site-card-header-right">
+                                <span className={block.active ? 'site-status-dot site-status-dot-active' : 'site-status-dot site-status-dot-paused'} />
+                                <span className="site-dropdown-chevron">
                                     {expandedId === block._id ? '▲' : '▼'}
                                 </span>
                             </div>
                         </div>
 
                         {expandedId === block._id && (
-                            <div style={{ padding: '0 10px 10px', borderTop: '1px solid rgba(0,170,255,0.15)' }}>
+                            <div className="site-card-body">
                                 {editingId === block._id ? (
                                     <>
                                         <input
+                                            className="glass-input"
                                             value={editForm.url}
                                             onChange={e => setEditForm({ ...editForm, url: e.target.value })}
                                             placeholder="URL"
-                                            style={{ width: '100%', marginTop: 8, boxSizing: 'border-box' as const, background: 'rgb(5,5,53)', color: 'white', border: '1px solid rgba(0,170,255,0.4)', borderRadius: 4, padding: '4px 8px', fontSize: 12 }}
+                                            style={{ width: '100%', marginTop: 12, boxSizing: 'border-box' as const }}
                                         />
 
-                                        <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginTop: 6 }}>
+                                        <div className="glass-pill-row" style={{ marginTop: 8 }}>
                                             {PRESETS.map(preset => (
                                                 <button
                                                     key={preset.label}
-                                                    className={JSON.stringify(editForm.days.slice().sort()) === JSON.stringify([...preset.days].sort()) ? 'pill pill-active' : 'pill'}
+                                                    className={JSON.stringify(editForm.days.slice().sort()) === JSON.stringify([...preset.days].sort()) ? 'glass-pill glass-pill-active' : 'glass-pill'}
                                                     onClick={() => setEditForm({ ...editForm, days: preset.days })}
-                                                    style={{
-                                                        padding: '3px 8px',
-                                                        background: JSON.stringify(editForm.days.slice().sort()) === JSON.stringify([...preset.days].sort())
-                                                            ? '#0099ff' : undefined,
-                                                        fontSize: 10
-                                                    }}
                                                 >
                                                     {preset.label}
                                                 </button>
                                             ))}
                                         </div>
 
-                                        <div style={{ display: 'flex', gap: 4, marginTop: 6 }}>
+                                        <div className="glass-day-row">
                                             {DAYS.map(day => (
                                                 <button
                                                     key={day.value}
-                                                    className={editForm.days.includes(day.value) ? 'pill pill-active' : 'pill'}
+                                                    className={editForm.days.includes(day.value) ? 'glass-day glass-day-active' : 'glass-day'}
                                                     onClick={() => toggleEditDay(day.value)}
-                                                    style={{
-                                                        width: 26, height: 26, borderRadius: '50%',
-                                                        background: editForm.days.includes(day.value) ? '#0099ff' : undefined,
-                                                        fontSize: 10,
-                                                        fontWeight: editForm.days.includes(day.value) ? 700 : 400
-                                                    }}
                                                 >
                                                     {day.label}
                                                 </button>
                                             ))}
                                         </div>
 
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6 }}>
+                                        <div className="glass-row" style={{ marginTop: 8 }}>
                                             <input
+                                                className="glass-input"
                                                 type="time"
                                                 value={editForm.startTime}
                                                 onChange={e => setEditForm({ ...editForm, startTime: e.target.value })}
-                                                style={{ flex: 1, background: 'rgb(5,5,53)', color: 'white', border: '1px solid rgba(0,170,255,0.4)', borderRadius: 4, padding: '4px', fontSize: 11 }}
+                                                style={{ flex: 1, minWidth: 0 }}
                                             />
-                                            <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11 }}>to</span>
+                                            <span>to</span>
                                             <input
+                                                className="glass-input"
                                                 type="time"
                                                 value={editForm.endTime}
                                                 onChange={e => setEditForm({ ...editForm, endTime: e.target.value })}
-                                                style={{ flex: 1, background: 'rgb(5,5,53)', color: 'white', border: '1px solid rgba(0,170,255,0.4)', borderRadius: 4, padding: '4px', fontSize: 11 }}
+                                                style={{ flex: 1, minWidth: 0 }}
                                             />
                                         </div>
 
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6 }}>
-                                            <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: 11 }}>Strict:</span>
+                                        <div className="glass-segment" style={{ marginTop: 8 }}>
                                             {[
-                                                { label: 'Default', value: null, color: '#0099ff' },
+                                                { label: 'Default', value: null, color: 'oklch(0.6 0.19 265)' },
                                                 { label: 'On', value: true, color: '#ff4d4d' },
                                                 { label: 'Off', value: false, color: '#4CAF50' }
                                             ].map(opt => (
                                                 <button
                                                     key={opt.label}
-                                                    className={editForm.strictMode === opt.value ? 'pill pill-active' : 'pill'}
+                                                    className="glass-segment-option"
                                                     onClick={() => setEditForm({ ...editForm, strictMode: opt.value })}
-                                                    style={{
-                                                        padding: '2px 7px',
-                                                        background: editForm.strictMode === opt.value ? opt.color : undefined,
-                                                        borderColor: editForm.strictMode === opt.value ? opt.color : undefined,
-                                                        fontSize: 10
-                                                    }}
+                                                    style={editForm.strictMode === opt.value ? {
+                                                        background: opt.color,
+                                                        color: 'white',
+                                                        fontWeight: 700,
+                                                        boxShadow: `0 0 14px -2px ${opt.color}`
+                                                    } : undefined}
                                                 >
                                                     {opt.label}
                                                 </button>
                                             ))}
                                         </div>
 
-                                        <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
-                                            <button className="edit-button" style={{ flex: 1, fontSize: 11 }} onClick={() => saveEdit(block._id)}>Save</button>
-                                            <button className="delete-button" style={{ flex: 1, fontSize: 11 }} onClick={() => setEditingId(null)}>Cancel</button>
+                                        <div className="site-btn-row" style={{ marginTop: 10 }}>
+                                            <button className="site-btn site-btn-primary" onClick={() => saveEdit(block._id)}>Save</button>
+                                            <button className="site-btn" onClick={() => setEditingId(null)}>Cancel</button>
                                         </div>
                                     </>
                                 ) : (
                                     <>
-                                        <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 3 }}>
-                                            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 11, margin: 0 }}>
-                                                <span style={{ color: 'white', fontWeight: 600 }}>Days: </span>
-                                                {block.days.sort().map(d => DAY_LABELS[d]).join(', ')}
-                                            </p>
-                                            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 11, margin: 0 }}>
-                                                <span style={{ color: 'white', fontWeight: 600 }}>Time: </span>
-                                                {block.startTime} – {block.endTime}
-                                            </p>
-                                            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 11, margin: 0 }}>
-                                                <span style={{ color: 'white', fontWeight: 600 }}>Status: </span>
-                                                {block.active ? '🟢 Active' : '⏸ Paused'}
-                                            </p>
+                                        <div className="site-detail-row">
+                                            <div>
+                                                <span className="site-detail-label">Days </span>
+                                                <span className="site-detail-value">{block.days.slice().sort().map(d => DAY_LABELS[d]).join(', ')}</span>
+                                            </div>
+                                            <div>
+                                                <span className="site-detail-label">Time </span>
+                                                <span className="site-detail-value-accent">{block.startTime} – {block.endTime}</span>
+                                            </div>
+                                            <div>
+                                                <span className="site-detail-label">Status </span>
+                                                <span className={block.active ? 'site-detail-value-active' : 'site-detail-value'}>
+                                                    {block.active ? '● Active' : '⏸ Paused'}
+                                                </span>
+                                            </div>
                                         </div>
-                                        <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
+                                        <div className="site-btn-row">
                                             <button
-                                                className="edit-button"
-                                                style={{ flex: 1, fontSize: 11 }}
+                                                className="site-btn"
                                                 onClick={() => startEditing(block)}
                                             >
                                                 Edit
                                             </button>
                                             <button
-                                                className="edit-button"
-                                                style={{ flex: 1, fontSize: 11 }}
+                                                className="site-btn"
                                                 onClick={async () => await requiredConfirmIfBlocking(block, () => toggleActive(block._id, block.active))}
                                             >
                                                 {block.active ? 'Pause' : 'Resume'}
                                             </button>
                                             <button
-                                                className="delete-button"
-                                                style={{ flex: 1, fontSize: 11 }}
+                                                className="site-btn site-btn-danger"
                                                 onClick={async () => await requiredConfirmIfBlocking(block, () => deleteBlock(block._id))}
                                             >
                                                 Delete

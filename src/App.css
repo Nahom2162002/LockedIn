@@ -57,20 +57,6 @@ html, body, #root {
   height: 50vh;
 }
 
-#editurl, #editdate, #editstart, #editend {
-  color: #e6f6ff;
-  border: 1px solid rgba(0, 170, 255, 0.4);
-  border-radius: 6px;
-  padding: 6px 8px;
-  outline: none;
-  transition: box-shadow 0.2s ease, border-color 0.2s ease;
-}
-
-#editurl:focus, #editdate:focus, #editstart:focus, #editend:focus {
-  border-color: rgb(0, 170, 255);
-  box-shadow: 0 0 8px 2px rgba(0, 170, 255, 0.45);
-}
-
 .website-list {
   display: flex;
   flex-direction: column;
@@ -114,36 +100,6 @@ html, body, #root {
   color: #dcdbdb;
 }
 
-.edit-button {
-  align-self: center;
-  padding: 6px 12px;
-  border-radius: 4px;
-  border: none;
-  background-color: rgb(5, 5, 53);
-  box-shadow: 0 0 5px 2px rgb(0, 170, 255);
-  color: white;
-  cursor: pointer;
-}
-
-.edit-button:hover {
-  background-color: rgb(5, 5, 53);
-}
-
-.delete-button {
-  align-self: center;
-  padding: 6px 12px;
-  border-radius: 4px;
-  border: none;
-  background-color: rgb(5, 5, 53);
-  box-shadow: 0 0 5px 2px rgb(0, 170, 255);
-  color: white;
-  cursor: pointer;
-}
-
-.delete-button:hover {
-  background-color: rgb(5, 5, 53);
-}
-
 #plusbutton, #savebutton, #cancelbutton {
   background-color: rgb(5, 5, 53);
   color: #e6f6ff;
@@ -158,54 +114,7 @@ html, body, #root {
   box-shadow: 0 0 14px 4px rgba(0, 170, 255, 0.6);
 }
 
-#editurl, #editdate, #editstart, #editend {
-  background-color: rgb(5, 5, 53);
-}
-
 /* --- Shared neon-cyan chrome for menu, dropdowns, list cards & profile UI --- */
-
-.dropdown-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  cursor: pointer;
-  padding: 8px 12px;
-  border-radius: 8px;
-  background: rgba(0, 170, 255, 0.07);
-  border: 1px solid rgba(0, 170, 255, 0.25);
-  transition: box-shadow 0.2s ease, border-color 0.2s ease;
-}
-
-.dropdown-header:hover {
-  border-color: rgba(0, 170, 255, 0.55);
-  box-shadow: 0 0 10px 1px rgba(0, 170, 255, 0.25);
-}
-
-.dashed-button {
-  width: 100%;
-  padding: 7px;
-  border-radius: 8px;
-  border: 1px dashed rgba(0, 170, 255, 0.4);
-  background: rgba(0, 170, 255, 0.05);
-  color: rgba(180, 225, 255, 0.85);
-  font-size: 12px;
-  cursor: pointer;
-  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
-}
-
-.dashed-button:hover {
-  border-color: rgba(0, 170, 255, 0.8);
-  background: rgba(0, 170, 255, 0.1);
-  color: #e6f6ff;
-}
-
-.list-item-card {
-  background: rgba(0, 170, 255, 0.06);
-  border: 1px solid rgba(0, 170, 255, 0.22);
-  border-radius: 8px;
-  margin-bottom: 6px;
-  overflow: hidden;
-}
 
 .profile-avatar {
   transition: box-shadow 0.2s ease;
@@ -594,4 +503,183 @@ html, body, #root {
   color: white;
   font-weight: 700;
   box-shadow: 0 0 14px -2px oklch(0.6 0.19 265 / 0.7);
+}
+
+/* Blocked Sites / Recurring Blocks dropdowns */
+
+.site-dropdown-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: oklch(0.2 0.03 260 / 0.55);
+  border: 1px solid oklch(1 0 0 / 0.08);
+  font-family: 'Inter', Helvetica, Arial, sans-serif;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.site-dropdown-header:hover {
+  border-color: oklch(0.6 0.19 265 / 0.4);
+  background: oklch(0.22 0.035 260 / 0.65);
+}
+
+.site-dropdown-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: oklch(0.92 0.005 260);
+}
+
+.site-dropdown-count {
+  color: oklch(0.6 0.02 260);
+  font-weight: 500;
+}
+
+.site-dropdown-chevron {
+  color: oklch(0.6 0.02 260);
+  font-size: 11px;
+}
+
+.site-card {
+  background: oklch(0.22 0.03 260 / 0.7);
+  border: 1px solid oklch(1 0 0 / 0.08);
+  border-radius: 14px;
+  overflow: hidden;
+  font-family: 'Inter', Helvetica, Arial, sans-serif;
+}
+
+.site-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  cursor: pointer;
+}
+
+.site-card-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: oklch(0.95 0.005 260);
+}
+
+.site-card-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.site-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.site-status-dot-active {
+  background: oklch(0.75 0.16 150);
+  box-shadow: 0 0 8px 1px oklch(0.75 0.16 150 / 0.6);
+}
+
+.site-status-dot-paused {
+  background: oklch(0.5 0.02 260);
+}
+
+.site-card-body {
+  padding: 0 14px 14px;
+  border-top: 1px solid oklch(1 0 0 / 0.07);
+}
+
+.site-detail-row {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  margin: 12px 0;
+}
+
+.site-detail-label {
+  color: oklch(0.6 0.02 260);
+}
+
+.site-detail-value {
+  color: oklch(0.9 0.005 260);
+  font-weight: 600;
+}
+
+.site-detail-value-accent {
+  color: oklch(0.75 0.14 265);
+  font-weight: 600;
+}
+
+.site-detail-value-active {
+  color: oklch(0.75 0.16 150);
+  font-weight: 600;
+}
+
+.site-btn-row {
+  display: flex;
+  gap: 8px;
+}
+
+.site-btn {
+  flex: 1;
+  padding: 9px 0;
+  border-radius: 9px;
+  border: 1px solid oklch(1 0 0 / 0.14);
+  background: oklch(0.26 0.03 260 / 0.7);
+  color: oklch(0.92 0.005 260);
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.site-btn:hover {
+  border-color: oklch(1 0 0 / 0.3);
+}
+
+.site-btn-danger {
+  border-color: oklch(0.55 0.16 25 / 0.45);
+  background: oklch(0.25 0.05 25 / 0.35);
+  color: oklch(0.8 0.13 25);
+}
+
+.site-btn-danger:hover {
+  border-color: oklch(0.55 0.16 25 / 0.7);
+}
+
+.site-btn-primary {
+  border-color: oklch(0.6 0.19 265 / 0.6);
+  background: oklch(0.6 0.19 265 / 0.25);
+  color: oklch(0.95 0.005 260);
+}
+
+.site-btn-primary:hover {
+  border-color: oklch(0.6 0.19 265 / 0.9);
+  background: oklch(0.6 0.19 265 / 0.35);
+}
+
+.site-add-btn {
+  width: 100%;
+  padding: 10px 0;
+  border-radius: 12px;
+  border: 1px dashed oklch(1 0 0 / 0.2);
+  background: transparent;
+  color: oklch(0.72 0.02 260);
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+
+.site-add-btn:hover {
+  border-color: oklch(0.6 0.19 265 / 0.6);
+  color: oklch(0.9 0.005 260);
+  background: oklch(0.6 0.19 265 / 0.08);
 }

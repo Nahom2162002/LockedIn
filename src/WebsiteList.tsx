@@ -275,75 +275,67 @@ function WebsiteList() {
     return (
         <div className="website-list">
             {websites.map((site) => (
-                <div key={site._id} className="list-item-card">
-                    <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        padding: '8px 10px',
-                        cursor: 'pointer'
-                    }} onClick={() => setExpandedId(expandedId === site._id ? null : site._id)}
-                    >
-                        <span style={{ color: 'white', fontSize: 12, fontWeight: 600 }}>
+                <div key={site._id} className="site-card">
+                    <div className="site-card-header" onClick={() => setExpandedId(expandedId === site._id ? null : site._id)}>
+                        <span className="site-card-name">
                             {site.url.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0]}
                         </span>
-                        <span style={{ color: 'rgba(150, 210, 255, 0.6)', fontSize: 11 }}>
+                        <span className="site-dropdown-chevron">
                             {expandedId === site._id ? '▲' : '▼'}
                         </span>
                     </div>
 
                     {expandedId === site._id && (
-                        <div style={{ padding: '0 10px 10px', borderTop: '1px solid rgba(0, 170, 255, 0.15)' }}>
+                        <div className="site-card-body">
                             {editingId === site._id ? (
                                 <>
-                                    <input id="editurl" value={editForm.url} onChange={(e) => setEditForm({ ...editForm, url: e.target.value })} placeholder="URL" style={{ width: '100%', marginTop: 8, boxSizing: 'border-box' as const }} />
-                                    <input id="editdate" type="date" value={editForm.dateCreated ? editForm.dateCreated.split('T')[0] : ''} min={today} onChange={(e) => setEditForm({ ...editForm, dateCreated: e.target.value })} style={{ width: '100%', marginTop: 6, boxSizing: 'border-box' as const }} />
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6 }}>
-                                        <input id="editstart" type="time" value={editForm.startTime} onChange={(e) => setEditForm({ ...editForm, startTime: e.target.value })} style={{ flex: 1 }} />
-                                        <span style={{ color: 'rgba(255, 255, 255, 0.5)', fontSize: 11 }}>to</span>
-                                        <input id="editend" type="time" value={editForm.endTime} onChange={(e) => setEditForm({ ...editForm, endTime: e.target.value })} style={{ flex: 1 }} />
+                                    <input className="glass-input" value={editForm.url} onChange={(e) => setEditForm({ ...editForm, url: e.target.value })} placeholder="URL" style={{ width: '100%', marginTop: 12, boxSizing: 'border-box' as const }} />
+                                    <input className="glass-input" type="date" value={editForm.dateCreated ? editForm.dateCreated.split('T')[0] : ''} min={today} onChange={(e) => setEditForm({ ...editForm, dateCreated: e.target.value })} style={{ width: '100%', marginTop: 8, boxSizing: 'border-box' as const }} />
+                                    <div className="glass-row" style={{ marginTop: 8 }}>
+                                        <input className="glass-input" type="time" value={editForm.startTime} onChange={(e) => setEditForm({ ...editForm, startTime: e.target.value })} style={{ flex: 1, minWidth: 0 }} />
+                                        <span>to</span>
+                                        <input className="glass-input" type="time" value={editForm.endTime} onChange={(e) => setEditForm({ ...editForm, endTime: e.target.value })} style={{ flex: 1, minWidth: 0 }} />
                                     </div>
                                     {plan === 'pro' && (
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6 }}>
-                                            <span style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: 11 }}>Strict:</span>
+                                        <div className="glass-segment" style={{ marginTop: 8 }}>
                                             {[
-                                                { label: 'Default', value: null, color: '#0099ff' },
+                                                { label: 'Default', value: null, color: 'oklch(0.6 0.19 265)' },
                                                 { label: 'On', value: true, color: '#ff4d4d' },
                                                 { label: 'Off', value: false, color: '#4CAF50' }
                                             ].map(opt => (
                                                 <button key={opt.label}
-                                                    className={editForm.strictMode === opt.value ? 'pill pill-active' : 'pill'}
+                                                    className="glass-segment-option"
                                                     onClick={() => setEditForm({ ...editForm, strictMode: opt.value })}
-                                                    style={{
-                                                        padding: '2px 7px',
-                                                        background: editForm.strictMode === opt.value ? opt.color : undefined,
-                                                        borderColor: editForm.strictMode === opt.value ? opt.color : undefined,
-                                                        fontSize: 10
-                                                    }}
+                                                    style={editForm.strictMode === opt.value ? {
+                                                        background: opt.color,
+                                                        color: 'white',
+                                                        fontWeight: 700,
+                                                        boxShadow: `0 0 14px -2px ${opt.color}`
+                                                    } : undefined}
                                                 >{opt.label}</button>
                                             ))}
                                         </div>
                                     )}
-                                    <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
-                                        <button className="edit-button" style={{ flex: 1, fontSize: 11 }} onClick={() => saveEdit(site._id)}>Save</button>
-                                        <button className="delete-button" style={{ flex: 1, fontSize: 11 }} onClick={() => setEditingId(null)}>Cancel</button>
+                                    <div className="site-btn-row" style={{ marginTop: 10 }}>
+                                        <button className="site-btn site-btn-primary" onClick={() => saveEdit(site._id)}>Save</button>
+                                        <button className="site-btn" onClick={() => setEditingId(null)}>Cancel</button>
                                     </div>
                                 </>
                             ) : (
                                 <>
-                                    <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 3 }}>
-                                        <p style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: 11, margin: 0 }}>
-                                            <span style={{ color: 'white', fontWeight: 600 }}>Date: </span>
-                                            {site.dateCreated.split('T')[0]}
-                                        </p>
-                                        <p style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: 11, margin: 0 }}>
-                                            <span style={{ color: 'white', fontWeight: 600 }}>Time: </span>
-                                            {site.startTime} - {site.endTime}
-                                        </p>
+                                    <div className="site-detail-row">
+                                        <div>
+                                            <span className="site-detail-label">Date </span>
+                                            <span className="site-detail-value">{site.dateCreated.split('T')[0]}</span>
+                                        </div>
+                                        <div>
+                                            <span className="site-detail-label">Time </span>
+                                            <span className="site-detail-value-accent">{site.startTime} – {site.endTime}</span>
+                                        </div>
                                     </div>
-                                    <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
-                                        <button className="edit-button" style={{ flex: 1, fontSize: 11 }} onClick={() => startEditing(site)}>Edit</button>
-                                        <button className="delete-button" style={{ flex: 1, fontSize: 11 }} onClick={() => handleDeleteClick(site._id)}>Delete</button>
+                                    <div className="site-btn-row">
+                                        <button className="site-btn" onClick={() => startEditing(site)}>Edit</button>
+                                        <button className="site-btn site-btn-danger" onClick={() => handleDeleteClick(site._id)}>Delete</button>
                                     </div>
                                 </>
                             )}
