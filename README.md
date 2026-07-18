@@ -1,139 +1,143 @@
 # 🔒 LockedIn
 
-LockedIn is a Chrome browser extension that helps you stay focused by blocking distracting websites during times you set. Add any website to your restriction list, set a date and time range, and LockedIn will automatically block it during that period.
+**Your digital detox for increased productivity.**
+
+LockedIn is a Chrome extension SaaS that blocks distracting websites during user-defined time windows. Built with a full-stack Next.js backend, Stripe billing, and a web dashboard for tracking focus stats.
+
+🌐 **Live:** [deeplockin.com](https://deeplockin.com)
 
 ---
 
-## Prerequisites
+## Features
 
-Before using LockedIn, make sure you have the following installed:
+### Free
 
-- [Node.js](https://nodejs.org/) (v18 or higher)
-- [npm](https://www.npmjs.com/)
+- Block up to 3 websites with custom date and time restrictions
+- Instant blocking via Chrome Manifest V3 background service worker
 
----
+### Pro ($7/month)
 
-## Getting Started
-
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/Nahom2162002/LockedIn.git
-cd lockedin
-```
-
-### 2. Install Dependencies
-
-```bash
-npm install
-```
-
-### 3. Build the Extension
-
-```bash
-npm run build
-```
-
-### 4. Load the Extension in Chrome
-
-1. Open Chrome and go to `chrome://extensions`
-2. Enable **Developer Mode** in the top right corner
-3. Click **Load unpacked**
-4. Select the `build` folder from the project directory
-
-The LockedIn extension icon should now appear in your Chrome toolbar.
-
----
-
-## How to Use
-
-### Opening the Extension
-
-Click the LockedIn icon in your Chrome toolbar to open the popup.
-
-### Adding a Website to Your Restriction List
-
-1. Click **"Click here to get started"** to open the full extension page
-2. Click **"Add Website"** to open the website form
-3. Fill in the following fields:
-   - **URL** — the full URL of the website you want to block (e.g. `https://www.youtube.com`)
-   - **Date** — the date you want the restriction to apply (cannot be before today)
-   - **Start Time** — the time the restriction should begin
-   - **End Time** — the time the restriction should end (must be after start time)
-4. Click **"Add"** to save the website to your list
-
-### Viewing Your Restricted Websites
-
-Your restricted websites will appear as cards on the main page, each showing:
-- The website URL
-- The restriction date
-- The start and end times
-
-### Editing a Website
-
-1. Find the website card you want to edit
-2. Click the **"Edit"** button
-3. Update the fields as needed
-4. Click **"Save"** to apply the changes
-
-### Deleting a Website
-
-1. Find the website card you want to remove
-2. Click the **"Delete"** button
-3. The website will be removed from your list immediately
-
-### How Blocking Works
-
-- When you navigate to a restricted website during the set date and time range, you will automatically be redirected to a **blocked page**
-- Once the end time has passed, refreshing the blocked page will automatically redirect you back to the original website
-
----
-
-## Rebuilding After Changes
-
-Whenever you make changes to the extension code, rebuild and reload it:
-
-```bash
-npm run build
-```
-
-Then go to `chrome://extensions` and click the **refresh icon** on the LockedIn card.
-
----
-
-## Backend
-
-The backend is hosted on Render at:
-```
-https://lockedin-jovk.onrender.com
-```
-
-> **Note:** The backend is hosted on Render's free tier and may take up to 30 seconds to respond on the first request after a period of inactivity. Subsequent requests will be fast.
-
----
-
-## Troubleshooting
-
-**Websites aren't being blocked**
-- Open the extension popup to sync your website list to the extension
-- Go to `chrome://extensions`, find LockedIn, and click **"Service Worker"** to check for errors
-
-**Changes to the website list aren't showing**
-- Try refreshing the extension page
-
-**Extension not loading**
-- Make sure you selected the `build` folder and not the root project folder
-- Check that `manifest.json` is present in the `build` folder
-
-**First request is slow**
-- This is expected on Render's free tier — the server spins down after 15 minutes of inactivity and takes up to 30 seconds to wake up on the first request
+- Unlimited website blocking
+- Recurring schedules (e.g. block YouTube every weekday 9am–5pm)
+- Category blocking (Social Media, Gaming, News, etc. in one click)
+- Stats dashboard — focus time, streaks, and top distractions
+- Strict mode — confirmation phrase required to disable blocks
+- Cross-device sync
+- Password-protected disable
+- 14-day free trial, no credit card required
 
 ---
 
 ## Tech Stack
 
-- **Frontend:** React, TypeScript, Vite
-- **Backend:** Node.js, Express
-- **Database:** MongoDB Atlas, Mongoose
-- **Extension:** Chrome Manifest V3
-- **Hosting:** Render
+### Chrome Extension
+
+- React + TypeScript
+- Vite
+- Chrome Manifest V3
+- Background service worker for navigation interception
+
+### Backend
+
+- Next.js (App Router) on Vercel
+- MongoDB Atlas + Mongoose
+- JWT authentication with bcrypt
+- Stripe billing — subscriptions, webhooks, customer portal
+- Resend — transactional email
+
+---
+
+## Architecture
+
+LockedIn/            ← Chrome extension (React + Vite)
+src/                 ← Popup UI components
+public/
+background.js        ← MV3 service worker (blocking logic)
+manifest.json
+lockedin-web/        ← Next.js backend + web dashboard (Vercel)
+app/
+api/
+auth/                ← register, login, forgot/reset password
+websites/            ← CRUD for blocked sites
+recurring/           ← recurring block schedules
+stripe/              ← checkout, webhook, portal, status
+user/                ← plan, settings, me, stats
+category-block/      ← bulk category blocking
+dashboard/           ← stats dashboard page
+models/              ← Mongoose schemas (User, Website, RecurringBlock, BlockEvent)
+lib/                 ← mongodb, auth, stripe helpers
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 18+
+- MongoDB Atlas account
+- Stripe account
+- Resend account
+- Chrome browser
+
+### Backend Setup
+
+```bash
+cd lockedin-web
+npm install
+```
+
+Create `.env.local`:
+
+MONGODB_URI=your-mongodb-connection-string
+JWT_SECRET=your-jwt-secret
+RESEND_API_KEY=your-resend-api-key
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_PUBLISHABLE_KEY=pk_test_...
+STRIPE_PRICE_ID=price_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+
+```bash
+npm run dev
+```
+
+### Extension Setup
+
+```bash
+cd LockedIn
+npm install
+npm run build
+```
+
+1. Open `chrome://extensions`
+2. Enable **Developer mode**
+3. Click **Load unpacked**
+4. Select the `dist/ or build/` folder
+
+---
+
+## Stripe Webhook Events
+
+The following events are handled:
+
+| Event | Action |
+|-------|--------|
+| `customer.subscription.created` | Set plan to `pro` (trial start) |
+| `invoice.paid` | Set plan to `pro` |
+| `customer.subscription.updated` | Update `cancelAtPeriodEnd` status |
+| `customer.subscription.deleted` | Set plan to `free` |
+
+---
+
+## Deployment
+
+- **Backend:** Vercel (auto-deploys from GitHub)
+- **Extension:** Chrome Web Store
+- **Database:** MongoDB Atlas
+- **Domain:** Namecheap → Vercel
+
+---
+
+## License
+
+MIT
