@@ -1123,3 +1123,205 @@ html, body, #root {
   line-height: 1.4;
   margin: 10px 0 0;
 }
+
+/* Focus Session + Focus Goals */
+
+.focus-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-family: 'Inter', Helvetica, Arial, sans-serif;
+}
+
+.focus-preset-row {
+  display: flex;
+  gap: 6px;
+}
+
+.focus-preset-btn {
+  flex: 1;
+  padding: 6px 4px;
+  border-radius: 10px;
+  border: 1px solid oklch(1 0 0 / 0.12);
+  background: oklch(0.15 0.025 260 / 0.6);
+  color: oklch(0.7 0.02 260);
+  font-size: 11px;
+  font-weight: 600;
+  font-family: inherit;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.focus-preset-btn:hover {
+  border-color: oklch(0.6 0.19 265 / 0.5);
+}
+
+.focus-preset-btn-active {
+  background: oklch(0.6 0.19 265 / 0.25);
+  border-color: oklch(0.6 0.19 265 / 0.7);
+  color: oklch(0.85 0.05 265);
+}
+
+.focus-preset-sub {
+  display: block;
+  font-size: 10px;
+  font-weight: 400;
+  opacity: 0.75;
+}
+
+.focus-summary {
+  background: oklch(0.18 0.025 260 / 0.5);
+  border: 1px solid oklch(1 0 0 / 0.07);
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: oklch(0.65 0.02 260);
+}
+
+.focus-active-card {
+  border-radius: 14px;
+  padding: 20px 16px;
+  text-align: center;
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.focus-active-card-work {
+  background: oklch(0.6 0.19 265 / 0.1);
+  border: 1px solid oklch(0.6 0.19 265 / 0.3);
+}
+
+.focus-active-card-break {
+  background: oklch(0.75 0.16 150 / 0.1);
+  border: 1px solid oklch(0.75 0.16 150 / 0.3);
+}
+
+.focus-phase-label {
+  font-size: 13px;
+  font-weight: 700;
+  margin: 0 0 8px;
+}
+
+.focus-phase-label-work {
+  color: oklch(0.75 0.14 265);
+}
+
+.focus-phase-label-break {
+  color: oklch(0.75 0.16 150);
+}
+
+.focus-timer {
+  color: oklch(0.97 0.005 260);
+  font-size: 40px;
+  font-weight: 800;
+  margin: 0 0 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.focus-progress-track {
+  height: 4px;
+  background: oklch(1 0 0 / 0.08);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.focus-progress-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 1s linear;
+}
+
+.focus-progress-fill-work {
+  background: oklch(0.6 0.19 265);
+}
+
+.focus-progress-fill-break {
+  background: oklch(0.75 0.16 150);
+}
+
+.focus-session-count {
+  color: oklch(0.55 0.02 260);
+  font-size: 11px;
+  margin: 0;
+}
+
+.focus-break-note {
+  color: oklch(0.75 0.16 150);
+  font-size: 11px;
+  text-align: center;
+  margin: 0;
+}
+
+.focus-goal-card {
+  background: oklch(0.18 0.025 260 / 0.5);
+  border: 1px solid oklch(1 0 0 / 0.07);
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.focus-goal-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.focus-goal-title {
+  color: oklch(0.92 0.005 260);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.focus-goal-value {
+  color: oklch(0.75 0.14 265);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.focus-goal-slider {
+  width: 100%;
+  accent-color: oklch(0.6 0.19 265);
+  cursor: pointer;
+}
+
+.focus-goal-presets {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.focus-goal-progress-card {
+  background: oklch(0.18 0.025 260 / 0.5);
+  border: 1px solid oklch(1 0 0 / 0.07);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-family: 'Inter', Helvetica, Arial, sans-serif;
+}
+
+.focus-goal-progress-track {
+  height: 6px;
+  background: oklch(1 0 0 / 0.08);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.focus-goal-progress-fill {
+  height: 100%;
+  background: oklch(0.6 0.19 265);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.focus-goal-progress-fill-complete {
+  background: #4CAF50;
+}
+
+.focus-goal-progress-complete-text {
+  color: #4CAF50;
+  font-size: 10px;
+  margin: 4px 0 0;
+  text-align: center;
+}

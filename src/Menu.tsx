@@ -10,6 +10,8 @@ import CategoryBlock from './CategoryBlock.tsx';
 import UpgradePage from './UpgradePage.tsx';
 import KeywordList from './KeywordList.tsx';
 import UninstallPassword from './UninstallPassword.tsx';
+import FocusSession from './FocusSession.tsx';
+import GoalSetting from './GoalSetting.tsx';
 
 const isActivelyBlocking = (websites: any[], recurringBlocks: any[]) => {
     const now = new Date();
@@ -62,6 +64,10 @@ function Menu() {
     const [keywordCount, setKeywordCount] = useState(0);
     const [showUninstallPassword, setShowUninstallPassword] = useState(false);
     const [uninstallPasswordSet, setUninstallPasswordSet] = useState(false);
+    const [showFocusSession, setShowFocusSession] = useState(false);
+    const [goals, setGoals] = useState<{ dailyMinutes: number; weeklyMinutes: number }>({ dailyMinutes: 0, weeklyMinutes: 0 });
+    const [todayFocusMinutes, setTodayFocusMinutes] = useState(0);
+    const [showGoals, setShowGoals] = useState(false);
 
     useEffect(() => {
         const syncAll = async () => {
@@ -146,6 +152,25 @@ function Menu() {
 
             const result2 = await chrome.storage.local.get('uninstallPasswordSet');
             setUninstallPasswordSet((result2.uninstallPasswordSet as boolean) ?? false);
+
+            // Fetch goals
+            const goalsRes = await fetch('https://www.deeplockin.com/api/user/goals', {
+                headers: { 'authorization': `Bearer ${token}` }
+            });
+            const goalsData = await goalsRes.json();
+            if (goalsData.goals) {
+                setGoals(goalsData.goals);
+                await chrome.storage.local.set({ goals: goalsData.goals });
+            }
+
+            // Fetch today's focus minutes from stats
+            const statsRes = await fetch('https://www.deeplockin.com/api/user/stats', {
+                headers: { 'authorization': `Bearer ${token}` }
+            });
+            const statsData = await statsRes.json();
+            if (statsData.todayMinutes !== undefined) {
+                setTodayFocusMinutes(statsData.todayMinutes);
+            }
 
             await chrome.storage.local.set({ lastSynced: new Date().toISOString() });
             setLastSynced(new Date().toISOString());
@@ -616,6 +641,69 @@ function Menu() {
                             </span>
                         </div>
                         {showKeywords && <KeywordList onCountChange={setKeywordCount} />}
+                    </div>
+                )}
+                {plan === 'pro' && (
+                    <div style={{ marginBottom: 12 }}>
+                        <div
+                            className="site-dropdown-header"
+                            onClick={() => setShowFocusSession(prev => !prev)}
+                            style={{
+                                marginBottom: showFocusSession ? 8 : 0
+                            }}
+                        >
+                            <span className="site-dropdown-title">
+                                🎯 Focus Session
+                            </span>
+                            <span className="site-dropdown-chevron">
+                                {showFocusSession ? '▲' : '▼'}
+                            </span>
+                        </div>
+                        {showFocusSession && <FocusSession />}
+                    </div>
+                )}
+                {plan === 'pro' && goals.dailyMinutes > 0 && (
+                    <div className="focus-goal-progress-card" style={{ marginBottom: 12 }}>
+                        <div className="focus-goal-header">
+                            <span className="focus-goal-title">🎯 Daily Goal</span>
+                            <span style={{ color: 'oklch(0.65 0.02 260)', fontSize: 11 }}>
+                                {Math.round(todayFocusMinutes)}m / {goals.dailyMinutes}m
+                            </span>
+                        </div>
+                        <div className="focus-goal-progress-track">
+                            <div
+                                className={todayFocusMinutes >= goals.dailyMinutes
+                                    ? 'focus-goal-progress-fill focus-goal-progress-fill-complete'
+                                    : 'focus-goal-progress-fill'}
+                                style={{ width: `${Math.min((todayFocusMinutes / goals.dailyMinutes) * 100, 100)}%` }}
+                            />
+                        </div>
+                        {todayFocusMinutes >= goals.dailyMinutes && (
+                            <p className="focus-goal-progress-complete-text">
+                                ✓ Daily goal reached!
+                            </p>
+                        )}
+                    </div>
+                )}
+
+                {/* Goals collapsible section */}
+                {plan === 'pro' && (
+                    <div style={{ marginBottom: 12 }}>
+                        <div
+                            className="site-dropdown-header"
+                            onClick={() => setShowGoals(prev => !prev)}
+                            style={{
+                                marginBottom: showGoals ? 8 : 0
+                            }}
+                        >
+                            <span className="site-dropdown-title">
+                                📅 Focus Goals
+                            </span>
+                            <span className="site-dropdown-chevron">
+                                {showGoals ? '▲' : '▼'}
+                            </span>
+                        </div>
+                        {showGoals && <GoalSetting />}
                     </div>
                 )}
             </div>
