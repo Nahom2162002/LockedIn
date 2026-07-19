@@ -23,7 +23,10 @@ function checkIfUnblocked() {
                 currentTime >= block.startTime &&
                 currentTime <= block.endTime;
         }) || keywordBlocks.some((block) => {
-            return blockedUrl && blockedUrl.toLowerCase().includes(block.keyword.toLowerCase());
+            return blockedUrl && blockedUrl.toLowerCase().includes(block.keyword.toLowerCase()) &&
+                block.days.includes(currentDay) &&
+                currentTime >= block.startTime &&
+                currentTime <= block.endTime;
         });
 
         if (!isStillBlocked && blockedUrl) {

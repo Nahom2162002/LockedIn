@@ -3,6 +3,7 @@ import { useEffect, useState, useRef } from 'react';
 import WebsiteList from './WebsiteList.tsx';
 import { useNavigate } from 'react-router-dom';
 import RecurringForm from './RecurringForm.tsx';
+import KeywordForm from './KeywordForm.tsx';
 import RecurringList from './RecurringList.tsx';
 import ConfirmPhrase from './ConfirmPhrase.tsx';
 import ConfirmDialog from './ConfirmDialog.tsx';
@@ -54,6 +55,8 @@ function Menu() {
     const profileRef = useRef<HTMLDivElement>(null);
     const [showUpgradePage, setShowUpgradePage] = useState(false);
     const [recurringKey, setRecurringKey] = useState(0);
+    const [showKeywordForm, setShowKeywordForm] = useState(false);
+    const [keywordKey, setKeywordKey] = useState(0);
     const [showAddSite, setShowAddSite] = useState(false);
     const [cancelAtPeriodEnd, setCancelAtPeriodEnd] = useState(false);
     const [isTrialing, setIsTrialing] = useState(false);
@@ -640,7 +643,18 @@ function Menu() {
                                 {showKeywords ? '▲' : '▼'}
                             </span>
                         </div>
-                        {showKeywords && <KeywordList onCountChange={setKeywordCount} />}
+                        {showKeywords && (
+                            <div>
+                                <KeywordList key={keywordKey} onCountChange={setKeywordCount} />
+                                <button
+                                    className="site-add-btn"
+                                    onClick={() => setShowKeywordForm(true)}
+                                    style={{ marginTop: 10 }}
+                                >
+                                    + Add keyword
+                                </button>
+                            </div>
+                        )}
                     </div>
                 )}
                 {plan === 'pro' && (
@@ -739,6 +753,7 @@ function Menu() {
             )}
             {showAddSite && <RestrictionInfo onClose={() => { setShowAddSite(false); setRefreshKey(prev => prev + 1); }} />}
             {showRecurringForm && <RecurringForm onClose={() => { setShowRecurringForm(false); setRecurringKey(prev => prev + 1); }} />}
+            {showKeywordForm && <KeywordForm onClose={() => { setShowKeywordForm(false); setKeywordKey(prev => prev + 1); }} />}
             {showCancelTrialConfirm && (
                 <ConfirmDialog
                     title="Cancel your free trial?"

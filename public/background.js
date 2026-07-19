@@ -225,6 +225,9 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
     const keywordBlocks = keywordResult.keywordBlocks || [];
 
     for (const block of keywordBlocks) {
+        if (!block.days.includes(currentDay)) continue;
+        if (currentTime < block.startTime || currentTime > block.endTime) continue;
+
         if (details.url.toLowerCase().includes(block.keyword.toLowerCase())) {
             if (token) {
                 fetch('https://www.deeplockin.com/api/user/block-event', {
