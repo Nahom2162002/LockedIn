@@ -97,8 +97,8 @@ function UninstallPassword({ isSet, onClose, onUpdate }: UninstallPasswordProps)
 
             <p style={{ color: 'oklch(0.7 0.02 260)', fontSize: 12, lineHeight: 1.5, margin: '0 0 16px' }}>
                 {isSet
-                    ? 'Uninstall protection is currently active. Removing it will let LockedIn be disabled or uninstalled without a password.'
-                    : 'Set a password as a reminder commitment. To disable LockedIn you must return here and enter your password to remove protection first.'
+                    ? "Protection is active: while a Focus Session or any block is running, disabling LockedIn requires this password. Removing it here will lift that requirement. Note: this can't stop Chrome's own \"Remove extension\" flow, only the disable toggle."
+                    : "Set a password as a reminder commitment. While a Focus Session or any block is running, disabling LockedIn will require this password. It won't stop Chrome's own \"Remove extension\" flow, only the disable toggle."
                 }
             </p>
 

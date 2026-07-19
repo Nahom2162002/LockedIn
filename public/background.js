@@ -300,8 +300,38 @@ chrome.management.onUninstalled.addListener(async (id) => {
     await handleUninstallAttempt();
 });
 
+// Is anything actually restricting the user right now? Category blocks aren't a separate
+// bucket — they're just regular one-time/recurring block documents created in bulk — so
+// checking websites/recurringBlocks already covers them.
+function isAnyBlockActive(websites, recurringBlocks, keywordBlocks) {
+    const now = new Date();
+    const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    const currentDate = getLocalDateString(now);
+    const currentDay = now.getDay();
+
+    const oneTimeActive = websites.some(site => {
+        const siteDate = site.dateCreated.split('T')[0];
+        return siteDate === currentDate && currentTime >= site.startTime && currentTime <= site.endTime;
+    });
+    if (oneTimeActive) return true;
+
+    const recurringActive = recurringBlocks.some(block =>
+        block.active && block.days.includes(currentDay) &&
+        currentTime >= block.startTime && currentTime <= block.endTime
+    );
+    if (recurringActive) return true;
+
+    return keywordBlocks.some(block =>
+        block.days.includes(currentDay) &&
+        currentTime >= block.startTime && currentTime <= block.endTime
+    );
+}
+
 async function handleUninstallAttempt() {
-    const result = await chrome.storage.local.get(['token', 'uninstallPasswordSet', 'uninstallBypass']);
+    const result = await chrome.storage.local.get([
+        'token', 'uninstallPasswordSet', 'uninstallBypass',
+        'websites', 'recurringBlocks', 'keywordBlocks', 'focusSession'
+    ]);
     const token = result.token;
     const passwordSet = result.uninstallPasswordSet;
     const bypass = result.uninstallBypass;
@@ -309,6 +339,18 @@ async function handleUninstallAttempt() {
     if (!token || !passwordSet) return;
 
     if (bypass && Date.now() < bypass) return;
+
+    // Only guard the disable/uninstall while something is actually restricting the user —
+    // an active Focus Session, or a website/recurring/keyword block in its active window.
+    // A focusSession is only ever present in storage while running/paused (Stop clears it
+    // entirely), so its mere presence is enough to signal "a session is in progress".
+    const focusSessionInProgress = !!result.focusSession;
+    const blocksActive = isAnyBlockActive(
+        result.websites || [],
+        result.recurringBlocks || [],
+        result.keywordBlocks || []
+    );
+    if (!focusSessionInProgress && !blocksActive) return;
 
     // Re-enable the extension immediately
     try {

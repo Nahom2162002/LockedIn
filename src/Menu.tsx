@@ -74,7 +74,7 @@ function Menu() {
 
     useEffect(() => {
         const syncAll = async () => {
-            const result = await chrome.storage.local.get(['token', 'plan', 'websites', 'recurringBlocks']);
+            const result = await chrome.storage.local.get(['token', 'plan', 'websites', 'recurringBlocks', 'uninstallPasswordSet']);
             const token = result.token as string | undefined;
             const cachedPlan = result.plan as string | undefined;
             const lastSyncedResult = await chrome.storage.local.get('lastSynced');
@@ -83,6 +83,9 @@ function Menu() {
             setWebsites((result.websites as any[]) || []);
             setRecurringBlocks((result.recurringBlocks as any[]) || []);
             setLastSynced(lastSyncedResult.lastSynced as string || null);
+            // Fast paint from cache — reconciled with the server's actual uninstallPassword
+            // state below once /api/user/me resolves, since this flag must never drift stale.
+            setUninstallPasswordSet((result.uninstallPasswordSet as boolean) ?? false);
 
             if (!token) return;
 
@@ -113,6 +116,10 @@ function Menu() {
             if (userData.username) {
                 setUserName(userData.username);
                 await chrome.storage.local.set({ username: userData.username });
+            }
+            if (userData.uninstallPasswordSet !== undefined) {
+                setUninstallPasswordSet(userData.uninstallPasswordSet);
+                await chrome.storage.local.set({ uninstallPasswordSet: userData.uninstallPasswordSet });
             }
 
             if (statusData.plan === 'pro') {
@@ -152,9 +159,6 @@ function Menu() {
             const settingsData = await settingsRes.json();
             setStrictMode(settingsData.strictMode ?? false);
             await chrome.storage.local.set({ strictMode: settingsData.strictMode ?? false });
-
-            const result2 = await chrome.storage.local.get('uninstallPasswordSet');
-            setUninstallPasswordSet((result2.uninstallPasswordSet as boolean) ?? false);
 
             // Fetch goals
             const goalsRes = await fetch('https://www.deeplockin.com/api/user/goals', {
@@ -535,6 +539,17 @@ function Menu() {
                                         </button>
                                     </div>
                                 </>
+                            )}
+
+                            {/* Downgraded users who already have a password set must still be able to
+                                reach it to remove it — otherwise they can never turn it off again. */}
+                            {plan === 'free' && uninstallPasswordSet && (
+                                <div className="profile-item-list">
+                                    <button className="profile-item" onClick={() => { setShowUninstallPassword(true); setShowProfileMenu(false); }}>
+                                        <span className="profile-item-icon">🔐</span>
+                                        <span className="profile-item-label">Uninstall Protection (ON)</span>
+                                    </button>
+                                </div>
                             )}
 
                             <div className="profile-divider" />

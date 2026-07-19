@@ -37,10 +37,16 @@ submitBtn.addEventListener('click', async () => {
         if (data.valid) {
             showMessage('Password correct — you may now disable or uninstall LockedIn.', false);
             // Store temporary bypass for 30 seconds
-            await chrome.storage.local.set({ 
-                uninstallBypass: Date.now() + 30000 
+            await chrome.storage.local.set({
+                uninstallBypass: Date.now() + 30000
             });
             setTimeout(() => window.close(), 2000);
+        } else if (data.locked) {
+            const minutes = Math.ceil((data.retryAfterSeconds || 0) / 60);
+            showMessage(`Too many incorrect attempts. Try again in ${minutes} minute${minutes === 1 ? '' : 's'}.`, true);
+            input.value = '';
+            submitBtn.textContent = 'Confirm';
+            submitBtn.disabled = false;
         } else {
             showMessage('Incorrect password. LockedIn will remain active.', true);
             input.value = '';
