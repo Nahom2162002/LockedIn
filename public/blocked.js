@@ -7,10 +7,16 @@ function checkIfUnblocked() {
     const currentDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
     const currentDay = now.getDay();
 
-    chrome.storage.local.get(['websites', 'recurringBlocks', 'keywordBlocks'], (result) => {
+    chrome.storage.local.get(['websites', 'recurringBlocks', 'keywordBlocks', 'focusSession'], (result) => {
         const websites = result.websites || [];
         const recurringBlocks = result.recurringBlocks || [];
         const keywordBlocks = result.keywordBlocks || [];
+        const focusSession = result.focusSession;
+
+        if (focusSession && focusSession.status === 'active' && focusSession.phase === 'break') {
+            if (blockedUrl) window.location.href = blockedUrl;
+            return;
+        }
 
         const isStillBlocked = websites.some((site) => {
             const siteDate = site.dateCreated.split('T')[0];

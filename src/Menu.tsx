@@ -166,8 +166,10 @@ function Menu() {
                 await chrome.storage.local.set({ goals: goalsData.goals });
             }
 
-            // Fetch today's focus minutes from stats
-            const statsRes = await fetch('https://www.deeplockin.com/api/user/stats', {
+            // Fetch today's focus minutes from stats (local calendar date, not UTC)
+            const now = new Date();
+            const todayLocal = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+            const statsRes = await fetch(`https://www.deeplockin.com/api/user/stats?date=${todayLocal}`, {
                 headers: { 'authorization': `Bearer ${token}` }
             });
             const statsData = await statsRes.json();

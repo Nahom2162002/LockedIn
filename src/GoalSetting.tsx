@@ -34,13 +34,19 @@ function GoalSetting() {
             }
 
             // Fetch fresh from backend
-            const response = await fetch('https://www.deeplockin.com/api/user/goals', {
-                headers: { 'authorization': `Bearer ${token}` }
-            });
-            const data = await response.json();
-            if (data.goals) {
-                setGoals(data.goals);
-                await chrome.storage.local.set({ goals: data.goals });
+            try {
+                const response = await fetch('https://www.deeplockin.com/api/user/goals', {
+                    headers: { 'authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                if (data.goals) {
+                    setGoals(data.goals);
+                    await chrome.storage.local.set({ goals: data.goals });
+                } else if (data.error) {
+                    setError(data.error);
+                }
+            } catch {
+                setError('Connection failed. Showing cached goals.');
             }
         };
         fetchGoals();

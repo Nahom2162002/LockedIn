@@ -6,6 +6,7 @@ interface Session {
     workDuration: number;
     breakDuration: number;
     remaining: number;
+    lastTick: number;
     completedSessions: number;
     startedAt: number;
 }
@@ -18,6 +19,7 @@ const PRESETS = [
 
 function FocusSession() {
     const [session, setSession] = useState<Session | null>(null);
+    const [displayRemaining, setDisplayRemaining] = useState<number | null>(null);
     const [workDuration, setWorkDuration] = useState(25);
     const [breakDuration, setBreakDuration] = useState(5);
     const [selectedPreset, setSelectedPreset] = useState('Classic');
@@ -46,9 +48,44 @@ function FocusSession() {
         chrome.storage.onChanged.addListener(handleStorageChange);
         return () => {
             chrome.storage.onChanged.removeListener(handleStorageChange);
-            if (intervalRef.current) clearInterval(intervalRef.current);
         };
     }, []);
+
+    // background.js only persists an updated `remaining` roughly every 30s (the platform
+    // floor on repeating alarms), so tick the displayed countdown locally every second
+    // between those updates, resyncing to the authoritative value whenever it arrives.
+    useEffect(() => {
+        if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+            intervalRef.current = null;
+        }
+
+        if (!session) {
+            setDisplayRemaining(null);
+            return;
+        }
+
+        const computeRemaining = () => {
+            if (session.status !== 'active') return session.remaining;
+            const elapsed = (Date.now() - session.lastTick) / 1000;
+            return Math.max(0, session.remaining - elapsed);
+        };
+
+        setDisplayRemaining(computeRemaining());
+
+        if (session.status === 'active') {
+            intervalRef.current = setInterval(() => {
+                setDisplayRemaining(computeRemaining());
+            }, 1000);
+        }
+
+        return () => {
+            if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+                intervalRef.current = null;
+            }
+        };
+    }, [session]);
 
     const handleStart = async () => {
         await chrome.runtime.sendMessage({
@@ -85,11 +122,11 @@ function FocusSession() {
     };
 
     const getProgress = () => {
-        if (!session) return 0;
+        if (!session || displayRemaining === null) return 0;
         const total = session.phase === 'work'
             ? session.workDuration * 60
             : session.breakDuration * 60;
-        return ((total - session.remaining) / total) * 100;
+        return ((total - displayRemaining) / total) * 100;
     };
 
     const isWork = session?.phase === 'work';
@@ -169,7 +206,7 @@ function FocusSession() {
                             {phaseLabel}
                         </p>
                         <p className="focus-timer">
-                            {formatTime(session.remaining)}
+                            {formatTime(displayRemaining ?? session.remaining)}
                         </p>
 
                         <div className="focus-progress-track">

@@ -1,5 +1,27 @@
 const recentlyBlocked = new Map();
 
+// Local (not UTC) calendar date — used consistently for anything keyed to "today"
+// (goal notification dedupe, focus-event dates) so day boundaries match the local
+// time the rest of the extension's scheduling already uses.
+function getLocalDateString(d = new Date()) {
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+async function recordFocusEvent(minutes) {
+    const result = await chrome.storage.local.get('token');
+    const token = result.token;
+    if (!token || minutes <= 0) return;
+
+    fetch('https://www.deeplockin.com/api/user/focus-event', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ minutes, date: getLocalDateString() })
+    }).catch(err => console.error('Failed to record focus event:', err));
+}
+
 // Focus session state — persisted in session storage
 async function getFocusSession() {
     const result = await chrome.storage.session.get('focusSession');
@@ -17,14 +39,28 @@ async function clearFocusSession() {
     await chrome.storage.local.remove('focusSession');
 }
 
+// chrome.storage.session is wiped on browser restart / extension reload, but the
+// chrome.storage.local mirror (kept for the popup) is not — without this, a session
+// that was active/break at shutdown stays stuck in local storage forever, permanently
+// bypassing recurring/keyword blocks since nothing is left to advance or clear it.
+async function reconcileFocusSessionOnStartup() {
+    const session = await getFocusSession();
+    if (!session) {
+        await clearFocusSession();
+        chrome.alarms.clear('focusSessionTick');
+    }
+}
+
 chrome.runtime.onInstalled.addListener(() => {
     chrome.alarms.create('syncData', { periodInMinutes: 5 });
     chrome.alarms.create('cleanupExpired', { periodInMinutes: 1 });
+    reconcileFocusSessionOnStartup();
 });
 
 chrome.runtime.onStartup.addListener(() => {
     chrome.alarms.create('syncData', { periodInMinutes: 5 });
     chrome.alarms.create('cleanupExpired', { periodInMinutes: 1 });
+    reconcileFocusSessionOnStartup();
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -42,7 +78,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 startedAt: Date.now()
             };
             await setFocusSession(session);
-            chrome.alarms.create('focusSessionTick', { periodInMinutes: 1/60 }); // every second
+            // Chrome enforces a 30s floor on repeating alarms — a shorter period is silently
+            // clamped, so we ask for exactly what will actually be honored. The popup ticks
+            // the displayed countdown every second on its own using session.lastTick, so this
+            // only needs to be frequent enough to keep the persisted state from drifting.
+            chrome.alarms.create('focusSessionTick', { periodInMinutes: 0.5 });
             sendResponse({ ok: true });
         })();
         return true;
@@ -151,10 +191,16 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
     const lastBlocked = recentlyBlocked.get(details.tabId);
     if (lastBlocked && Date.now() - lastBlocked < 2000) return;
 
-    const result = await chrome.storage.local.get(['websites', 'recurringBlocks', 'token']);
+    const result = await chrome.storage.local.get(['websites', 'recurringBlocks', 'token', 'focusSession']);
     const websites = result.websites || [];
     const recurringBlocks = result.recurringBlocks || [];
     const token = result.token;
+
+    // Check if we're in a break period — release ALL blocks (sites, recurring, keyword) temporarily
+    const focusSession = result.focusSession;
+    if (focusSession && focusSession.status === 'active' && focusSession.phase === 'break') {
+        return;
+    }
 
     const now = new Date();
     const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
@@ -186,12 +232,6 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
         }
     }
 
-    // Check if we're in a break period — release blocks temporarily
-    const sessionResult = await chrome.storage.local.get('focusSession');
-    const focusSession = sessionResult.focusSession;
-    if (focusSession && focusSession.status === 'active' && focusSession.phase === 'break') {
-        return; // Don't block during breaks
-    }
     if (!result.token) return; // not logged in
 
     for (const block of recurringBlocks) {
@@ -312,6 +352,7 @@ async function handleFocusSessionTick() {
                 completedSessions: session.completedSessions + 1
             };
             await setFocusSession(newSession);
+            await recordFocusEvent(session.workDuration);
 
         } else {
             // Break ended — start next work period
@@ -391,12 +432,11 @@ async function checkGoalProgress() {
     if (!token || !goals.dailyMinutes) return;
 
     try {
-        const statsRes = await fetch('https://www.deeplockin.com/api/user/stats', {
+        const today = getLocalDateString();
+        const statsRes = await fetch(`https://www.deeplockin.com/api/user/stats?date=${today}`, {
             headers: { 'authorization': `Bearer ${token}` }
         });
         const stats = await statsRes.json();
-
-        const today = new Date().toISOString().split('T')[0];
 
         // Daily goal notification — fire once per day
         if (
