@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Site Blocked</title>
+    <style>
+        * { box-sizing: border-box; }
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-image: url("futuristicbackground.png");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            font-family: Inter, Arial, sans-serif;
+            color: white;
+        }
+        .card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 12px;
+            padding: 40px 48px;
+            background: rgba(4, 6, 36, 0.55);
+            border: 1px solid rgba(0, 170, 255, 0.35);
+            border-radius: 16px;
+            box-shadow: 0 0 20px 2px rgba(0, 170, 255, 0.25), inset 0 0 30px rgba(0, 170, 255, 0.05);
+            backdrop-filter: blur(6px);
+            max-width: 420px;
+            margin: 24px;
+        }
+        .lock-icon {
+            width: 96px;
+            height: 96px;
+            margin-bottom: 4px;
+            filter: drop-shadow(0 0 14px rgba(0, 170, 255, 0.6));
+        }
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0;
+            text-shadow: 0 0 12px rgba(0, 170, 255, 0.6);
+        }
+        p {
+            font-size: 15px;
+            color: rgba(180, 225, 255, 0.7);
+            margin: 0;
+            line-height: 1.6;
+        }
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+            font-size: 12px;
+            color: rgba(150, 210, 255, 0.5);
+        }
+        .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgb(0, 170, 255);
+            box-shadow: 0 0 6px 2px rgba(0, 170, 255, 0.6);
+            animation: pulse 1.4s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.4; transform: scale(0.85); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <img class="lock-icon" src="lock-icon.png" alt="Locked" />
+        <h1>Site Blocked</h1>
+        <p>This site is restricted during the time you set.</p>
+        <div class="status"><span class="dot"></span>Checking automatically for unlock&hellip;</div>
+    </div>
+    <script src="./blocked.js"></script>
+</body>
+</html>

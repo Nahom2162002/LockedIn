@@ -165,4 +165,63 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
                 return;
             }
     }
+
+    // Check keyword blocks
+    const keywordResult = await chrome.storage.local.get('keywordBlocks');
+    const keywordBlocks = keywordResult.keywordBlocks || [];
+
+    for (const block of keywordBlocks) {
+        if (details.url.toLowerCase().includes(block.keyword.toLowerCase())) {
+            if (token) {
+                fetch('https://www.deeplockin.com/api/user/block-event', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ url: details.url })
+                }).catch(err => console.error('Failed to record block event:', err));
+            }
+
+            recentlyBlocked.set(details.tabId, Date.now());
+            chrome.tabs.update(details.tabId, {
+                url: chrome.runtime.getURL(`blocked.html?url=${encodeURIComponent(details.url)}`)
+            });
+            return;
+        }
+    }
 });
+
+// Uninstall prevention
+chrome.management.onDisabled.addListener(async (info) => {
+    if (info.id !== chrome.runtime.id) return;
+    await handleUninstallAttempt();
+});
+
+chrome.management.onUninstalled.addListener(async (id) => {
+    if (id !== chrome.runtime.id) return;
+    await handleUninstallAttempt();
+});
+
+async function handleUninstallAttempt() {
+    const result = await chrome.storage.local.get(['token', 'uninstallPasswordSet', 'uninstallBypass']);
+    const token = result.token;
+    const passwordSet = result.uninstallPasswordSet;
+    const bypass = result.uninstallBypass;
+
+    if (!token || !passwordSet) return;
+
+    if (bypass && Date.now() < bypass) return;
+
+    // Re-enable the extension immediately
+    try {
+        await chrome.management.setEnabled(chrome.runtime.id, true);
+    } catch (err) {
+        console.error('Failed to re-enable extension:', err);
+    }
+
+    // Open the password prompt
+    chrome.tabs.create({
+        url: chrome.runtime.getURL('uninstall-guard.html')
+    });
+}

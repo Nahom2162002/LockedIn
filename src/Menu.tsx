@@ -8,6 +8,8 @@ import ConfirmPhrase from './ConfirmPhrase.tsx';
 import ConfirmDialog from './ConfirmDialog.tsx';
 import CategoryBlock from './CategoryBlock.tsx';
 import UpgradePage from './UpgradePage.tsx';
+import KeywordList from './KeywordList.tsx';
+import UninstallPassword from './UninstallPassword.tsx';
 
 const isActivelyBlocking = (websites: any[], recurringBlocks: any[]) => {
     const now = new Date();
@@ -56,6 +58,10 @@ function Menu() {
     const [trialEnd, setTrialEnd] = useState<string | null>(null);
     const [hasHadTrial, setHasHadTrial] = useState(false);
     const [showCancelTrialConfirm, setShowCancelTrialConfirm] = useState(false);
+    const [showKeywords, setShowKeywords] = useState(false);
+    const [keywordCount, setKeywordCount] = useState(0);
+    const [showUninstallPassword, setShowUninstallPassword] = useState(false);
+    const [uninstallPasswordSet, setUninstallPasswordSet] = useState(false);
 
     useEffect(() => {
         const syncAll = async () => {
@@ -111,6 +117,17 @@ function Menu() {
                 }
             }
 
+            // Sync keyword blocks if pro
+            if (statusData.plan === 'pro') {
+                const keywordRes = await fetch('https://www.deeplockin.com/api/keywords', {
+                    headers: { 'authorization': `Bearer ${token}` }
+                });
+                const keywordData = await keywordRes.json();
+                if (Array.isArray(keywordData)) {
+                    await chrome.storage.local.set({ keywordBlocks: keywordData });
+                }
+            }
+
             const websitesRes = await fetch('https://www.deeplockin.com/api/websites', {
                 headers: { 'authorization': `Bearer ${token}` }
             });
@@ -126,6 +143,9 @@ function Menu() {
             const settingsData = await settingsRes.json();
             setStrictMode(settingsData.strictMode ?? false);
             await chrome.storage.local.set({ strictMode: settingsData.strictMode ?? false });
+
+            const result2 = await chrome.storage.local.get('uninstallPasswordSet');
+            setUninstallPasswordSet((result2.uninstallPasswordSet as boolean) ?? false);
 
             await chrome.storage.local.set({ lastSynced: new Date().toISOString() });
             setLastSynced(new Date().toISOString());
@@ -188,6 +208,10 @@ function Menu() {
             }
             if (changes.plan?.newValue) {
                 setPlan(changes.plan.newValue as string);
+            }
+            if (changes.keywordBlocks?.newValue) {
+                // Keywords updated — background.js will pick them up automatically
+                console.log('Keyword blocks updated');
             }
         };
 
@@ -452,6 +476,14 @@ function Menu() {
                                             <span className="profile-item-icon">🗂️</span>
                                             <span className="profile-item-label">Block Category</span>
                                         </button>
+                                        <button className="profile-item" onClick={() => { setShowKeywords(!showKeywords); setShowProfileMenu(false); }}>
+                                            <span className="profile-item-icon">🔑</span> 
+                                            <span className="profile-item-label">Keyword Blocking</span>
+                                        </button>
+                                        <button className="profile-item" onClick={() => { setShowUninstallPassword(true); setShowProfileMenu(false); }}>
+                                            <span className="profile-item-icon">🔐</span>
+                                            <span className="profile-item-label">{uninstallPasswordSet ? 'Uninstall Protection (ON)' : 'Uninstall Protection'}</span>
+                                        </button>
 
                                         <div className="profile-item-row" onClick={handleToggleStrictMode}>
                                             <div className="profile-item-row-left">
@@ -567,6 +599,25 @@ function Menu() {
                         )}
                     </div>
                 )}
+                {plan === 'pro' && (
+                    <div style={{ marginBottom: 12 }}>
+                        <div
+                            className="site-dropdown-header"
+                            onClick={() => setShowKeywords(prev => !prev)}
+                            style={{
+                                marginBottom: showKeywords ? 8 : 0
+                            }}
+                        >
+                            <span className="site-dropdown-title">
+                                🔑 Keyword Blocks <span className="site-dropdown-count">({keywordCount})</span>
+                            </span>
+                            <span className="site-dropdown-chevron">
+                                {showKeywords ? '▲' : '▼'}
+                            </span>
+                        </div>
+                        {showKeywords && <KeywordList onCountChange={setKeywordCount} />}
+                    </div>
+                )}
             </div>
             </div>
 
@@ -612,6 +663,16 @@ function Menu() {
                         handleManageSubscription();
                     }}
                     onCancel={() => setShowCancelTrialConfirm(false)}
+                />
+            )}
+            {showUninstallPassword && (
+                <UninstallPassword
+                    isSet={uninstallPasswordSet}
+                    onClose={() => setShowUninstallPassword(false)}
+                    onUpdate={(isSet) => {
+                        setUninstallPasswordSet(isSet);
+                        chrome.storage.local.set({ uninstallPasswordSet: isSet });
+                    }}
                 />
             )}
         </div>

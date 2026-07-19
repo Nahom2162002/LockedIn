@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uninstall Protection</title>
+    <style>
+        * { box-sizing: border-box; }
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-image: url("futuristicbackground.png");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            font-family: Inter, Arial, sans-serif;
+            color: white;
+        }
+        .card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 12px;
+            padding: 40px 48px;
+            background: rgba(4, 6, 36, 0.55);
+            border: 1px solid rgba(0, 170, 255, 0.35);
+            border-radius: 16px;
+            box-shadow: 0 0 20px 2px rgba(0, 170, 255, 0.25), inset 0 0 30px rgba(0, 170, 255, 0.05);
+            backdrop-filter: blur(6px);
+            max-width: 420px;
+            width: 100%;
+            margin: 24px;
+        }
+        .lock-icon {
+            width: 96px;
+            height: 96px;
+            margin-bottom: 4px;
+            filter: drop-shadow(0 0 14px rgba(0, 170, 255, 0.6));
+        }
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0;
+            text-shadow: 0 0 12px rgba(0, 170, 255, 0.6);
+        }
+        p {
+            font-size: 15px;
+            color: rgba(180, 225, 255, 0.7);
+            margin: 0;
+            line-height: 1.6;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid rgba(0, 170, 255, 0.4);
+            background-color: rgba(5, 5, 53, 0.6);
+            color: #e6f6ff;
+            font-size: 14px;
+            text-align: center;
+            letter-spacing: 0.08em;
+            outline: none;
+            transition: box-shadow 0.2s ease, border-color 0.2s ease;
+        }
+        input::placeholder {
+            color: rgba(220, 240, 255, 0.5);
+            letter-spacing: normal;
+        }
+        input:focus {
+            border-color: rgb(0, 170, 255);
+            box-shadow: 0 0 10px 2px rgba(0, 170, 255, 0.5);
+        }
+        .btn-row {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+        }
+        .btn-primary {
+            width: 100%;
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: 1px solid rgba(0, 170, 255, 0.5);
+            background-color: rgb(5, 5, 53);
+            color: #e6f6ff;
+            box-shadow: 0 0 8px 2px rgba(0, 170, 255, 0.35);
+            font-size: 14px;
+            font-family: inherit;
+            cursor: pointer;
+            transition: box-shadow 0.2s ease, transform 0.1s ease;
+        }
+        .btn-primary:hover:not(:disabled) {
+            box-shadow: 0 0 14px 4px rgba(0, 170, 255, 0.6);
+        }
+        .btn-primary:active:not(:disabled) {
+            transform: scale(0.98);
+        }
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: default;
+        }
+        .btn-secondary {
+            width: 100%;
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: 1px solid rgba(0, 170, 255, 0.25);
+            background: transparent;
+            color: rgba(200, 225, 255, 0.6);
+            font-size: 13px;
+            font-family: inherit;
+            cursor: pointer;
+            transition: border-color 0.2s ease, color 0.2s ease;
+        }
+        .btn-secondary:hover {
+            border-color: rgba(0, 170, 255, 0.5);
+            color: rgba(220, 240, 255, 0.9);
+        }
+        .message {
+            font-size: 12px;
+            margin: 0;
+        }
+        .message.error { color: #ff4d4d; }
+        .message.success { color: #4CAF50; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <img class="lock-icon" src="lock-icon.png" alt="Locked" />
+        <h1>Uninstall Protection</h1>
+        <p>
+            LockedIn's uninstall protection is active. Enter your uninstall
+            password to disable or remove the extension.
+        </p>
+        <input
+            type="password"
+            id="passwordInput"
+            placeholder="Enter your uninstall password"
+            autocomplete="off"
+        />
+        <p id="message" class="message" style="display: none;"></p>
+        <div class="btn-row">
+            <button class="btn-primary" id="submitBtn">Confirm</button>
+            <button class="btn-secondary" id="cancelBtn">Cancel — Keep LockedIn Active</button>
+        </div>
+    </div>
+    <script src="uninstall-guard.js"></script>
+</body>
+</html>
