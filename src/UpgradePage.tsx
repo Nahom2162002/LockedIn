@@ -9,10 +9,12 @@ function UpgradePage({ onUpgrade, onClose, hasHadTrial = false }: UpgradePagePro
         { emoji: '🔒', title: 'Unlimited Site Blocking', desc: 'Block as many sites as you need, no restrictions' },
         { emoji: '🔁', title: 'Recurring Schedules', desc: 'Set blocks to repeat every weekday, weekend, or any custom schedule' },
         { emoji: '🗂️', title: 'Category Blocking', desc: 'Block entire categories like Social Media, Gaming, or News in one click' },
+        { emoji: '🔑', title: 'Keyword Blocking', desc: 'Block any URL containing a keyword — no need to list every site by name' },
+        { emoji: '🎯', title: 'Focus Sessions', desc: 'Pomodoro-style work/break timers that automatically pause your blocks on break' },
+        { emoji: '📅', title: 'Focus Goals', desc: 'Set daily and weekly focus targets and track your progress toward them' },
         { emoji: '📊', title: 'Stats Dashboard', desc: 'Track your focus time, streaks, and top distractions' },
         { emoji: '🔕', title: 'Strict Mode', desc: 'Make it harder to disable blocks with a confirmation phrase' },
         { emoji: '🔁', title: 'Cross-Device Sync', desc: 'Your blocks stay in sync across all your browsers and devices' },
-        { emoji: '🔒', title: 'Password Protection', desc: 'Prevent yourself from disabling blocks on impulse' },
     ];
 
     return (
