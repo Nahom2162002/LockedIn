@@ -10,7 +10,6 @@ import ConfirmDialog from './ConfirmDialog.tsx';
 import CategoryBlock from './CategoryBlock.tsx';
 import UpgradePage from './UpgradePage.tsx';
 import KeywordList from './KeywordList.tsx';
-import UninstallPassword from './UninstallPassword.tsx';
 import FocusSession from './FocusSession.tsx';
 import GoalSetting from './GoalSetting.tsx';
 
@@ -65,8 +64,6 @@ function Menu() {
     const [showCancelTrialConfirm, setShowCancelTrialConfirm] = useState(false);
     const [showKeywords, setShowKeywords] = useState(false);
     const [keywordCount, setKeywordCount] = useState(0);
-    const [showUninstallPassword, setShowUninstallPassword] = useState(false);
-    const [uninstallPasswordSet, setUninstallPasswordSet] = useState(false);
     const [showFocusSession, setShowFocusSession] = useState(false);
     const [goals, setGoals] = useState<{ dailyMinutes: number; weeklyMinutes: number }>({ dailyMinutes: 0, weeklyMinutes: 0 });
     const [todayFocusMinutes, setTodayFocusMinutes] = useState(0);
@@ -74,7 +71,7 @@ function Menu() {
 
     useEffect(() => {
         const syncAll = async () => {
-            const result = await chrome.storage.local.get(['token', 'plan', 'websites', 'recurringBlocks', 'uninstallPasswordSet']);
+            const result = await chrome.storage.local.get(['token', 'plan', 'websites', 'recurringBlocks']);
             const token = result.token as string | undefined;
             const cachedPlan = result.plan as string | undefined;
             const lastSyncedResult = await chrome.storage.local.get('lastSynced');
@@ -83,9 +80,6 @@ function Menu() {
             setWebsites((result.websites as any[]) || []);
             setRecurringBlocks((result.recurringBlocks as any[]) || []);
             setLastSynced(lastSyncedResult.lastSynced as string || null);
-            // Fast paint from cache — reconciled with the server's actual uninstallPassword
-            // state below once /api/user/me resolves, since this flag must never drift stale.
-            setUninstallPasswordSet((result.uninstallPasswordSet as boolean) ?? false);
 
             if (!token) return;
 
@@ -116,10 +110,6 @@ function Menu() {
             if (userData.username) {
                 setUserName(userData.username);
                 await chrome.storage.local.set({ username: userData.username });
-            }
-            if (userData.uninstallPasswordSet !== undefined) {
-                setUninstallPasswordSet(userData.uninstallPasswordSet);
-                await chrome.storage.local.set({ uninstallPasswordSet: userData.uninstallPasswordSet });
             }
 
             if (statusData.plan === 'pro') {
@@ -514,11 +504,6 @@ function Menu() {
                                             <span className="profile-item-icon">🔑</span> 
                                             <span className="profile-item-label">Keyword Blocking</span>
                                         </button>
-                                        <button className="profile-item" onClick={() => { setShowUninstallPassword(true); setShowProfileMenu(false); }}>
-                                            <span className="profile-item-icon">🔐</span>
-                                            <span className="profile-item-label">{uninstallPasswordSet ? 'Uninstall Protection (ON)' : 'Uninstall Protection'}</span>
-                                        </button>
-
                                         <div className="profile-item-row" onClick={handleToggleStrictMode}>
                                             <div className="profile-item-row-left">
                                                 <span className="profile-item-icon">🔕</span>
@@ -539,17 +524,6 @@ function Menu() {
                                         </button>
                                     </div>
                                 </>
-                            )}
-
-                            {/* Downgraded users who already have a password set must still be able to
-                                reach it to remove it — otherwise they can never turn it off again. */}
-                            {plan === 'free' && uninstallPasswordSet && (
-                                <div className="profile-item-list">
-                                    <button className="profile-item" onClick={() => { setShowUninstallPassword(true); setShowProfileMenu(false); }}>
-                                        <span className="profile-item-icon">🔐</span>
-                                        <span className="profile-item-label">Uninstall Protection (ON)</span>
-                                    </button>
-                                </div>
                             )}
 
                             <div className="profile-divider" />
@@ -783,16 +757,6 @@ function Menu() {
                         handleManageSubscription();
                     }}
                     onCancel={() => setShowCancelTrialConfirm(false)}
-                />
-            )}
-            {showUninstallPassword && (
-                <UninstallPassword
-                    isSet={uninstallPasswordSet}
-                    onClose={() => setShowUninstallPassword(false)}
-                    onUpdate={(isSet) => {
-                        setUninstallPasswordSet(isSet);
-                        chrome.storage.local.set({ uninstallPasswordSet: isSet });
-                    }}
                 />
             )}
         </div>
