@@ -20,13 +20,13 @@
     "192": "lock-192x192.png",
     "512": "lock-512x512.png" 
   },
-  "permissions": ["storage", "webNavigation", "tabs", "alarms", "notifications", "windows", "management"],
+  "permissions": ["storage", "webNavigation", "tabs", "alarms", "notifications", "windows"],
   "background": {
     "service_worker": "background.js"
   },
   "web_accessible_resources": [
     {
-      "resources": ["index.html", "assets/*", "blocked.html", "blocked.js", "uninstall-guard.html", "uninstall-guard.js"],
+      "resources": ["index.html", "assets/*", "blocked.html", "blocked.js"],
       "matches": ["<all_urls>"]
     }
   ]

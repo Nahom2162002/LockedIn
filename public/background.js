@@ -91,8 +91,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message?.type === 'pauseFocusSession') {
         (async () => {
             const session = await getFocusSession();
-            if (session) {
-                await setFocusSession({ ...session, status: 'paused' });
+            if (session && session.status === 'active') {
+                // Freeze the true elapsed-adjusted remaining time, not the stale value from
+                // the last periodic sync (up to 30s old) — otherwise pausing visibly rewinds
+                // the countdown back to that sync point instead of where it actually is.
+                const now = Date.now();
+                const elapsed = (now - session.lastTick) / 1000;
+                const remaining = Math.max(0, session.remaining - elapsed);
+                await setFocusSession({ ...session, status: 'paused', remaining, lastTick: now });
             }
             sendResponse({ ok: true });
         })();
